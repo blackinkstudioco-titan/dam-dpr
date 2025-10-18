@@ -170,14 +170,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
-                            Informasi Perekam & Lokasi
+                            Informasi Fotografer & Lokasi
                         </h3>
                     </div>
                     <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div>
                                 <label for="perekam" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Perekam <span class="text-red-500">*</span>
+                                    Fotografer <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="perekam" name="perekam"
                                        value="{{ old('perekam', Auth::user()->name) }}" maxlength="60"
@@ -195,7 +195,7 @@
 
                             <div>
                                 <label for="tgl_mm" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Tanggal Perekaman <span class="text-red-500">*</span>
+                                    Tanggal Foto <span class="text-red-500">*</span>
                                 </label>
                                 <input type="date" id="tgl_mm" name="tgl_mm"
                                        value="{{ old('tgl_mm', date('Y-m-d')) }}"
@@ -206,7 +206,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label for="mm_lok" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Lokasi Perekaman <span class="text-red-500">*</span>
+                                    Lokasi Foto <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="mm_lok" name="mm_lok"
                                        value="{{ old('mm_lok') }}" maxlength="60"
@@ -238,12 +238,7 @@
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                             </div>
 
-                            <div>
-                                <label for="depositor" class="block text-sm font-medium text-gray-700 mb-2">Depositor</label>
-                                <input type="text" id="depositor" name="depositor"
-                                       value="{{ old('depositor') }}" maxlength="15"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                            </div>
+
                         </div>
 
                         <div class="flex items-center">
