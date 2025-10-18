@@ -5,9 +5,9 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
-                    </a>
+                  <a href="{{ route('home') }}" class="text-2xl font-bold text-red-600">
+                      <img src="{{ asset('images/dpr_ri_logo.png') }}" alt="DRP RI LOGO" class="w-12 h-auto">
+                  </a>
                 </div>
 
                 <!-- Navigation Links -->
