@@ -123,26 +123,38 @@
                         <div>
                             <h1 class="text-2xl font-bold mb-2">{{ $dataFoto->judul }}</h1>
 
-                            @if($dataFoto->judul_en)
-                                <p class="text-lg text-gray-600 mb-4 italic">{{ $dataFoto->judul_en }}</p>
-                            @endif
-
                             <div class="mt-4">
-                                <h4 class="text-sm font-semibold text-gray-700 mb-2">Deskripsi (ID)</h4>
+                                <h4 class="text-sm font-semibold text-gray-700 mb-2">Deskripsi</h4>
                                 <div class="p-4 bg-gray-50 rounded-lg">
                                     <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ $dataFoto->deskrp ?? 'Tidak ada deskripsi.' }}</p>
                                 </div>
                             </div>
-
-                            @if($dataFoto->deskrp_en)
-                                <div class="mt-4">
-                                    <h4 class="text-sm font-semibold text-gray-700 mb-2">Description (EN)</h4>
-                                    <div class="p-4 bg-gray-50 rounded-lg">
-                                        <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ $dataFoto->deskrp_en }}</p>
-                                    </div>
+                            @if($dataFoto->subyek)
+                                <div class="border-b pb-3 pt-3">
+                                    <dt class="text-sm font-medium text-gray-500">Subyek</dt>
+                                    <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->subyek }}</dd>
                                 </div>
                             @endif
-
+                            @if($dataFoto->tgl_mm)
+                                <div class="border-b pb-3 pt-3">
+                                    <dt class="text-sm font-medium text-gray-500">Tanggal Foto</dt>
+                                    <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->tgl_mm->format('d F Y') }}</dd>
+                                </div>
+                            @endif
+                            @if($dataFoto->mm_lok)
+                                <div class="border-b pb-3 pt-3">
+                                    <dt class="text-sm font-medium text-gray-500">Lokasi Foto</dt>
+                                    <dd class="text-sm text-gray-900 mt-1">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                            {{ $dataFoto->mm_lok }}
+                                        </span>
+                                    </dd>
+                                </div>
+                            @endif
                             {{-- Keywords --}}
                             @if($dataFoto->k_word)
                                 <div class="mt-6">
@@ -190,39 +202,16 @@
                                 </div>
                             @endif
 
-                            @if($dataFoto->subyek)
-                                <div class="border-b pb-3">
-                                    <dt class="text-sm font-medium text-gray-500">Subyek</dt>
-                                    <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->subyek }}</dd>
-                                </div>
-                            @endif
+
 
                             <div class="border-b pb-3">
                                 <dt class="text-sm font-medium text-gray-500">Tanggal Masuk</dt>
                                 <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->tgl_masuk->format('d F Y') }}</dd>
                             </div>
 
-                            @if($dataFoto->tgl_mm)
-                                <div class="border-b pb-3">
-                                    <dt class="text-sm font-medium text-gray-500">Tanggal Multimedia</dt>
-                                    <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->tgl_mm->format('d F Y') }}</dd>
-                                </div>
-                            @endif
 
-                            @if($dataFoto->mm_lok)
-                                <div class="border-b pb-3">
-                                    <dt class="text-sm font-medium text-gray-500">Lokasi Multimedia</dt>
-                                    <dd class="text-sm text-gray-900 mt-1">
-                                        <span class="flex items-center">
-                                            <svg class="w-4 h-4 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            </svg>
-                                            {{ $dataFoto->mm_lok }}
-                                        </span>
-                                    </dd>
-                                </div>
-                            @endif
+
+
 
                             @if($dataFoto->perekam)
                                 <div class="border-b pb-3">

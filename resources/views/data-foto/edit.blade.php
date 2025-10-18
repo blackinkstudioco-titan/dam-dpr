@@ -266,29 +266,7 @@
                     </div>
                 </div>
 
-                <!-- English Version -->
-                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-800">
-                            Informasi Bahasa Inggris
-                            <span class="ml-2 text-xs font-normal text-gray-500">(Opsional)</span>
-                        </h3>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div>
-                            <label for="judul_en" class="block text-sm font-medium text-gray-700 mb-2">Title (English)</label>
-                            <input type="text" id="judul_en" name="judul_en"
-                                   value="{{ old('judul_en', $dataFoto->judul_en) }}" maxlength="60"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-
-                        <div>
-                            <label for="deskrp_en" class="block text-sm font-medium text-gray-700 mb-2">Description (English)</label>
-                            <textarea id="deskrp_en" name="deskrp_en" rows="4"
-                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">{{ old('deskrp_en', $dataFoto->deskrp_en) }}</textarea>
-                        </div>
-                    </div>
-                </div>
+          
 
                 <!-- Metadata Info (Read-only) -->
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden">
