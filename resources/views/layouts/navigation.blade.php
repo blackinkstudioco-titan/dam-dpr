@@ -18,6 +18,9 @@
                     <x-nav-link :href="route('data-foto.index')" :active="request()->routeIs('data-foto.*')">
                         {{ __('Data Foto') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('artikel.index')" :active="request()->routeIs('artikel.*')">
+                        {{ __('Data Artikel') }}
+                    </x-nav-link>
                     <!-- Data Foto - Tampil untuk admin dan uploader -->
                     @if(auth()->user()->role === 'admin')
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">

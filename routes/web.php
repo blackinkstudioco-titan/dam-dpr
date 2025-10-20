@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DataFotoController;
 use App\Http\Controllers\FrontEndController;
+use App\Http\Controllers\ArtikelController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,8 @@ use App\Http\Controllers\FrontEndController;
 
 Route::get('/', [FrontEndController::class, 'index'])->name('home');
 Route::get('/search', [FrontEndController::class, 'search'])->name('search');
+Route::get('/list-artikel', [FrontEndController::class, 'artikel'])->name('list-artikel');
+Route::get('/read-artikel/{slug}/{artikel}', [FrontEndController::class, 'read_artikel'])->name('read-artikel');
 Route::get('/foto', [FrontEndController::class, 'foto'])->name('foto');
 Route::get('/foto-detail/{slug}/{dataFoto}', [FrontEndController::class, 'show'])->name('foto-detail');
 
@@ -30,6 +33,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');
+    Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');
+    Route::get('/artikel/create', [ArtikelController::class, 'create'])->name('artikel.create');
+    Route::post('/artikel', [ArtikelController::class, 'store'])->name('artikel.store');
+    Route::get('/artikel/{id}/edit', [ArtikelController::class, 'edit'])->name('artikel.edit');
+    Route::put('/artikel/{id}', [ArtikelController::class, 'update'])->name('artikel.update');
+    Route::delete('/artikel/{id}', [ArtikelController::class, 'destroy'])->name('artikel.destroy');
+    Route::get('/artikel/{id}', [ArtikelController::class, 'show'])->name('artikel.show');
 });
 
 

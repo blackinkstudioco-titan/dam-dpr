@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\DataFoto;
+use App\Models\Artikel;
 use App\Models\KategoriFoto;
 use App\Services\ImageService;
 use Illuminate\Support\Str;
@@ -22,9 +23,28 @@ class FrontEndController extends Controller
 
         $dataFoto = $query->paginate($request->get('per_page', 8))
                          ->withQueryString();
+
+        $query = Artikel::query()->orderByDesc('id');
+        $artikel = $query->paginate(8);
+
+
         return view('front-end.home', [
             'dataFoto' => $dataFoto,
+            'artikels' => $artikel,
         ]);
+    }
+    public function artikel(Request $request){
+      $query = Artikel::query()->orderByDesc('id');
+      $artikel = $query->paginate(12);
+
+
+      return view('front-end.artikel', [
+          'artikels' => $artikel
+      ]);
+    }
+    public function read_artikel($url_title="",Artikel $artikel){
+      $artikel = Artikel::findOrFail($artikel->id);
+      return view('front-end.artikel-show', compact('artikel'));
     }
     public function foto(Request $request){
       //$latestPhotos = Photo::latest()->take(8)->get();
