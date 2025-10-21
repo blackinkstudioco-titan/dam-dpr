@@ -81,14 +81,14 @@ Route::middleware(['auth'])->group(function () {
   // Admin dan Editor bisa edit dan delete
    Route::middleware(['role:admin,editor'])->group(function () {
        Route::resource('data-foto', DataFotoController::class)->only(['edit', 'update', 'destroy']);
-       Route::get('/artikel/{id}/edit', [ArtikelController::class, 'edit'])->name('artikel.edit');
-       Route::put('/artikel/{id}', [ArtikelController::class, 'update'])->name('artikel.update');
-       Route::delete('/artikel/{id}', [ArtikelController::class, 'destroy'])->name('artikel.destroy');
+       //Route::get('/artikel/{id}/edit', [ArtikelController::class, 'edit'])->name('artikel.edit');
+       //Route::put('/artikel/{id}', [ArtikelController::class, 'update'])->name('artikel.update');
+       //Route::delete('/artikel/{id}', [ArtikelController::class, 'destroy'])->name('artikel.destroy');
    });
   // Semua user bisa lihat (index dan show)
   Route::resource('data-foto', DataFotoController::class)->only(['index', 'show']);
-  Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');
-  Route::get('/artikel/{id}', [ArtikelController::class, 'show'])->name('artikel.show');
+  //Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');
+  //Route::get('/artikel/{id}', [ArtikelController::class, 'show'])->name('artikel.show');
 });
 
 
