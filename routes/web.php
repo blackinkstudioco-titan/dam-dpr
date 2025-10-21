@@ -35,14 +35,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-/*
-Route::middleware(['auth'])->group(function () {
-    //Route::get('/artikel/create', [ArtikelController::class, 'create'])->name('artikel.create');
-    //Route::post('/artikel', [ArtikelController::class, 'store'])->name('artikel.store');
-    Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');
-    Route::get('/artikel/{id}', [ArtikelController::class, 'show'])->name('artikel.show');
-});
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/artikel/create', [ArtikelController::class, 'create'])->name('artikel.create');
+    Route::post('/artikel', [ArtikelController::class, 'store'])->name('artikel.store');
+    //Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');
+    //Route::get('/artikel/{id}', [ArtikelController::class, 'show'])->name('artikel.show');
+});
+/*
 // Admin, Editor, Uploader bisa create
 Route::middleware(['role:admin,editor,uploader'])->group(function () {
   Route::get('/artikel/create', [ArtikelController::class, 'create'])->name('artikel.create');
@@ -65,8 +65,7 @@ Route::middleware(['auth'])->group(function () {
   // Admin, Editor, Uploader bisa create
   Route::middleware(['role:admin,editor,uploader'])->group(function () {
         Route::resource('data-foto', DataFotoController::class)->only(['create', 'store']);
-        Route::get('/artikel/create', [ArtikelController::class, 'create'])->name('artikel.create');
-        Route::post('/artikel', [ArtikelController::class, 'store'])->name('artikel.store');
+
   });
   // Admin dan Editor bisa edit dan delete
    Route::middleware(['role:admin,editor'])->group(function () {
