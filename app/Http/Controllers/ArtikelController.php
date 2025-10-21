@@ -10,10 +10,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ArtikelController extends Controller
 {
-    public function __construct(
-        protected ImageService $imageService
-    ) {
-        $this->middleware('auth');
+    public function __construct(protected ImageService $imageService) {
+        //$this->middleware('auth');
     }
     public function index(Request $request)
     {
@@ -32,6 +30,7 @@ class ArtikelController extends Controller
 
     public function create()
     {
+
         return view('data-artikel.create');
     }
 

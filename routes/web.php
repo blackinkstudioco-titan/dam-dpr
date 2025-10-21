@@ -18,6 +18,10 @@ use App\Http\Controllers\ArtikelController;
 |
 */
 
+Route::get('/test-artikel-create', function() {
+    return 'Route artikel create works!';
+});
+
 Route::get('/', [FrontEndController::class, 'index'])->name('home');
 Route::get('/search', [FrontEndController::class, 'search'])->name('search');
 Route::get('/list-artikel', [FrontEndController::class, 'artikel'])->name('list-artikel');
@@ -43,15 +47,7 @@ Route::middleware('auth')->group(function () {
 
 
 Route::middleware(['auth'])->group(function () {
-
-  Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');
-  Route::get('/artikel/{id}', [ArtikelController::class, 'show'])->name('artikel.show');
-
-  Route::get('/artikel/create', [ArtikelController::class, 'create'])->name('artikel.create');
-  Route::post('/artikel', [ArtikelController::class, 'store'])->name('artikel.store');
-
-  Route::put('/artikel/{id}', [ArtikelController::class, 'update'])->name('artikel.update');
-  Route::delete('/artikel/{id}', [ArtikelController::class, 'destroy'])->name('artikel.destroy');
+  Route::resource('artikel', ArtikelController::class);
 });
 /*
 // Admin, Editor, Uploader bisa create

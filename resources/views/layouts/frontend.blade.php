@@ -17,7 +17,7 @@
     <body class="bg-gray-50">
       <div class="flex justify-between items-center bg-red-600">
         <div class="space-x-8 sm:-my-px sm:ms-10 sm:flex text-gray px-6 py-4 rounded-lg">
-            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white">
+            <x-nav-link :href="route('list-artikel')" :active="request()->routeIs('list-artikel')" class="text-white">
                 {{ __('Data Artikel') }}
             </x-nav-link>
             <x-nav-link :href="route('foto')" :active="request()->routeIs('foto')" class="text-white">
