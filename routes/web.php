@@ -33,12 +33,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/artikel/create', [ArtikelController::class, 'create'])->name('artikel.create');
+    Route::post('/artikel', [ArtikelController::class, 'store'])->name('artikel.store');
 });
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/artikel/create', [ArtikelController::class, 'create'])->name('artikel.create');
-    Route::post('/artikel', [ArtikelController::class, 'store'])->name('artikel.store');
+
     //Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');
     //Route::get('/artikel/{id}', [ArtikelController::class, 'show'])->name('artikel.show');
 });
