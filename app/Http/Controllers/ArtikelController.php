@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Artikel;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ArtikelController extends Controller
 {
+    public function __construct(
+        protected ImageService $imageService
+    ) {
+        $this->middleware('auth');
+    }
     public function index(Request $request)
     {
         $search = $request->get('q');
@@ -43,7 +49,9 @@ class ArtikelController extends Controller
         ]);
 
         if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('artikel', 'public');
+            //$validated['foto'] = $request->file('foto')->store('artikel', 'public');
+            $uploadResult = $this->imageService->uploadImage($request->file('foto'));
+            $validated['foto'] = $uploadResult['original_path'];
         }
 
         $validated['add_by'] = Auth::id();
