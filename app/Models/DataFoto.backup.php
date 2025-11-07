@@ -49,8 +49,6 @@ class DataFoto extends Model
         'kategorisasi_datatempo',
         'edit_by',
         'edit_date',
-        'anggota_dpr_id', // ✅ field baru untuk relasi ke anggota DPR
-        'komisi_dpr_id',
     ];
 
     /**
@@ -67,28 +65,21 @@ class DataFoto extends Model
         'view' => 'integer',
         'selection_id' => 'integer',
         'l_access' => 'integer',
-        'anggota_dpr_id' => 'integer', // ✅ tambahkan cast integer
-        'komisi_dpr_id' => 'integer',
     ];
-
-    public function komisiDpr()
-    {
-          return $this->belongsTo(KomisiDpr::class, 'komisi_dpr_id')->withDefault([
-              'nama_komisi' => 'Tidak ada komisi terkait',
-          ]);
-    }
-
 
     /**
      * Get the full URL of the original photo.
+     * Using Laravel 10's Attribute class for modern accessor.
      */
     protected function fotoUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () =>
-                ($this->original_foto_url && Storage::disk('public')->exists($this->original_foto_url))
-                    ? Storage::url($this->original_foto_url)
-                    : asset('images/no-image.png')
+            get: function () {
+                if ($this->original_foto_url && Storage::disk('public')->exists($this->original_foto_url)) {
+                    return Storage::url($this->original_foto_url);
+                }
+                return asset('images/no-image.png');
+            }
         );
     }
 
@@ -98,10 +89,12 @@ class DataFoto extends Model
     protected function thumbnailUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () =>
-                ($this->thumbnail_foto_url && Storage::disk('public')->exists($this->thumbnail_foto_url))
-                    ? Storage::url($this->thumbnail_foto_url)
-                    : asset('images/no-image-thumb.png')
+            get: function () {
+                if ($this->thumbnail_foto_url && Storage::disk('public')->exists($this->thumbnail_foto_url)) {
+                    return Storage::url($this->thumbnail_foto_url);
+                }
+                return asset('images/no-image-thumb.png');
+            }
         );
     }
 
@@ -142,6 +135,7 @@ class DataFoto extends Model
                 $meta = is_array($this->meta_data) ? $this->meta_data : json_decode($this->meta_data, true);
                 $formatted = [];
 
+                // Map EXIF fields to readable labels
                 $exifMap = [
                     'Make' => 'Kamera',
                     'Model' => 'Model',
@@ -173,43 +167,58 @@ class DataFoto extends Model
      */
     private function formatExifValue(string $key, mixed $value): string
     {
-        return match ($key) {
+        return match($key) {
             'FNumber' => 'f/' . $value,
             'FocalLength' => $value . 'mm',
             'Flash' => $value == 16 ? 'Tidak Menyala' : 'Menyala',
             'WhiteBalance' => $value == 0 ? 'Auto' : 'Manual',
-            'GPS' => is_array($value)
-                ? sprintf('Lat: %.6f, Lon: %.6f', $value['lat'] ?? 0, $value['lon'] ?? 0)
-                : $value,
+            'GPS' => is_array($value) ?
+                sprintf('Lat: %.6f, Lon: %.6f', $value['lat'] ?? 0, $value['lon'] ?? 0) :
+                $value,
             default => is_array($value) ? json_encode($value) : (string) $value,
         };
     }
 
-    /** 🔢 Increment counters */
+    /**
+     * Increment view counter.
+     */
     public function incrementView(): bool
     {
         return $this->increment('view');
     }
 
+    /**
+     * Increment download counter.
+     */
     public function incrementDownload(): bool
     {
         return $this->increment('download');
     }
 
-    /** 🔍 Scopes */
+    /**
+     * Scope query to only include published photos.
+     */
     public function scopePublished($query)
     {
         return $query->where('publish', true);
     }
 
+    /**
+     * Scope query to filter by subject.
+     */
     public function scopeBySubject($query, string $subject)
     {
         return $query->where('subyek', $subject);
     }
 
+    /**
+     * Scope query to search by keyword.
+     */
     public function scopeSearch($query, ?string $search)
     {
-        if (!$search) return $query;
+        if (!$search) {
+            return $query;
+        }
 
         return $query->where(function ($q) use ($search) {
             $q->where('judul', 'like', "%{$search}%")
@@ -219,25 +228,33 @@ class DataFoto extends Model
         });
     }
 
+    /**
+     * Scope query to filter by date range.
+     */
     public function scopeDateRange($query, ?string $startDate, ?string $endDate)
     {
-        if ($startDate) $query->where('tgl_masuk', '>=', $startDate);
-        if ($endDate) $query->where('tgl_masuk', '<=', $endDate);
+        if ($startDate) {
+            $query->where('tgl_masuk', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->where('tgl_masuk', '<=', $endDate);
+        }
+
         return $query;
     }
 
-    /** 🧭 Relationships */
+    /**
+     * Relationship: belongs to kategori.
+     */
     public function kategori()
     {
         return $this->belongsTo(KategoriFoto::class, 'kategorisasi_datatempo', 'id');
     }
 
-    public function anggotaDpr()
-    {
-        return $this->belongsTo(AnggotaDpr::class, 'anggota_dpr_id');
-    }
-
-    /** 🧠 Boot method to auto-generate mm_id. */
+    /**
+     * Boot method to auto-generate mm_id.
+     */
     protected static function boot()
     {
         parent::boot();
@@ -249,7 +266,9 @@ class DataFoto extends Model
         });
     }
 
-    /** Generate unique MM ID. */
+    /**
+     * Generate unique MM ID.
+     */
     public static function generateMmId(): string
     {
         $year = date('Y');

@@ -6,6 +6,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DataFotoController;
 use App\Http\Controllers\FrontEndController;
 use App\Http\Controllers\ArtikelController;
+use App\Http\Controllers\AnggotaDprController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -18,9 +20,15 @@ use App\Http\Controllers\ArtikelController;
 |
 */
 
+
+
 Route::get('/test-artikel-create', function() {
     return 'Route artikel create works!';
 });
+
+
+
+Route::get('/api/anggota-dpr/search', [AnggotaDprController::class, 'search'])->name('anggota-dpr.search');
 
 Route::get('/', [FrontEndController::class, 'index'])->name('home');
 Route::get('/search', [FrontEndController::class, 'search'])->name('search');
@@ -67,6 +75,7 @@ Route::middleware(['role:admin,editor,uploader'])->group(function () {
 Route::middleware(['auth'])->group(function () {
   Route::middleware(['role:admin'])->group(function () {
       Route::resource('users', UserController::class);
+      Route::resource('anggota-dpr', AnggotaDprController::class);
   });
 
   // Admin, Editor, Uploader bisa create

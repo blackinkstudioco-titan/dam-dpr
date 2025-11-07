@@ -66,7 +66,7 @@
                                         </label>
                                         <p class="pl-1">atau drag and drop</p>
                                     </div>
-                                    <p class="text-xs text-gray-500">PNG, JPG, GIF up to 50MB</p>
+                                    <p class="text-xs text-gray-500">PNG, JPG, GIF up to 15MB</p>
                                 </div>
                             </div>
                             <p id="fileStatus" class="mt-2 text-xs text-gray-500"></p>
@@ -126,6 +126,27 @@
                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                       placeholder="Masukkan deskripsi foto"
                                       required>{{ old('deskrp') }}</textarea>
+                        </div>
+                        <div>
+                          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div>
+                                <div>
+                                  <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2">Anggota DPR <span class="text-xs text-gray-500 font-normal">(Optional)</span></label>
+                                  <select id="anggota_dpr_id" name="anggota_dpr_id" class="w-full border-gray-300 rounded"></select>
+                                </div>
+                              <div>
+                                  <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2">
+                                      Komisi <span class="text-xs text-gray-500 font-normal">(Optional)</span>
+                                  </label>
+                                  <select name="komisi_dpr_id" class="...">
+                                    <option value="{{ 0 }}"> - Pilih Komisi DPR - </option>
+                                        @foreach($komisi as $k)
+                                            <option value="{{ $k->id }}">{{ $k->nama_komisi }} - {{ $k->bidang }}</option>
+                                        @endforeach
+                                  </select>
+                              </div>
+
+                          </div>
                         </div>
 
                         <!-- Keywords -->
@@ -216,11 +237,11 @@
 
                             <div>
                                 <label for="kategorisasi_datatempo" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Kategori
+                                    Alat Kelengkapan DPR (AKD)
                                 </label>
                                 <select name="kategorisasi_datatempo" id="kategorisasi_datatempo"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                                    <option value="">-- Pilih Kategori --</option>
+                                    <option value="">-- Alat Kelengkapan DPR (AKD) --</option>
                                     @foreach($kategoriFoto as $id => $name)
                                         <option value="{{ $id }}" {{ old('kategorisasi_datatempo') == $id ? 'selected' : '' }}>
                                             {{ $name }}
@@ -232,9 +253,9 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
-                                <label for="konseptor" class="block text-sm font-medium text-gray-700 mb-2">Konseptor</label>
+                                <label for="konseptor" class="block text-sm font-medium text-gray-700 mb-2">Uploader</label>
                                 <input type="text" id="konseptor" name="konseptor"
-                                       value="{{ old('konseptor') }}" maxlength="32"
+                                       value="{{ old('konseptor', Auth::user()->name) }}" maxlength="32"
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                             </div>
 
@@ -274,6 +295,32 @@
     </div>
 
     @push('scripts')
+    {{-- Select2 --}}
+    <!-- Load jQuery dulu -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        .select2-container--default .select2-selection--single {
+            background-color: #fff;
+            border: 1px solid #d1d5db; /* Tailwind gray-300 */
+            border-radius: 0.375rem;   /* rounded-md */
+            padding: 0.5rem 0.75rem;   /* py-2 px-3 */
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #374151; /* gray-700 */
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100%;
+            right: 0.75rem;
+        }
+    </style>
     <script>
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('foto');
@@ -283,6 +330,32 @@
         const btnText = document.getElementById('btnText');
 
         let selectedFile = null;
+
+
+        //select anggota DPR
+        $(document).ready(function() {
+            $('#anggota_dpr_id').select2({
+                placeholder: 'Cari nama anggota DPR...',
+                ajax: {
+                    url: '{{ route("anggota-dpr.search") }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 2,
+                width: '100%'
+            });
+        });
 
         // Prevent defaults
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {

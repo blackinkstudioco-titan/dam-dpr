@@ -137,8 +137,14 @@
                             @endif
                             @if($dataFoto->tgl_mm)
                                 <div class="border-b pb-3 pt-3">
-                                    <dt class="text-sm font-medium text-gray-500">Tanggal Foto</dt>
-                                    <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->tgl_mm->format('d F Y') }}</dd>
+                                    <dt class="text-sm font-medium text-gray-500">Anggota DPR</dt>
+                                    <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->anggotaDpr->nama ?? '-' }}</dd>
+                                </div>
+                            @endif
+                            @if($dataFoto->tgl_mm)
+                                <div class="border-b pb-3 pt-3">
+                                    <dt class="text-sm font-medium text-gray-500">Nama Komisi</dt>
+                                    <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->komisiDpr->nama_komisi ?? '-'}}</dd>
                                 </div>
                             @endif
                             @if($dataFoto->mm_lok)

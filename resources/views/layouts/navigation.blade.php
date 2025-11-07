@@ -54,6 +54,10 @@
                                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('data-foto.*') ? 'bg-gray-100 font-semibold' : '' }}">
                                      {{ __('Kategori Foto') }}
                                  </a>
+                                 <a href="{{ route('anggota-dpr.index') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('anggota-dpr.*') ? 'bg-gray-100 font-semibold' : '' }}">
+                                     {{ __('Anggota DPR') }}
+                                 </a>
                                  <!-- Tambahkan submenu lain di sini jika diperlukan -->
                              </div>
                          </div>

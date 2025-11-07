@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataFoto;
+use App\Models\KomisiDpr;
+use App\Models\AnggotaDpr;
 use App\Models\KategoriFoto;
 use App\Services\ImageService;
 use App\Http\Requests\StoreDataFotoRequest;
@@ -12,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class DataFotoController extends Controller
 {
@@ -87,9 +91,9 @@ class DataFotoController extends Controller
      */
     public function create()
     {
-        return view('data-foto.create', [
-            'kategoriFoto' => KategoriFoto::getDropdownOptions(),
-        ]);
+        $komisi = KomisiDpr::all();
+        $kategoriFoto = KategoriFoto::pluck('k_name', 'id');
+        return view('data-foto.create', compact('komisi', 'kategoriFoto'));
     }
 
     /**
@@ -100,6 +104,10 @@ class DataFotoController extends Controller
         DB::beginTransaction();
 
         try {
+          // Validasi ukuran file
+           $request->validate([
+               'foto' => 'required|image|mimes:jpeg,jpg,png,gif|max:15360', // 15 MB
+           ]);
             // Upload image and extract EXIF
             $uploadResult = $this->imageService->uploadImage($request->file('foto'));
 
@@ -125,6 +133,8 @@ class DataFotoController extends Controller
                 'meta_data' => $uploadResult['exif_data'],
                 'thumbnail_foto_url' => $uploadResult['thumbnail_path'],
                 'original_foto_url' => $uploadResult['original_path'],
+                'anggota_dpr_id' => $request->anggota_dpr_id,
+                'komisi_dpr_id' => $request->komisi_dpr_id,
                 'edit_by' => Auth::user()->name,
                 'edit_date' => now(),
             ]);
@@ -160,7 +170,12 @@ class DataFotoController extends Controller
     public function show(DataFoto $dataFoto)
     {
         // Load relationship
-        $dataFoto->load('kategori:id,k_name');
+        $dataFoto->load(
+            'kategori:id,k_name',
+            'anggotaDpr:id,nama,fraksi_id,komisi_dpr_id',
+            'anggotaDpr.fraksi:id,nama_fraksi',
+            'KomisiDpr:id,nama_komisi',
+        );
 
         // Increment view counter
         $dataFoto->incrementView();
@@ -177,9 +192,10 @@ class DataFotoController extends Controller
     {
         // Load relationship
         $dataFoto->load('kategori:id,k_name');
-
+        $komisi = KomisiDpr::all();
         return view('data-foto.edit', [
             'dataFoto' => $dataFoto,
+            'komisi'=>$komisi,
             'kategoriFoto' => KategoriFoto::getDropdownOptions(),
         ]);
     }
@@ -192,6 +208,8 @@ class DataFotoController extends Controller
         DB::beginTransaction();
 
         try {
+
+
             $updateData = [
                 'judul' => $request->judul,
                 'deskrp' => $request->deskrp,
@@ -206,12 +224,17 @@ class DataFotoController extends Controller
                 'deskrp_en' => $request->deskrp_en,
                 'kategorisasi_datatempo' => $request->kategorisasi_datatempo,
                 'publish' => $request->boolean('publish'),
+                'anggota_dpr_id' => $request->anggota_dpr_id,
+                'komisi_dpr_id' => $request->komisi_dpr_id,
                 'edit_by' => Auth::user()->name,
                 'edit_date' => now(),
             ];
 
             // Check if new photo is uploaded
             if ($request->hasFile('foto')) {
+                $request->validate([
+                    'foto' => 'required|image|mimes:jpeg,jpg,png,gif|max:15360', // 15 MB
+                ]);
                 // Delete old photo files
                 if ($dataFoto->thumbnail_foto_url) {
                     $this->imageService->deleteImage($dataFoto->thumbnail_foto_url, 'thumbnail');
@@ -297,6 +320,7 @@ class DataFotoController extends Controller
     /**
      * Download photo file.
      */
+    /*
     public function download(DataFoto $dataFoto)
     {
         if (!$dataFoto->original_foto_url || !Storage::disk('public')->exists($dataFoto->original_foto_url)) {
@@ -311,6 +335,62 @@ class DataFotoController extends Controller
 
         return response()->download($filePath, $fileName);
     }
+    */
+    public function download(DataFoto $dataFoto)
+    {
+      // ✅ Tingkatkan memory limit untuk proses watermark
+      ini_set('memory_limit', '512M'); // atau '1024M' untuk file sangat besar
+      set_time_limit(300); // 5 menit timeout
+      
+      if (!$dataFoto->original_foto_url) {
+          abort(404, 'Data foto tidak memiliki file.');
+      }
+
+      $filePath = public_path('storage/' . $dataFoto->original_foto_url);
+      if (!file_exists($filePath)) {
+          abort(404, 'File tidak ditemukan di server.');
+      }
+
+      $dataFoto->incrementDownload();
+
+      $fileName = $dataFoto->judul . '_' . $dataFoto->f_lok;
+      $user = Auth::user();
+      $allowedRoles = ['admin', 'editor', 'uploader'];
+
+      // Jika user memiliki role tertentu, download tanpa watermark
+      if ($user && in_array($user->role, $allowedRoles)) {
+          return response()->download($filePath, $fileName);
+      }
+
+      // Jika guest atau user biasa → tambahkan watermark
+      $manager = new ImageManager(new Driver());
+      $image = $manager->read($filePath);
+
+      $watermarkPath = public_path('images/wm_dpr_ri_logo.png');
+      if (!file_exists($watermarkPath)) {
+          abort(500, 'Watermark tidak ditemukan.');
+      }
+
+      $watermark = $manager->read($watermarkPath);
+
+      // ✅ CARA BARU: Gunakan parameter opacity di place()
+      $image->place(
+          element: $watermark,
+          position: 'center',
+          opacity: 100  // 0-100, dimana 0 = transparan penuh, 100 = opaque penuh
+      );
+
+      $tempPath = storage_path('app/public/temp_' . uniqid() . '.jpg');
+      $tempDir = dirname($tempPath);
+
+      if (!file_exists($tempDir)) {
+          mkdir($tempDir, 0777, true);
+      }
+
+      $image->save($tempPath);
+
+      return response()->download($tempPath, $fileName)->deleteFileAfterSend(true);
+  }
 
     /**
      * Increment view counter via AJAX.
