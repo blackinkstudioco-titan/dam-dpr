@@ -5,16 +5,18 @@
               <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
-              {{ __('Data Artikel') }}
+              {{ __('Data Artikel Editor') }}
           </h2>
+          <?php
+          /*
           <a href="{{ route('artikel.create') }}" class="bg-red-600 text-white px-4 py-2 rounded">+ Tambah Artikel</a>
+          */
+          ?>
       </div>
   </x-slot>
 
   <div class="py-12">
-
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
         <div class="bg-white rounded-lg shadow-sm mb-6">
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -31,20 +33,20 @@
         </div>
       </div>
 
-
         <div class="bg-white rounded-lg shadow-sm mb-6">
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-              <div class="md:col-span-8">
-                <a href="{{ route('artikel.index') }}"
-                   class="{{ request()->routeIs('artikel.index') ? 'bg-blue-800' : 'bg-blue-600' }} mr-3 text-white px-4 py-2 rounded">
-                    Drafter Artikel
-                </a>
-                <a href="{{ route('artikel_publish.index') }}"
-                   class="{{ request()->routeIs('artikel_publish.index') ? 'bg-green-800' : 'bg-green-600' }} text-white px-4 py-2 rounded">
-                    Editor Artikel
-                </a>
-              </div>
+
+                <div class="md:col-span-8">
+                  <a href="{{ route('artikel.index') }}"
+                     class="{{ request()->routeIs('artikel.index') ? 'bg-blue-800' : 'bg-blue-600' }} mr-3 text-white px-4 py-2 rounded">
+                      Drafter Artikel
+                  </a>
+                  <a href="{{ route('artikel_publish.index') }}"
+                     class="{{ request()->routeIs('artikel_publish.index') ? 'bg-green-800' : 'bg-green-600' }} text-white px-4 py-2 rounded">
+                      Editor Artikel
+                  </a>
+                </div>
             </div>
         </div>
        </div>
@@ -75,18 +77,17 @@
                     <td class="border p-2">{{ $a->tanggal->format('d-m-Y') }}</td>
                     <td class="border p-2">{{ $a->penulis }}</td>
                     <td class="border p-2">
-
-                        @if ($a->is_published)
-                                      <span class="text-green-600">Editor</span>
-                        @else
-                                      <span class="text-red-600">Draft</span>
-                        @endif
-
+                      @if($a->active==1)
+                        <span class="text-green-600">{{ 'Publish @'.$a->updated_at}}</span>
+                      @else
+                        <span class="text-red-600">{{ 'Not Publish'}}</span>
+                      @endif
                     </td>
                     <td class="border p-2 text-center">
-                        <a href="{{ route('artikel.show', $a->id) }}" class="text-yellow-600 hover:text-yellow-900">View</a> |
-                        <a href="{{ route('artikel.edit', $a->id) }}" class="text-yellow-600 hover:text-yellow-900">Edit / Send to Editor</a> |
-                        <form action="{{ route('artikel.destroy', $a->id) }}" method="POST" class="inline">
+                        <a href="{{ route('artikel_publish.show', $a->id) }}" class="text-yellow-600 hover:text-yellow-900">View</a> |
+                        <a href="{{ route('artikel_publish.edit', $a->id) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a> |
+                        <a href="{{ route('artikel.show', $a->artikel_draft_id) }}" class="text-yellow-600 hover:text-yellow-900">View Draft</a> |
+                        <form action="{{ route('artikel_publish.destroy', $a->id) }}" method="POST" class="inline">
                             @csrf @method('DELETE')
                             <button onclick="return confirm('Hapus artikel ini?')" class="text-red-500">Delete</button>
                         </form>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Artikel;
+use App\Models\ArtikelPublish;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,16 @@ class ArtikelController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('q');
-        $query = Artikel::query()->orderByDesc('id');
+        //$query = Artikel::query()->orderByDesc('id');
+
+
+        $query = Artikel::query()
+            ->leftJoin('artikel_publish', 'artikel.id', '=', 'artikel_publish.artikel_draft_id')
+            ->select('artikel.*')
+            ->selectRaw('IF(artikel_publish.id IS NULL, 0, 1) as is_published')
+            ->orderByDesc('artikel.id');
+
+
 
         if ($search) {
             $query->where('judul', 'like', "%$search%")
@@ -60,6 +70,7 @@ class ArtikelController extends Controller
 
         Artikel::create($validated);
 
+
         return redirect()->route('artikel.index')->with('success', 'Artikel berhasil ditambahkan.');
     }
 
@@ -90,11 +101,27 @@ class ArtikelController extends Controller
             }
             $validated['foto'] = $request->file('foto')->store('artikel', 'public');
         }
+        else{
+            $validated['foto']=$request->input('old_foto');
+
+        }
 
         $validated['edit_by'] = Auth::id();
         $validated['edit_date'] = now();
 
         $artikel->update($validated);
+        // Cek tombol yang ditekan
+        if ($request->input('action') === 'kirim_editor') {
+          //print_r($validate);exit;
+
+          $validated['artikel_draft_id']=$id;
+          $validated['active']=0;
+          ArtikelPublish::firstOrCreate(
+              ['artikel_draft_id' => $id],
+              $validated
+          );
+
+        }
 
         return redirect()->route('artikel.index')->with('success', 'Artikel berhasil diperbarui.');
     }
@@ -112,4 +139,20 @@ class ArtikelController extends Controller
         $artikel->delete();
         return back()->with('success', 'Artikel dihapus.');
     }
+
+    //editor artikel
+    public function editor(Request $request){
+      $search = $request->get('q');
+      $query = ArtikelPublish::query()->orderByDesc('id');
+
+      if ($search) {
+          $query->where('judul', 'like', "%$search%")
+                ->orWhere('penulis', 'like', "%$search%")
+                ->orWhere('keyword', 'like', "%$search%");
+      }
+
+      $artikels = $query->paginate(10);
+      return view('data-artikel.index-artikel-editor', compact('artikels', 'search'));
+    }
+
 }

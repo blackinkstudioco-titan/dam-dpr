@@ -7,6 +7,10 @@ use App\Http\Controllers\DataFotoController;
 use App\Http\Controllers\FrontEndController;
 use App\Http\Controllers\ArtikelController;
 use App\Http\Controllers\AnggotaDprController;
+use App\Http\Controllers\ArtikelPublishController;
+use App\Http\Controllers\BulkUploadController;
+use App\Http\Controllers\AlbumController;
+use App\Http\Controllers\AddPhotosController;
 
 
 /*
@@ -51,26 +55,26 @@ Route::middleware('auth')->group(function () {
 
 
 
+
 });
 
 
 Route::middleware(['auth'])->group(function () {
   Route::resource('artikel', ArtikelController::class);
+  Route::resource('artikel_publish', ArtikelPublishController::class);
+  Route::get('editor', [ArtikelController::class, 'editor'])->name('artikel.editor');
+
+  Route::prefix('foto/bulk-upload')->name('foto.bulk-upload')->group(function () {
+        Route::get('/', [BulkUploadController::class, 'index'])->name('index');
+        Route::post('/album', [BulkUploadController::class, 'storeAlbum'])->name('store-album');
+        Route::post('/upload', [BulkUploadController::class, 'uploadFiles'])->name('upload-files');
+        Route::post('/save-metadata', [BulkUploadController::class, 'saveMetadata'])->name('save-metadata');
+        Route::get('/form-data', [BulkUploadController::class, 'getFormData'])->name('form-data');
+        Route::post('/delete-file', [BulkUploadController::class, 'deleteFile'])->name('delete-file');
+    });
+
 });
-/*
-// Admin, Editor, Uploader bisa create
-Route::middleware(['role:admin,editor,uploader'])->group(function () {
-  Route::get('/artikel/create', [ArtikelController::class, 'create'])->name('artikel.create');
-  Route::post('/artikel', [ArtikelController::class, 'store'])->name('artikel.store');
-  //Route::resource('artikel', ArtikelController::class)->only(['create', 'store']);
-});
-//editor
-Route::middleware(['role:admin,editor,uploader'])->group(function () {
-  Route::get('/artikel/{id}/edit', [ArtikelController::class, 'edit'])->name('artikel.edit');
-  Route::put('/artikel/{id}', [ArtikelController::class, 'update'])->name('artikel.update');
-  Route::delete('/artikel/{id}', [ArtikelController::class, 'destroy'])->name('artikel.destroy');
-});
-*/
+
 
 Route::middleware(['auth'])->group(function () {
   Route::middleware(['role:admin'])->group(function () {
@@ -80,20 +84,17 @@ Route::middleware(['auth'])->group(function () {
 
   // Admin, Editor, Uploader bisa create
   Route::middleware(['role:admin,editor,uploader'])->group(function () {
-        Route::resource('data-foto', DataFotoController::class)->only(['create', 'store']);
+      Route::resource('data-foto', DataFotoController::class)->only(['create', 'store']);
 
   });
   // Admin dan Editor bisa edit dan delete
    Route::middleware(['role:admin,editor'])->group(function () {
        Route::resource('data-foto', DataFotoController::class)->only(['edit', 'update', 'destroy']);
-       //Route::get('/artikel/{id}/edit', [ArtikelController::class, 'edit'])->name('artikel.edit');
-       //Route::put('/artikel/{id}', [ArtikelController::class, 'update'])->name('artikel.update');
-       //Route::delete('/artikel/{id}', [ArtikelController::class, 'destroy'])->name('artikel.destroy');
+
    });
   // Semua user bisa lihat (index dan show)
   Route::resource('data-foto', DataFotoController::class)->only(['index', 'show']);
-  //Route::get('/artikel', [ArtikelController::class, 'index'])->name('artikel.index');
-  //Route::get('/artikel/{id}', [ArtikelController::class, 'show'])->name('artikel.show');
+
 });
 
 
@@ -115,6 +116,25 @@ Route::middleware(['auth'])->group(function () {
     //});
 });
 
+Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
+Route::get('/albums/{album}', [AlbumController::class, 'show'])->name('albums.show');
+
+
+Route::prefix('albums/{album}/add-photos')->name('add-photos.')->group(function () {
+    Route::get('/', [AddPhotosController::class, 'index'])->name('index');
+    Route::post('/upload', [AddPhotosController::class, 'uploadFiles'])->name('upload');
+    Route::post('/save-metadata', [AddPhotosController::class, 'saveMetadata'])->name('save-metadata');
+    Route::get('/form-data', [AddPhotosController::class, 'getFormData'])->name('form-data');
+});
+
+
+Route::prefix('foto')->group(function () {
+    Route::prefix('add-photos')->name('add-photos.')->group(function () {
+        Route::get('{album}', [AddPhotosController::class, 'index'])->name('index');
+        Route::post('upload/{album}', [AddPhotosController::class, 'upload'])->name('upload');
+        Route::post('store/{album}', [AddPhotosController::class, 'store'])->name('store');
+    });
+});
 
 
 require __DIR__.'/auth.php';

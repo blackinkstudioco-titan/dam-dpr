@@ -1,0 +1,105 @@
+/* public/css/bulk-upload.css */
+
+/* Dropzone hover effect */
+#dropzone.dragging {
+    border-color: #3B82F6;
+    background-color: #EFF6FF;
+}
+
+/* File preview hover */
+.file-preview-item {
+    transition: transform 0.2s ease-in-out;
+}
+
+.file-preview-item:hover {
+    transform: scale(1.05);
+}
+
+/* Progress bar animation */
+#uploadBar {
+    transition: width 0.3s ease-in-out;
+}
+
+/* Loading spinner */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Notification slide in */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification-enter {
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* Smooth transitions */
+.transition-all {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Step indicator active state */
+.step-active {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
+
+/* Form focus states */
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Button hover effects */
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Disabled state */
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Image thumbnail border on hover */
+.group:hover img {
+    border-color: #3B82F6;
+}
+
+/* Metadata form card hover */
+.metadata-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #dropzone {
+        padding: 2rem;
+    }
+
+    .step-indicator {
+        font-size: 0.75rem;
+    }
+}

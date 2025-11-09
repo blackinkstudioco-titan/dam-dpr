@@ -51,6 +51,7 @@ class DataFoto extends Model
         'edit_date',
         'anggota_dpr_id', // ✅ field baru untuk relasi ke anggota DPR
         'komisi_dpr_id',
+        'album_id'
     ];
 
     /**
@@ -60,7 +61,7 @@ class DataFoto extends Model
         'tgl_masuk' => 'date',
         'tgl_mm' => 'date',
         'edit_date' => 'datetime',
-        'publish' => 'boolean',
+        'publish' => 'integer', // Ubah dari boolean ke integer
         'meta_data' => 'array',
         'f_size' => 'integer',
         'download' => 'integer',
@@ -77,6 +78,12 @@ class DataFoto extends Model
               'nama_komisi' => 'Tidak ada komisi terkait',
           ]);
     }
+    
+    public function album()
+    {
+        return $this->belongsTo(AlbumFoto::class, 'album_id');
+    }
+
 
 
     /**

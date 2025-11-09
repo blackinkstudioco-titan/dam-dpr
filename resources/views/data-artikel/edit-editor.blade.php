@@ -4,7 +4,7 @@
           <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
-          {{ __('Edit Artikel') }}
+          {{ __('Editor Artikel') }}
       </h2>
   </x-slot>
 
@@ -32,7 +32,7 @@
                   </h3>
               </div>
 
-              <form method="POST" action="{{ route('artikel.update', $artikel->id) }}" enctype="multipart/form-data" class="space-y-4">
+              <form method="POST" action="{{ route('artikel_publish.update', $artikel->id) }}" enctype="multipart/form-data" class="space-y-4">
                   @csrf
                   @method('PUT')
                   <input type='hidden' name="old_foto" value="{{$artikel->foto}}" />
@@ -129,11 +129,20 @@
                                 <span id="keywordCount" class="font-semibold text-red-600">0</span> keywords
                             </span>
                         </div>
+
+                      <div class="flex items-center space-x-3 mt-2">
+
+                          <label for="active">Status Publish:</label>
+                          <input type="checkbox" id="active" name="active" {{ $artikel->active ? 'checked' : '' }} value="1">
+                          <span>{{ $artikel->active ? 'Published' : 'Not Published' }}</span>
+
+                      </div>
+
                       </div>
 
                       <!-- Form Actions -->
                       <div class="flex items-center justify-between bg-white rounded-lg shadow-sm p-6">
-                          <a href="{{ route('artikel.index') }}"
+                          <a href="{{ route('artikel_publish.index') }}"
                              class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-lg font-medium transition">
                               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -147,17 +156,9 @@
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7"></path>
                               </svg>
-                              <span id="btnText">Perbarui Artikel</span>
+                              <span id="btnText">Publish Artikel</span>
                           </button>
 
-                          <button type="submit" name="action" id="submitUpdateBtn" value="kirim_editor"
-                                  class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition">
-                              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 13l4 4L19 7"></path>
-                              </svg>
-                              <span id="btnTextEditor">Kirim ke Editor</span>
-                          </button>
                       </div>
                   </div>
               </form>
