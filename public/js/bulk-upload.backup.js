@@ -524,6 +524,34 @@ $(document).ready(function() {
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
                     </div>
                     
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Kategori</label>
+                        <select name="kategorisasi_datatempo_${index}" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                            <option value="">-- Pilih Kategori --</option>
+                            ${formData.kategori ? formData.kategori.map(k => `<option value="${k.id}">${k.nama_kategori}</option>`).join('') : ''}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Komisi DPR</label>
+                        <select name="komisi_dpr_id_${index}" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                            <option value="">-- Pilih Komisi --</option>
+                            ${formData.komisi ? formData.komisi.map(k => `<option value="${k.id}">${k.nama_komisi}</option>`).join('') : ''}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Level Akses</label>
+                        <select name="l_access_${index}" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                            <option value="1">Public</option>
+                            <option value="2">Internal</option>
+                            <option value="3">Restricted</option>
+                        </select>
+                    </div>
+                    
                     <div class="flex items-center">
                         <label class="flex items-center cursor-pointer">
                             <input type="checkbox"  
@@ -612,9 +640,9 @@ $(document).ready(function() {
                 k_name: form.find(`[name="k_name_${index}"]`).val(),
                 konseptor: form.find(`[name="konseptor_${index}"]`).val(),
                 l_access: form.find(`[name="l_access_${index}"]`).val(),
-                //kategorisasi_datatempo: form.find(`[name="kategorisasi_datatempo_${index}"]`).val() || null,
-                //komisi_dpr_id: form.find(`[name="komisi_dpr_id_${index}"]`).val() || null,
-                //anggota_dpr_id: form.find(`[name="anggota_dpr_id_${index}"]`).val() || null,
+                kategorisasi_datatempo: form.find(`[name="kategorisasi_datatempo_${index}"]`).val() || null,
+                komisi_dpr_id: form.find(`[name="komisi_dpr_id_${index}"]`).val() || null,
+                anggota_dpr_id: form.find(`[name="anggota_dpr_id_${index}"]`).val() || null,
                 publish: form.find(`[name="publish_${index}"]`).is(':checked') ? 1 : 0, // Ubah dari boolean ke integer
             });
         });
