@@ -37,14 +37,15 @@
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
               <div class="md:col-span-8">
                 <a href="{{ route('artikel.index') }}"
-                   class="{{ request()->routeIs('artikel.index') ? 'bg-blue-800' : 'bg-blue-600' }} mr-3 text-white px-4 py-2 rounded">
+                   class="bg-blue-600 mr-3 text-white px-4 py-2 rounded">
                     Drafter Artikel
                 </a>
                 <a href="{{ route('artikel_publish.index') }}"
-                   class="{{ request()->routeIs('artikel_publish.index') ? 'bg-green-800' : 'bg-green-600' }} text-white px-4 py-2 rounded">
+                   class="bg-green-600  text-white px-4 py-2 rounded">
                     Editor Artikel
                 </a>
               </div>
+             
             </div>
         </div>
        </div>
