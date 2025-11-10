@@ -353,7 +353,8 @@ class DataFotoController extends Controller
 
       $dataFoto->incrementDownload();
 
-      $fileName = $dataFoto->judul . '_' . $dataFoto->f_lok;
+      //$fileName = $dataFoto->judul . '_' . $dataFoto->f_lok;
+      $fileName=basename($dataFoto->original_foto_url);
       $user = Auth::user();
       $allowedRoles = ['admin', 'editor', 'uploader'];
 
