@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 class ArtikelController extends Controller
 {
     public function __construct(protected ImageService $imageService) {
-        //$this->middleware('auth');
+        $this->middleware('auth');
     }
     public function index(Request $request)
     {
@@ -46,6 +46,9 @@ class ArtikelController extends Controller
 
     public function store(Request $request)
     {
+    \Log::info('Store method called');
+    \Log::info('Request data:', $request->all());
+    //exit();
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
             'tanggal' => 'required|date',

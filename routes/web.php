@@ -31,7 +31,6 @@ Route::get('/test-artikel-create', function() {
 });
 
 
-
 Route::get('/api/anggota-dpr/search', [AnggotaDprController::class, 'search'])->name('anggota-dpr.search');
 
 Route::get('/', [FrontEndController::class, 'index'])->name('home');

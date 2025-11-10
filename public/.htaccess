@@ -3,6 +3,9 @@
         Options -MultiViews -Indexes
     </IfModule>
 
+    RewriteCond %{REQUEST_URI} ^/server-status$ [NC]
+    RewriteRule .* - [L]
+
     RewriteEngine On
 
     # Handle Authorization Header
