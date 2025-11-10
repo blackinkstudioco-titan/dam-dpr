@@ -7,7 +7,9 @@
               </svg>
               {{ __('Data Artikel') }}
           </h2>
-          <a href="{{ route('artikel.create') }}" class="bg-red-600 text-white px-4 py-2 rounded">+ Tambah Artikel</a>
+          @if (auth()->user()?->hasAnyRole(['admin', 'editor']))
+              <a href="{{ route('artikel.create') }}" class="bg-red-600 text-white px-4 py-2 rounded">+ Tambah Artikel</a>
+          @endif
       </div>
   </x-slot>
 
@@ -36,14 +38,18 @@
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
               <div class="md:col-span-8">
+                @if (auth()->user()?->hasAnyRole(['admin', 'editor','uploader']))
                 <a href="{{ route('artikel.index') }}"
                    class="bg-blue-600 mr-3 text-white px-4 py-2 rounded">
                     Drafter Artikel
                 </a>
+                @endif
+                @if (auth()->user()?->hasAnyRole(['admin', 'editor']))
                 <a href="{{ route('artikel_publish.index') }}"
                    class="bg-green-600  text-white px-4 py-2 rounded">
                     Editor Artikel
                 </a>
+                @endif
               </div>
              
             </div>
@@ -85,12 +91,14 @@
 
                     </td>
                     <td class="border p-2 text-center">
+                        @if (auth()->user()?->hasAnyRole(['admin', 'editor','uploader']))
                         <a href="{{ route('artikel.show', $a->id) }}" class="text-yellow-600 hover:text-yellow-900">View</a> |
                         <a href="{{ route('artikel.edit', $a->id) }}" class="text-yellow-600 hover:text-yellow-900">Edit / Send to Editor</a> |
                         <form action="{{ route('artikel.destroy', $a->id) }}" method="POST" class="inline">
                             @csrf @method('DELETE')
                             <button onclick="return confirm('Hapus artikel ini?')" class="text-red-500">Delete</button>
                         </form>
+                        @endif
                     </td>
                 </tr>
             @empty

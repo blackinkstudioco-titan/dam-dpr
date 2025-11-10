@@ -291,7 +291,7 @@
             </div>
 
             {{-- Row 3: Aksi (Full Width) --}}
-            @auth
+            @if (auth()->user()?->hasAnyRole(['admin', 'editor','uploader']))
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
                         <h3 class="text-lg font-bold mb-4 flex items-center">
@@ -345,7 +345,7 @@
                         </div>
                     </div>
                 </div>
-            @endauth
+            @endif
         </div>
     </div>
 

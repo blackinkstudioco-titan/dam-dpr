@@ -11,6 +11,9 @@ use App\Http\Controllers\ArtikelPublishController;
 use App\Http\Controllers\BulkUploadController;
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\AddPhotosController;
+use App\Http\Controllers\ReportFotoController;
+use App\Http\Controllers\ReportArtikelController;
+use App\Http\Controllers\DashboardController;
 
 
 /*
@@ -40,9 +43,14 @@ Route::get('/read-artikel/{slug}/{artikel}', [FrontEndController::class, 'read_a
 Route::get('/foto', [FrontEndController::class, 'foto'])->name('foto');
 Route::get('/foto-detail/{slug}/{dataFoto}', [FrontEndController::class, 'show'])->name('foto-detail');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Dashboard utama
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // ... route lainnya
+});
 
 
 
@@ -52,11 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-
-
-
 });
-
 
 Route::middleware(['auth'])->group(function () {
   Route::resource('artikel', ArtikelController::class);
@@ -135,5 +139,20 @@ Route::prefix('foto')->group(function () {
     });
 });
 
+Route::middleware(['auth'])->group(function () {
+    // Report Routes foto
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/foto', [ReportFotoController::class, 'index'])->name('foto.index');
+        Route::get('/foto/export-excel', [ReportFotoController::class, 'exportExcel'])->name('foto.export.excel');
+        Route::get('/foto/export-pdf', [ReportFotoController::class, 'exportPdf'])->name('foto.export.pdf');
+    });
+      // Report Routes
+    Route::prefix('reports')->name('reports.')->group(function () {
+        // Report Artikel
+        Route::get('/artikel', [ReportArtikelController::class, 'index'])->name('artikel.index');
+        Route::get('/artikel/export-excel', [ReportArtikelController::class, 'exportExcel'])->name('artikel.export.excel');
+        Route::get('/artikel/export-pdf', [ReportArtikelController::class, 'exportPdf'])->name('artikel.export.pdf');
+    });
+});
 
 require __DIR__.'/auth.php';

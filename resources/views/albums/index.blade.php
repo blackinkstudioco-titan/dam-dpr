@@ -4,10 +4,12 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Album Foto') }}
             </h2>
+            @if (auth()->user()?->hasAnyRole(['admin', 'editor','uploader']))
             <a href="{{ url('foto/bulk-upload') }}" 
                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
                 + Upload Album Baru
             </a>
+            @endif
         </div>
     </x-slot>
 

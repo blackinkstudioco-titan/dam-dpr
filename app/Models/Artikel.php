@@ -38,15 +38,79 @@ class Artikel extends Model
         'edit_date' => 'datetime',
         'active' => 'boolean',
         'del' => 'boolean',
+        'add_by' => 'integer',
+        'edit_by' => 'integer',
     ];
+
+    /**
+     * ========================================
+     * RELATIONSHIPS
+     * ========================================
+     */
+
+    /**
+     * User yang membuat artikel ini
+     * Relasi berdasarkan field 'add_by' = user.id
+     */
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'add_by', 'id');
+    }
+
+    /**
+     * User yang mengedit artikel ini
+     * Relasi berdasarkan field 'edit_by' = user.id
+     */
+    public function editor()
+    {
+        return $this->belongsTo(User::class, 'edit_by', 'id');
+    }
+
+    /**
+     * ========================================
+     * SCOPES
+     * ========================================
+     */
 
     public function scopeActive($query)
     {
         return $query->where('active', 1)->where('del', 0);
     }
 
+    public function scopeByRubrik($query, $rubrik)
+    {
+        return $query->where('rubrik', $rubrik);
+    }
+
+    public function scopeByPenulis($query, $penulis)
+    {
+        return $query->where('penulis', $penulis);
+    }
+
+    /**
+     * ========================================
+     * ACCESSORS
+     * ========================================
+     */
+
     public function getFotoUrlAttribute()
     {
         return $this->foto ? asset('storage/' . $this->foto) : null;
+    }
+
+    /**
+     * Get creator name with fallback
+     */
+    public function getCreatorNameAttribute()
+    {
+        return $this->creator ? $this->creator->name : 'Unknown User';
+    }
+
+    /**
+     * Get editor name with fallback
+     */
+    public function getEditorNameAttribute()
+    {
+        return $this->editor ? $this->editor->name : 'Unknown User';
     }
 }

@@ -12,6 +12,7 @@
                 <p class="text-sm text-gray-500 mt-1">{{ $photos->total() }} foto</p>
             </div>
             <div class="flex gap-2">
+                @if (auth()->user()?->hasAnyRole(['admin', 'editor','uploader']))
                 <a href="{{ route('add-photos.index', $album) }}" 
                    class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -19,6 +20,7 @@
                     </svg>
                     Tambah Foto
                 </a>
+                @endif
             </div>
         </div>
     </x-slot>
