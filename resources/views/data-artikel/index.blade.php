@@ -68,7 +68,7 @@
             <tr>
                 <th class="border p-2">No</th>
                 <th class="border p-2">Judul</th>
-                <th class="border p-2">Tanggal</th>
+                <th class="border p-2">Tanggal Upload</th>
                 <th class="border p-2">Penulis</th>
                 <th class="border p-2">Status</th>
                 <th class="border p-2">Aksi</th>
@@ -79,7 +79,7 @@
                 <tr class="hover:bg-gray-50">
                     <td class="border p-2 text-center">{{ $artikels->firstItem() + $i }}</td>
                     <td class="border p-2">{{ $a->judul }}</td>
-                    <td class="border p-2">{{ $a->tanggal->format('d-m-Y') }}</td>
+                    <td class="border p-2">{{ $a->add_date->format('d-m-Y H:i:s') }}</td>
                     <td class="border p-2">{{ $a->penulis }}</td>
                     <td class="border p-2">
 

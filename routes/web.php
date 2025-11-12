@@ -14,6 +14,7 @@ use App\Http\Controllers\AddPhotosController;
 use App\Http\Controllers\ReportFotoController;
 use App\Http\Controllers\ReportArtikelController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EventController;
 
 
 /*
@@ -153,6 +154,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/artikel/export-excel', [ReportArtikelController::class, 'exportExcel'])->name('artikel.export.excel');
         Route::get('/artikel/export-pdf', [ReportArtikelController::class, 'exportPdf'])->name('artikel.export.pdf');
     });
+});
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('events', EventController::class);
 });
 
 require __DIR__.'/auth.php';

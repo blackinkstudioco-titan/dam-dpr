@@ -78,7 +78,7 @@
                 <tr class="hover:bg-gray-50">
                     <td class="border p-2 text-center">{{ $artikels->firstItem() + $i }}</td>
                     <td class="border p-2">{{ $a->judul }}</td>
-                    <td class="border p-2">{{ $a->tanggal->format('d-m-Y') }}</td>
+                    <td class="border p-2">{{ $a->updated_at->format('d-m-Y H:i:s') }}</td>
                     <td class="border p-2">{{ $a->penulis }}</td>
                     <td class="border p-2">
                       @if($a->active==1)
