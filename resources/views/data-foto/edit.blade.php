@@ -154,7 +154,7 @@
                                     Komisi <span class="text-xs text-gray-500 font-normal">(Optional)</span>
                                 </label>
                                 <select name="komisi_dpr_id" class="...">
-                                  <option value="{{ 0 }}"> - Pilih Komisi DPR - </option>
+                                  <option value=""> - Pilih Komisi DPR - </option>
                                       @foreach($komisi as $k)
                                       <option value="{{ $k->id }}" {{ $dataFoto->komisi_dpr_id == $k->id ? 'selected' : '' }}>
                                         {{ $k->nama_komisi }} - {{ $k->bidang }}
