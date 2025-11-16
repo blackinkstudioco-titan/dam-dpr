@@ -7,6 +7,7 @@ use App\Models\DataFoto;
 use App\Models\KategoriFoto;
 use App\Models\KomisiDpr;
 use App\Models\AnggotaDpr;
+use App\Models\Event;
 use App\Http\Requests\StoreAlbumRequest;
 use App\Http\Requests\BulkUploadFotoRequest;
 use App\Services\BulkUploadService;
@@ -31,8 +32,9 @@ class BulkUploadController extends Controller
         $albums = AlbumFoto::withCount('fotos')
             ->latest()
             ->get();
-
-        return view('bulk-upload.index', compact('albums'));
+        $penugasan = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
+        $komisi = KomisiDpr::all();
+        return view('bulk-upload.index', compact('albums','penugasan','komisi'));
     }
 
     /**
@@ -44,6 +46,8 @@ class BulkUploadController extends Controller
             $album = AlbumFoto::create([
                 'nama_album' => $request->nama_album,
                 'deskripsi' => $request->deskripsi,
+                'event_id' => $request->event_id,
+                'komisi_dpr_id' => $request->komisi_dpr_id,
                 'created_by' => auth()->id(),
             ]);
 
@@ -54,6 +58,8 @@ class BulkUploadController extends Controller
                     'id' => $album->id,
                     'nama_album' => $album->nama_album,
                     'deskripsi' => $album->deskripsi,
+                    'event_id' => $request->event_id,
+                    'komisi_dpr_id' => $request->komisi_dpr_id,
                 ]
             ]);
         } catch (\Exception $e) {
@@ -130,8 +136,8 @@ class BulkUploadController extends Controller
             'photos.*.konseptor' => 'nullable|string',
             'photos.*.l_access' => 'nullable|integer|in:1,2,3',
             'photos.*.kategorisasi_datatempo' => 'nullable|exists:kategori_foto,id',
-            'photos.*.komisi_dpr_id' => 'nullable|exists:komisi_dpr,id',
-            'photos.*.anggota_dpr_id' => 'nullable|exists:anggota_dpr,id',
+            //'photos.*.komisi_dpr_id' => 'nullable|exists:komisi_dpr,id',
+            //'photos.*.anggota_dpr_id' => 'nullable|exists:anggota_dpr,id',
             'photos.*.publish' => 'nullable|in:0,1', // Ubah dari boolean ke in:0,1
             'photos.*.original_path' => 'required',
             'photos.*.thumbnail_path' => 'required',
@@ -168,7 +174,7 @@ class BulkUploadController extends Controller
                     'l_access' => $photoData['l_access'] ?? 1,
                     'kategorisasi_datatempo' => $photoData['kategorisasi_datatempo'] ?? null,
                     'komisi_dpr_id' => $photoData['komisi_dpr_id'] ?? null,
-                    'anggota_dpr_id' => $photoData['anggota_dpr_id'] ?? null,
+                    'event_id' => $photoData['event_id'] ?? null,
                     'publish' => $photoData['publish'] ?? 0,
                 ];
 
@@ -184,6 +190,7 @@ class BulkUploadController extends Controller
                 'success' => true,
                 'message' => count($request->photos) . ' foto berhasil disimpan',
                 'data' => [
+                    'all data' => $metaData,
                     'total' => count($request->photos),
                     'album_id' => $request->photos[0]['album_id'] ?? null,
                 ]

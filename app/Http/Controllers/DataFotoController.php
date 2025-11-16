@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataFoto;
+use App\Models\Event; //penugasan
 use App\Models\KomisiDpr;
 use App\Models\AnggotaDpr;
 use App\Models\KategoriFoto;
@@ -92,8 +93,13 @@ class DataFotoController extends Controller
     public function create()
     {
         $komisi = KomisiDpr::all();
+        DB::enableQueryLog();
+        $penugasan = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
+        //$sql = vsprintf(str_replace('?', '%s', $penugasan->toSql()), $penugasan->getBindings());
+        //dd($sql);
+        //dd($penugasan);
         $kategoriFoto = KategoriFoto::pluck('k_name', 'id');
-        return view('data-foto.create', compact('komisi', 'kategoriFoto'));
+        return view('data-foto.create', compact('komisi', 'kategoriFoto','penugasan'));
     }
 
     /**
@@ -135,6 +141,7 @@ class DataFotoController extends Controller
                 'original_foto_url' => $uploadResult['original_path'],
                 'anggota_dpr_id' => $request->anggota_dpr_id,
                 'komisi_dpr_id' => $request->komisi_dpr_id,
+                'event_id' => $request->event_id, //penugasan
                 'edit_by' => Auth::user()->name,
                 'edit_date' => now(),
             ]);
@@ -192,9 +199,11 @@ class DataFotoController extends Controller
     {
         // Load relationship
         $dataFoto->load('kategori:id,k_name');
+        $penugasan = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
         $komisi = KomisiDpr::all();
         return view('data-foto.edit', [
             'dataFoto' => $dataFoto,
+            'penugasan'=>$penugasan,
             'komisi'=>$komisi,
             'kategoriFoto' => KategoriFoto::getDropdownOptions(),
         ]);
@@ -228,6 +237,7 @@ class DataFotoController extends Controller
                 'komisi_dpr_id' => $request->komisi_dpr_id,
                 'edit_by' => Auth::user()->name,
                 'edit_date' => now(),
+                'event_id' => $request->event_id, //penugasan
             ];
 
             // Check if new photo is uploaded

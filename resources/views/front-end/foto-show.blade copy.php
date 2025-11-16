@@ -183,7 +183,102 @@
                       </div>
                   </div>
 
-                 
+                  {{-- Row 2: Detail Informasi & Meta Data (2 Kolom) --}}
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {{-- Col 1: Detail Informasi Foto --}}
+                      <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                          <div class="p-6 text-gray-900">
+                              <h3 class="text-lg font-bold mb-4 flex items-center">
+                                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                  </svg>
+                                  Detail Informasi Foto
+                              </h3>
+
+                              <dl class="space-y-3">
+                                  <div class="border-b pb-3">
+                                      <dt class="text-sm font-medium text-gray-500">MM ID</dt>
+                                      <dd class="text-sm text-gray-900 font-mono mt-1">{{ $dataFoto->mm_id }}</dd>
+                                  </div>
+                                  <div class="mt-4">
+                                      <dt class="text-sm font-medium text-gray-500">Tanggal Masuk</dt>
+                                      <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->tgl_masuk->format('d F Y') }}</dd>
+                                  </div>
+
+
+
+
+                                  @if($dataFoto->perekam)
+                                      <div class="border-b pb-3">
+                                          <dt class="text-sm font-medium text-gray-500">Perekam</dt>
+                                          <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->perekam }}</dd>
+                                      </div>
+                                  @endif
+
+                                  @if($dataFoto->konseptor)
+                                      <div class="border-b pb-3">
+                                          <dt class="text-sm font-medium text-gray-500">Konseptor</dt>
+                                          <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->konseptor }}</dd>
+                                      </div>
+                                  @endif
+
+                                  @if($dataFoto->depositor)
+                                      <div class="border-b pb-3">
+                                          <dt class="text-sm font-medium text-gray-500">Depositor</dt>
+                                          <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->depositor }}</dd>
+                                      </div>
+                                  @endif
+
+                                  <div class="border-b pb-3">
+                                      <dt class="text-sm font-medium text-gray-500">Dibuat oleh</dt>
+                                      <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->k_name }}</dd>
+                                  </div>
+
+                                  @if($dataFoto->edit_by)
+                                      <div>
+                                          <dt class="text-sm font-medium text-gray-500">Terakhir diubah</dt>
+                                          <dd class="text-sm text-gray-900 mt-1">
+                                              {{ $dataFoto->edit_by }}
+                                              <span class="block text-xs text-gray-500 mt-1">{{ $dataFoto->edit_date->format('d M Y H:i') }}</span>
+                                          </dd>
+                                      </div>
+                                  @endif
+                              </dl>
+                          </div>
+                      </div>
+
+                      {{-- Col 2: Meta Data Foto (EXIF) --}}
+                      <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                          <div class="p-6 text-gray-900">
+                              <h3 class="text-lg font-bold mb-4 flex items-center">
+                                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                  </svg>
+                                  Meta Data Foto (EXIF)
+                              </h3>
+
+                              @if($dataFoto->formatted_meta_data && count($dataFoto->formatted_meta_data) > 0)
+                                  <dl class="space-y-3">
+                                      @foreach($dataFoto->formatted_meta_data as $label => $value)
+                                          <div class="border-b pb-3 last:border-b-0">
+                                              <dt class="text-sm font-medium text-gray-500">{{ $label }}</dt>
+                                              <dd class="text-sm text-gray-900 mt-1 font-mono">{{ $value }}</dd>
+                                          </div>
+                                      @endforeach
+                                  </dl>
+                              @else
+                                  <div class="text-center py-8">
+                                      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                      </svg>
+                                      <p class="mt-2 text-sm text-gray-500">Tidak ada data EXIF tersedia</p>
+                                  </div>
+                              @endif
+                          </div>
+                      </div>
+                  </div>
+
                   {{-- Row 3: Aksi (Full Width) --}}
                   <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
 

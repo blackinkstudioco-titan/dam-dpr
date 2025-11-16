@@ -138,6 +138,24 @@
                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                       placeholder="Masukkan deskripsi foto" required>{{ old('deskrp', $dataFoto->deskrp) }}</textarea>
                         </div>
+                        <div>
+                          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div>
+                                <div>
+                                   <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2 mt-2">
+                                      Penugasan <span class="text-xs text-gray-500 font-normal">(Optional)</span>
+                                  </label>
+                                  <select name="event_id" class="...">
+                                    <option value="{{ 0 }}"> - Pilih Penugasan - </option>
+                                        @foreach($penugasan as $p)
+                                            <option value="{{ $p->id }}" {{ $dataFoto->event_id == $p->id ? 'selected' : '' }}>{{ $p->nama_event }}</option>
+                                        @endforeach
+                                  </select>
+
+                                </div>
+                            </div>
+                          </div>
+                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div>
                               <div>
@@ -151,10 +169,10 @@
                               </div>
                             <div>
                                 <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Komisi <span class="text-xs text-gray-500 font-normal">(Optional)</span>
+                                    Alat Kelengkapan DPR (AKD) <span class="text-xs text-gray-500 font-normal">(Optional)</span>
                                 </label>
                                 <select name="komisi_dpr_id" class="...">
-                                  <option value=""> - Pilih Komisi DPR - </option>
+                                  <option value=""> - Pilih Angkat Kelengkapan DPR - </option>
                                       @foreach($komisi as $k)
                                       <option value="{{ $k->id }}" {{ $dataFoto->komisi_dpr_id == $k->id ? 'selected' : '' }}>
                                         {{ $k->nama_komisi }} - {{ $k->bidang }}
@@ -251,11 +269,11 @@
 
                             <div>
                                 <label for="kategorisasi_datatempo" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Kategori
+                                    Kegiatan Lainnya
                                 </label>
                                 <select name="kategorisasi_datatempo" id="kategorisasi_datatempo"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                                    <option value="">-- Pilih Kategori --</option>
+                                    <option value="">-- Kegiatan Lainnya --</option>
                                     @foreach($kategoriFoto as $id => $name)
                                         <option value="{{ $id }}" {{ old('kategorisasi_datatempo', $dataFoto->kategorisasi_datatempo) == $id ? 'selected' : '' }}>
                                             {{ $name }}

@@ -12,7 +12,7 @@
           @if($artikels->count() > 0)
               <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     @foreach ($artikels as $artikel)
-                    <a href="{{ route('read-artikel', ['slug' => Str::slug($artikel->judul), 'artikel' => $artikel]) }}" class="block group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition">
+                    <a href="{{ route('read-artikel', ['slug' => Str::slug($artikel->judul), 'artikel_publish' => $artikel]) }}" class="block group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition">
 
                         <div class="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition p-4 flex flex-col justify-between">
                             <div>

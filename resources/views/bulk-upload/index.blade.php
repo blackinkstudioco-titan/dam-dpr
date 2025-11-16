@@ -85,6 +85,41 @@
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               placeholder="Deskripsi singkat tentang album ini..."></textarea>
                 </div>
+                            <div>
+                          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div>
+                                <div>
+                                   <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2 mt-2">
+                                      Penugasan <span class="text-xs text-gray-500 font-normal">(Optional)</span>
+                                  </label>
+                                  <select id="event_id" name="event_id" class="...">
+                                    <option value="{{ 0 }}"> - Pilih Penugasan - </option>
+
+                                        @foreach($penugasan as $p)
+                                            <option value="{{ $p->id }}">{{ $p->nama_event }}</option>
+                                        @endforeach
+                                  </select>
+
+                                </div>
+                            </div>
+                          </div>
+                         </div>
+                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div>
+                           
+                                  <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2 mt-2">
+                                      Alat Kelengkapan DPR (AKD) <span class="text-xs text-gray-500 font-normal">(Optional)</span>
+                                  </label>
+                                  <select id="komisi_dpr_id" name="komisi_dpr_id" class="...">
+                                    <option value="{{ 0 }}"> - Alat Kelengkapan DPR - </option>
+                                        @foreach($komisi as $k)
+                                            <option value="{{ $k->id }}">{{ $k->nama_komisi }} - {{ $k->bidang }}</option>
+                                        @endforeach
+                                  </select>
+                              </div>
+
+                          </div>
+                        </div>
 
                 <div class="flex justify-between items-center">
                     <p class="text-sm text-gray-500">

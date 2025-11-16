@@ -67,8 +67,11 @@
             <tr>
                 <th class="border p-2">No</th>
                 <th class="border p-2">Judul</th>
-                <th class="border p-2">Tanggal</th>
+                <th class="border p-2">Tanggal Penugasan</th>
+                <th class="border p-2">Tanggal Draft</th>
+                <th class="border p-2">Tanggal Edit</th>
                 <th class="border p-2">Penulis</th>
+                <th class="border p-2">Editor</th>
                 <th class="border p-2">Status</th>
                 <th class="border p-2">Aksi</th>
             </tr>
@@ -78,8 +81,11 @@
                 <tr class="hover:bg-gray-50">
                     <td class="border p-2 text-center">{{ $artikels->firstItem() + $i }}</td>
                     <td class="border p-2">{{ $a->judul }}</td>
-                    <td class="border p-2">{{ $a->updated_at->format('d-m-Y H:i:s') }}</td>
+                    <td class="border p-2">{{ $a?->event?->tanggal->format('d-m-Y H:i:s')??'-' }}</td>
+                    <td class="border p-2">{{ $a?->artikelDraft?->tanggal->format('d-m-Y H:i:s')??'-' }}</td>
+                    <td class="border p-2">{{ $a?->tanggal->format('d-m-Y H:i:s')??'-' }}</td>
                     <td class="border p-2">{{ $a->penulis }}</td>
+                    <td class="border p-2">{{ $a->editor->name }}</td>
                     <td class="border p-2">
                       @if($a->active==1)
                         <span class="text-green-600">{{ 'Publish @'.$a->updated_at}}</span>

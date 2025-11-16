@@ -9,7 +9,7 @@ class KomisiDpr extends Model
 {
     use HasFactory;
 
-    protected $table = 'komisi_dpr_ri';
+    protected $table = 'komisi_dpr';
 
     protected $fillable = [
         'nama_komisi',

@@ -51,7 +51,8 @@ class DataFoto extends Model
         'edit_date',
         'anggota_dpr_id', // ✅ field baru untuk relasi ke anggota DPR
         'komisi_dpr_id',
-        'album_id'
+        'album_id',
+        'event_id',
     ];
 
     /**
@@ -70,13 +71,15 @@ class DataFoto extends Model
         'l_access' => 'integer',
         'anggota_dpr_id' => 'integer', // ✅ tambahkan cast integer
         'komisi_dpr_id' => 'integer',
+        'event_id' => 'integer',
     ];
-
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
     public function komisiDpr()
     {
-          return $this->belongsTo(KomisiDpr::class, 'komisi_dpr_id')->withDefault([
-              'nama_komisi' => 'Tidak ada komisi terkait',
-          ]);
+          return $this->belongsTo(KomisiDpr::class, 'komisi_dpr_id');
     }
     
     public function album()

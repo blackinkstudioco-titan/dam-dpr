@@ -35,16 +35,24 @@ class FrontEndController extends Controller
         ]);
     }
     public function artikel(Request $request){
-      $query = ArtikelPublish::query()->orderByDesc('id');
-      $artikel = $query->paginate(12);
+      
+     $artikel = ArtikelPublish::where('active', 1)
+            ->orderByDesc('id')
+            ->paginate(12);
 
+      //dd( $artikel);
 
       return view('front-end.artikel', [
           'artikels' => $artikel
       ]);
     }
-    public function read_artikel($url_title="",Artikel $artikel){
-      $artikel = ArtikelPublish::findOrFail($artikel->id);
+    public function read_artikel($url_title="",$id){
+      
+      $artikel = ArtikelPublish::where('id', $id)
+            ->where('active', 1)
+            ->firstOrFail();
+
+      //dd($artikel);
       return view('front-end.artikel-show', compact('artikel'));
     }
     public function foto(Request $request){
@@ -89,7 +97,7 @@ class FrontEndController extends Controller
     }
     public function search(Request $request){
       $query = DataFoto::query()->with('kategori:id,k_name');
-
+      
       // Search functionality
       if ($request->filled('q')) {
           $query->search($request->q);

@@ -42,7 +42,7 @@
                         </div>
 
                         <div class="mb-4">
-                              <div>
+                              <div class="flex gap-2">
                                 <label class="block font-medium">Tanggal</label>
                                 <input type="date" name="tanggal" value="{{ old('tanggal') }}"
                                     class="border-gray-300 p-2 rounded focus:ring-blue-500 focus:border-blue-500">

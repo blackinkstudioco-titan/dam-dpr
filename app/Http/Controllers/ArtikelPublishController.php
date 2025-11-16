@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\ArtikelPublish;
+use App\Models\Event;
+use App\Models\KomisiDpr;
+use App\Models\AnggotaDpr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -67,8 +70,12 @@ class ArtikelPublishController extends Controller
 
     public function edit($id)
     {
+          $komisi = KomisiDpr::all();
+           //DB::enableQueryLog();
+          $penugasan = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
           $artikel = ArtikelPublish::findOrFail($id);
-          return view('data-artikel.edit-editor', compact('artikel'));
+
+          return view('data-artikel.edit-editor', compact('artikel','penugasan','komisi'));
     }
 
     public function update(Request $request, $id)
@@ -83,7 +90,10 @@ class ArtikelPublishController extends Controller
           'sumber' => 'required|string',
           'keyword' => 'required|string',
           'subyek' => 'required|string',
-          'foto' => 'nullable|image|max:2048'
+          'foto' => 'nullable|image|max:2048',
+           'event_id' => 'nullable|integer',
+          'komisi_dpr_id' => 'nullable|integer',
+          'anggota_dpr_id' => 'nullable|integer',
         ]);
 
         if ($request->hasFile('foto')) {
@@ -96,7 +106,8 @@ class ArtikelPublishController extends Controller
             $validated['foto']=$request->input('old_foto');
 
         }
-
+        $tanggalWaktu = date('Y-m-d H:i:s', strtotime($request->tanggal . ' ' . $request->waktu));
+        $validated['tanggal'] = $tanggalWaktu;
         $validated['edit_by'] = Auth::id();
         $validated['edit_date'] = now();
         $validated['active']=$request->input('active');

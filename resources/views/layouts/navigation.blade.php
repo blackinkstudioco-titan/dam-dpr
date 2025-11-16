@@ -15,17 +15,17 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                      <x-nav-link :href="route('artikel.index')" :active="request()->routeIs('artikel.*')">
+                        {{ __('Data Artikel') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('data-foto.index')" :active="request()->routeIs('data-foto.*')">
                         {{ __('Data Foto') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('artikel.index')" :active="request()->routeIs('artikel.*')">
-                        {{ __('Data Artikel') }}
                     </x-nav-link>
                     <x-nav-link :href="route('albums.index')" :active="request()->routeIs('albums.index')">
                         {{ __('Album Foto') }}
                     </x-nav-link>
                     <x-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')">
-                        {{ __('Events') }}
+                        {{ __('Penugasan') }}
                     </x-nav-link>
                     <!-- Data Foto - Tampil untuk admin dan uploader -->
                     @if(auth()->user()->role === 'admin')

@@ -40,7 +40,10 @@ Route::get('/api/anggota-dpr/search', [AnggotaDprController::class, 'search'])->
 Route::get('/', [FrontEndController::class, 'index'])->name('home');
 Route::get('/search', [FrontEndController::class, 'search'])->name('search');
 Route::get('/list-artikel', [FrontEndController::class, 'artikel'])->name('list-artikel');
-Route::get('/read-artikel/{slug}/{artikel}', [FrontEndController::class, 'read_artikel'])->name('read-artikel');
+
+Route::get('/read-artikel/{slug}/{artikel_publish}', [FrontEndController::class, 'read_artikel'])
+    ->name('read-artikel');
+
 Route::get('/foto', [FrontEndController::class, 'foto'])->name('foto');
 Route::get('/foto-detail/{slug}/{dataFoto}', [FrontEndController::class, 'show'])->name('foto-detail');
 
@@ -76,6 +79,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/form-data', [BulkUploadController::class, 'getFormData'])->name('form-data');
         Route::post('/delete-file', [BulkUploadController::class, 'deleteFile'])->name('delete-file');
     });
+  Route::resource('albums', AlbumController::class);
 
 });
 

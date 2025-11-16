@@ -67,7 +67,8 @@ class AddPhotosController extends Controller
                     'thumbnail_path' => $thumbnailPath,
                     'thumbnail_url' => asset('storage' . $thumbnailPath),
                     'meta_data' => $exifData,
-                    'album_id' => $album->id
+                    'album_id' => $album->id,
+                    'event_id' => $album->event_id
                 ]
             ]);
 
@@ -160,6 +161,7 @@ class AddPhotosController extends Controller
 
                 DataFoto::create([
                     'album_id' => $album->id,
+                    'event_id' => $album->event_id,
                     'original_foto_url' => $photo['original_path'],
                     'thumbnail_foto_url' => $photo['thumbnail_path'],
                     'judul' => $photo['judul'],

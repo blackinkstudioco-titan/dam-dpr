@@ -14,12 +14,16 @@ class AlbumFoto extends Model
         'nama_album',
         'deskripsi',
         'created_by',
+        'event_id',
+        'komisi_dpr_id',
         'edit_by',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'edit_at' => 'datetime',
+        'event_id' => 'integer',
+        'event_id' => 'integer',
     ];
 
     /** 🔗 Relasi ke User */
@@ -70,4 +74,14 @@ class AlbumFoto extends Model
     {
         return $this->fotos()->count();
     }
+
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
+    public function komisiDPR(): BelongsTo
+    {
+        return $this->belongsTo(komisiDpr::class, 'komisi_dpr_id');
+    }
+
 }

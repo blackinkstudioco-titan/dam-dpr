@@ -43,11 +43,17 @@
                               class="w-full border-gray-300 p-2 rounded focus:ring-blue-500 focus:border-blue-500" required>
                       </div>
 
-                      <div>
-                          <label class="block font-medium">Tanggal</label>
-                          <input type="date" name="tanggal" value="{{ old('tanggal', $artikel->tanggal ? $artikel->tanggal->format('Y-m-d') : '') }}"
-                              class="border-gray-300 p-2 rounded focus:ring-blue-500 focus:border-blue-500">
-                      </div>
+                       <div>
+                            <div class="flex gap-2">
+                                <label class="block font-medium">Tanggal</label>
+                                <input type="date" name="tanggal" value="{{ old('tanggal',\Carbon\Carbon::parse($artikel->tanggal)->format('Y-m-d')) }}"
+                                    class="border-gray-300 p-2 rounded focus:ring-blue-500 focus:border-blue-500">
+                                <label class="block font-medium">waktu</label>
+                                <input type="time" name="waktu" value="{{ old('waktu',\Carbon\Carbon::parse($artikel->tanggal)->format('H:i')) }}"
+                                class="border-gray-300 p-2 rounded focus:ring-blue-500 focus:border-blue-500">
+                                    
+                            </div>
+                        </div>
 
                       <div>
                           <label class="block font-medium">Foto</label>
@@ -84,7 +90,48 @@
                           <textarea id="editor" name="isi" rows="10"
                               class="border-gray-300 rounded w-full focus:ring-blue-500 focus:border-blue-500">{{ old('isi', $artikel->isi) }}</textarea>
                       </div>
+                        <div>
+                          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div>
+                                <div>
+                                   <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2 mt-2">
+                                      Penugasan <span class="text-xs text-gray-500 font-normal">(Optional)</span>
+                                  </label>
+                                  <select name="event_id" class="...">
+                                    <option value="{{ null }}"> - Pilih Penugasan - </option>
 
+                                        @foreach($penugasan as $p)
+                                            <option value="{{ $p->id }}" {{ $artikel->event_id == $p->id ? 'selected' : '' }}>{{ $p->nama_event }}</option>
+                                        @endforeach
+                                  </select>
+
+                                </div>
+                            </div>
+                          </div>
+                         </div>
+                          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div>
+                                <div>
+                                  <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2">Anggota DPR <span class="text-xs text-gray-500 font-normal">(Optional)</span></label>
+                                  <select id="anggota_dpr_id" name="anggota_dpr_id" class="w-full border-gray-300 rounded"></select>
+                                    <option value="{{ $artikel?->anggota_dpr_id ?? null }}" selected>
+                                    {{ $artikel?->anggotaDpr?->nama??'-' }}
+                                  </option>
+                                </div>
+                              <div>
+                                  <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2 mt-2">
+                                      Alat Kelengkapan DPR (AKD) <span class="text-xs text-gray-500 font-normal">(Optional)</span>
+                                  </label>
+                                  <select name="komisi_dpr_id" class="...">
+                                    <option value="{{ null }}"> - Alat Kelengkapan DPR - </option>
+                                        @foreach($komisi as $k)
+                                            <option value="{{ $k->id }}" {{ $artikel->komisi_dpr_id == $k->id ? 'selected' : '' }}>{{ $k->nama_komisi }} - {{ $k->bidang }}</option>
+                                        @endforeach
+                                  </select>
+                              </div>
+
+                          </div>
+                        </div>
                       <div>
                           <label class="block font-medium">Subyek</label>
                           <input type="text" name="subyek" value="{{ old('subyek',$artikel->subyek) }}"
@@ -171,27 +218,72 @@
 
   {{-- jQuery + Summernote JS --}}
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
+     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
+        <style>
+        .select2-container--default .select2-selection--single {
+            background-color: #fff;
+            border: 1px solid #d1d5db; /* Tailwind gray-300 */
+            border-radius: 0.375rem;   /* rounded-md */
+            padding: 0.5rem 0.75rem;   /* py-2 px-3 */
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+        }
 
-  {{-- Inisialisasi Summernote & Preview Gambar --}}
-  <script>
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #374151; /* gray-700 */
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100%;
+            right: 0.75rem;
+        }
+    </style>
+    {{-- Inisialisasi Summernote --}}
+    <script>
+           //select anggota DPR
+        $(document).ready(function() {
+            $('#anggota_dpr_id').select2({
+                placeholder: 'Cari nama anggota DPR...',
+                ajax: {
+                    url: '{{ route("anggota-dpr.search") }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 2,
+                width: '100%'
+            });
+        });
       document.addEventListener('DOMContentLoaded', function() {
-          $('#editor').summernote({
-              placeholder: 'Tulis isi artikel di sini...',
-              tabsize: 2,
-              height: 300,
-              toolbar: [
-                  ['style', ['style']],
-                  ['font', ['bold', 'italic', 'underline', 'clear']],
-                  ['fontname', ['fontname']],
-                  ['color', ['color']],
-                  ['para', ['ul', 'ol', 'paragraph']],
-                  ['insert', ['link', 'picture', 'video']],
-                  ['view', ['fullscreen', 'codeview', 'help']]
-              ]
-          });
-      });
-
+            $('#editor').summernote({
+                placeholder: 'Tulis isi artikel di sini...',
+                tabsize: 2,
+                height: 300,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ]
+            });
+        });
       // Preview Foto Baru
       document.querySelector('input[name="foto"]').addEventListener('change', function(e) {
           const file = e.target.files[0];

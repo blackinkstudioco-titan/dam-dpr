@@ -29,17 +29,25 @@ class Artikel extends Model
         'add_by',
         'add_date',
         'edit_by',
-        'edit_date'
+        'edit_date',
+        'komisi_dpr_id',
+        'anggota_dpr_id',
+        'event_id'
+
     ];
 
     protected $casts = [
-        'tanggal' => 'date',
+        'tanggal' => 'datetime',
         'add_date' => 'datetime',
         'edit_date' => 'datetime',
         'active' => 'boolean',
         'del' => 'boolean',
         'add_by' => 'integer',
         'edit_by' => 'integer',
+        'komisi_dpr_id' => 'integer',
+        'anggota_dpr_id' => 'integer',
+        'event_id' => 'integer'
+
     ];
 
     /**
@@ -47,6 +55,18 @@ class Artikel extends Model
      * RELATIONSHIPS
      * ========================================
      */
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id', 'id');
+    }
+    public function komisiDpr()
+    {
+        return $this->belongsTo(KomisiDpr::class, 'komisi_dpr_id', 'id');
+    }
+    public function anggotaDpr()
+    {
+        return $this->belongsTo(KomisiDpr::class, 'anggota_dpr_id', 'id');
+    }
 
     /**
      * User yang membuat artikel ini

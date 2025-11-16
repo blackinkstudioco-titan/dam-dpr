@@ -26,16 +26,26 @@ class ArtikelPublish extends Model
         'add_date',
         'edit_by',
         'edit_date',
+        'event_id',
+        'komisi_dpr_id',
+        'anggota_dpr_id'
+
+        
+
     ];
 
     protected $casts = [
-        'tanggal' => 'date',
+        'tanggal' => 'datetime',
         'add_date' => 'datetime',
         'edit_date' => 'datetime',
         'active' => 'boolean',
         'del' => 'boolean',
         'add_by' => 'integer',
         'edit_by' => 'integer',
+        'event_id' => 'integer',
+        'komisi_dpr_id' => 'integer',
+        'anggota_dpr_id' => 'integer'
+        
     ];
 
     /**
@@ -43,13 +53,24 @@ class ArtikelPublish extends Model
      * RELATIONSHIPS
      * ========================================
      */
-
+    public function anggotaDpr()
+    {
+        return $this->belongsTo(AnggotaDpr::class, 'anggota_dpr_id','id');
+    }
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id','id');
+    }
+    public function komisiDpr()
+    {
+        return $this->belongsTo(komisiDpr::class, 'komisi_dpr_id','id');
+    }
     /**
      * Relasi ke artikel draft
      */
-    public function artikel()
+    public function artikelDraft()
     {
-        return $this->belongsTo(Artikel::class, 'artikel_draft_id');
+        return $this->belongsTo(Artikel::class, 'artikel_draft_id','id');
     }
 
     /**

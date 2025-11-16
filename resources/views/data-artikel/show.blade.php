@@ -27,6 +27,8 @@
               <div class="text-gray-600 mb-4">
                   <p><strong>Tanggal:</strong> {{ $artikel->tanggal ? $artikel->tanggal->format('d M Y') : '-' }}</p>
                   <p><strong>Penulis:</strong> {{ $artikel->penulis ?? '-' }}</p>
+                  <p><strong>Penugasan:</strong> {{ $artikel->event->nama_event ?? '-' }}</p>
+                  <p><strong>Alat Kelengkapan DPR:</strong> {{ $artikel->komisiDPR->nama_komisi ?? '-' }}</p>
                   <p><strong>Sumber:</strong> {{ $artikel->sumber ?? '-' }}</p>
               </div>
 
@@ -53,7 +55,7 @@
               @endif
 
               <div class="mt-10 text-sm text-gray-500 border-t pt-4">
-                  <p><strong>Dibuat oleh:</strong> {{ $artikel->add_by ?? 'N/A' }}</p>
+                  <p><strong>Dibuat oleh:</strong> {{ $artikel->creator->name ?? 'N/A' }}</p>
                   <p><strong>Tanggal tambah:</strong> {{ $artikel->add_date ? $artikel->add_date->format('d M Y H:i') : '-' }}</p>
                   @if($artikel->edit_by)
                       <p><strong>Diedit oleh:</strong> {{ $artikel->edit_by }}</p>

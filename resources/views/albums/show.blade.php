@@ -29,7 +29,43 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Search & Filter Section -->
          
+           
 
+            <div class="bg-white rounded-lg shadow-sm mb-6">
+                <div class="p-6">
+                    <div class="grid grid-cols-12 md:grid-cols-12 gap-4">
+                        <div class="md:col-span-8">
+                        Nama Album: <span class="font-semibold">{{ $album->nama_album }}</span><br>
+                        Dibuat oleh: <span class="font-semibold">{{ $album->creator->name }}</span><br>
+                        Tanggal dibuat: <span class="font-semibold">{{ $album->created_at->format('d M Y') }}</span><br>
+                        @if($album->event)
+                        Event terkait: <span class="font-semibold">{{ $album->event->nama_event }}</span><br/>
+                        Alat Kelengkapan DPR (AKD) : <span class="font-semibold">{{ $album->komisiDpr->nama_komisi }}</span>
+                        @endif 
+                    
+                        <hr class="mt-4"/>
+                        <br/>
+                        <div class="flex gap-2">
+                        @if (auth()->user()?->hasAnyRole(['admin', 'editor','uploader']))
+                        <a href="{{ route('albums.edit', $album->id) }}" 
+                        class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm">
+
+                            Edit Album
+                        </a>
+                        <form action="{{ route('albums.destroy', $album->id) }}" method="POST" onsubmit="return confirm('Yakin hapus album ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Hapus</button>
+                        </form>
+                        @endif
+                        </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+    
             <!-- Photos Grid -->
             <div class="bg-white overflow-hidden shadow-sm rounded-lg">
                 <div class="p-6">

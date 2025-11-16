@@ -53,7 +53,8 @@
               @endif
 
               <div class="mt-10 text-sm text-gray-500 border-t pt-4">
-                  <p><strong>Dibuat oleh:</strong> {{ $artikel->add_by ?? 'N/A' }}</p>
+                  <p><strong>Dibuat oleh:</strong> {{ $artikel->penulis ?? 'N/A' }}</p>
+                  <p><strong>DiEdit oleh:</strong> {{ $artikel->editor->name ?? 'N/A' }}</p>
                   <p><strong>Tanggal tambah:</strong> {{ $artikel->add_date ? $artikel->add_date->format('d M Y H:i') : '-' }}</p>
                   @if($artikel->edit_by)
                       <p><strong>Diedit oleh:</strong> {{ $artikel->edit_by }}</p>

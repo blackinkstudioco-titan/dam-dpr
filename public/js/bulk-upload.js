@@ -77,6 +77,9 @@ $(document).ready(function() {
         
         const namaAlbum = $('#nama_album').val().trim();
         const deskripsi = $('#deskripsi').val().trim();
+        //add data penugasan and komisi
+        const penugasan = $('#event_id').val().trim();
+        const akd = $('#komisi_dpr_id').val().trim();
         
         console.log('📝 Form data:', { namaAlbum, deskripsi });
         
@@ -96,13 +99,20 @@ $(document).ready(function() {
             data: {
                 nama_album: namaAlbum,
                 deskripsi: deskripsi,
+                event_id: penugasan,
+                komisi_dpr_id: akd,
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             beforeSend: function(xhr) {
                 console.log('📤 Request being sent:', {
                     url: '/foto/bulk-upload/album',
                     method: 'POST',
-                    data: { nama_album: namaAlbum, deskripsi: deskripsi }
+                    data: { 
+                        nama_album: namaAlbum, 
+                        deskripsi: deskripsi,
+                        event_id: penugasan,
+                        komisi_dpr_id: akd, 
+                    }
                 });
             },
             success: function(response) {
@@ -110,10 +120,11 @@ $(document).ready(function() {
                 console.log('✅ Success response:', response);
                 
                 if(response.success) {
+                    //data album disimpan ke variable global
                     currentAlbum = response.data;
                     window.bulkUploadState.currentAlbum = response.data; // Sync to window
                     window.uploadedFilesCount = 0; // Track for beforeunload
-                    
+                    //exit();
                     $('#album-name-display').text(currentAlbum.nama_album);
                     $('#album-name-display-step3').text(currentAlbum.nama_album);
                     
@@ -510,7 +521,7 @@ $(document).ready(function() {
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Perekam</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Fotografer</label>
                         <input type="text" 
                                name="perekam_${index}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
@@ -603,6 +614,10 @@ $(document).ready(function() {
                 thumbnail_path: file.thumbnail_path,
                 meta_data: file.meta_data,
                 album_id: currentAlbum.id,
+                //data komisi dan penugasan 
+                event_id: currentAlbum.event_id,
+                komisi_dpr_id: currentAlbum.komisi_dpr_id,
+                //end data komisi dan penugasan
                 judul: judul,
                 deskrp: form.find(`[name="deskrp_${index}"]`).val(),
                 k_word: form.find(`[name="k_word_${index}"]`).val(),
@@ -635,10 +650,11 @@ $(document).ready(function() {
                 
                 if(response.success) {
                     showNotification('success', response.message);
-                    
+                    //console.log(response.data);
                     setTimeout(() => {
                         window.location.href = '/data-foto';
-                    }, 2000);
+                    }, 1000);
+                    
                 } else {
                     showNotification('error', response.message);
                 }

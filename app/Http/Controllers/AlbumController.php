@@ -2,13 +2,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\AlbumFoto;
+use App\Models\KomisiDpr;
+use App\Models\Event;
 use Illuminate\Http\Request;
 
 class AlbumController extends Controller
 {
     public function index()
     {
-        $albums = AlbumFoto::with('latestPhoto', 'creator')
+        $albums = AlbumFoto::with(['latestPhoto', 'creator', 'event:id,nama_event'])
             ->withCount('fotos')
             ->latest()
             ->paginate(12);
@@ -39,4 +41,31 @@ class AlbumController extends Controller
 
         return view('albums.show', compact('album', 'photos'));
     }
+    public function edit(AlbumFoto $album)
+        {
+            $komisi = KomisiDpr::all();
+            $event = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
+            return view('albums.edit', compact('album','komisi','event'));
+        }
+
+    public function update(Request $request, AlbumFoto $album)
+        {
+            $validated = $request->validate([
+                'nama_album' => 'required|string|max:255',
+                'deskripsi' => 'nullable|string',
+                'event_id' => 'nullable|exists:events,id',
+                'komisi_dpr_id' => 'nullable|exists:komisi_dpr,id',
+            ]);
+
+            $album->update($validated);
+
+            return redirect()->route('albums.index')->with('success', 'Album berhasil diperbarui.');
+        }
+
+    public function destroy(AlbumFoto $album)
+        {
+            $album->delete();
+
+            return redirect()->route('albums.index')->with('success', 'Album berhasil dihapus.');
+        }
 }

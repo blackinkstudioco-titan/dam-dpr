@@ -17,10 +17,12 @@ class Event extends Model
         'deskripsi',
         'tanggal',
         'pembuat_event',
+        'event_id', // ✅ field baru
     ];
 
     protected $casts = [
         'tanggal' => 'datetime',
+        'event_id' => 'integer',
     ];
 
     /**
@@ -30,4 +32,13 @@ class Event extends Model
     {
         return $this->belongsTo(User::class, 'pembuat_event');
     }
+    public function dataFoto()
+    {
+        return $this->hasMany(DataFoto::class, 'event_id');
+    }
+    public function AlbumFoto()
+    {
+        return $this->hasMany(AlbumFoto::class, 'event_id');
+    }
+
 }

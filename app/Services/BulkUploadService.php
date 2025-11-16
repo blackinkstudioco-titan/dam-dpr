@@ -181,6 +181,7 @@ class BulkUploadService
             'komisi_dpr_id' => $metaData['komisi_dpr_id'] ?? null,
             'anggota_dpr_id' => $metaData['anggota_dpr_id'] ?? null,
             'publish' => $metaData['publish'] ?? 0,
+            'event_id' => $metaData['event_id'] ?? null,
             
         ]);
     }

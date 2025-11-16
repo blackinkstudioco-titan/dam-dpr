@@ -175,16 +175,7 @@ function updateMetadataForms() {
                            class="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Level Akses</label>
-                    <select name="l_access_${index}"
-                            class="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500">
-                        <option value="1">Public</option>
-                        <option value="2">Internal</option>
-                        <option value="3">Restricted</option>
-                    </select>
-                </div>
-
+    
                 <div class="flex items-center space-x-2">
                     <input type="checkbox" 
                            name="publish_${index}"
@@ -229,7 +220,6 @@ async function savePhotos() {
                 deskrp: form.querySelector(`[name="deskrp_${index}"]`).value,
                 k_word: form.querySelector(`[name="k_word_${index}"]`).value,
                 f_lok: form.querySelector(`[name="f_lok_${index}"]`).value,
-                l_access: form.querySelector(`[name="l_access_${index}"]`).value,
                 publish: form.querySelector(`[name="publish_${index}"]`).checked ? 1 : 0
             };
         });
