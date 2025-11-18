@@ -11,7 +11,7 @@ class AnggotaDprController extends Controller
     public function search(Request $request)
     {
         $term = $request->get('q', '');
-        $anggota = AnggotaDpr::with('fraksi', 'komisi')
+        $anggota = AnggotaDpr::query()
             ->where('nama', 'LIKE', "%{$term}%")
             ->limit(20)
             ->get();
@@ -19,7 +19,7 @@ class AnggotaDprController extends Controller
         $results = $anggota->map(function ($a) {
             return [
                 'id' => $a->id,
-                'text' => "{$a->nama} - {$a->fraksi->nama_fraksi} ({$a->komisi->nama_komisi})"
+                'text' => "{$a->nama} - {$a->fraksi} ({$a->dapil})"
             ];
         });
 
