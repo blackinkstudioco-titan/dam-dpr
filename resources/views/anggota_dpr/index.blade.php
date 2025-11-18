@@ -23,24 +23,23 @@
     <table class="min-w-full bg-white border border-gray-300 rounded-md">
         <thead class="bg-gray-100">
             <tr>
+                <th class="py-2 px-3 border">No</th>
                 <th class="py-2 px-3 border">Nama</th>
-                <th class="py-2 px-3 border">Partai</th>
                 <th class="py-2 px-3 border">Fraksi</th>
-                <th class="py-2 px-3 border">Komisi</th>
                 <th class="py-2 px-3 border">Dapil</th>
-                <th class="py-2 px-3 border">Jabatan</th>
+                <th class="py-2 px-3 border">Jenis Kelamin</th>
                 <th class="py-2 px-3 border">Aksi</th>
             </tr>
         </thead>
         <tbody>
+            <?php $no=1?>
             @foreach($anggota as $a)
             <tr class="border-b hover:bg-gray-50">
+                <td class="py-2 px-3">{{ $no++ }}</td>
                 <td class="py-2 px-3">{{ $a->nama }}</td>
-                <td class="py-2 px-3">{{ $a->partai }}</td>
-                <td class="py-2 px-3">{{ $a->fraksi->nama_fraksi ?? '-' }}</td>
-                <td class="py-2 px-3">{{ $a->komisi->nama_komisi ?? '-' }}</td>
+                <td class="py-2 px-3">{{ $a->fraksi ?? '-' }}</td>
                 <td class="py-2 px-3">{{ $a->dapil ?? '-' }}</td>
-                <td class="py-2 px-3">{{ $a->jabatan ?? '-' }}</td>
+                <td class="py-2 px-3">{{ $a->jenis_kelamin ?? '-' }}</td>
                 <td class="py-2 px-3 flex gap-2">
                     <a href="{{ route('anggota-dpr.edit', $a->id) }}" class="text-blue-600 hover:underline">Edit</a>
                     <form action="{{ route('anggota-dpr.destroy', $a->id) }}" method="POST" onsubmit="return confirm('Yakin hapus data ini?')">

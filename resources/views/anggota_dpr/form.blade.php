@@ -4,33 +4,26 @@
         <input type="text" name="nama" value="{{ old('nama', $anggota->nama ?? '') }}" class="w-full border-gray-300 rounded-md p-2">
     </div>
     <div>
-        <label class="block text-sm font-medium">Partai</label>
-        <input type="text" name="partai" value="{{ old('partai', $anggota->partai ?? '') }}" class="w-full border-gray-300 rounded-md p-2">
+        <label class="block text-sm font-medium">Jenis Kelamin</label>
+        <select name="jenis_kelamin" class="w-full border-gray-300 rounded-md p-2">
+            <option value="Laki-laki" {{ (old('jenis_kelamin', $anggota->jenis_kelamin ?? '') == 'L') ? 'selected' : '' }}>Laki-laki</option>
+            <option value="Perempuan" {{ (old('jenis_kelamin', $anggota->jenis_kelamin ?? '') == 'P') ? 'selected' : '' }}>Perempuan</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-sm font-medium">Fraksi</label>
+        <input type="text" name="fraksi" value="{{ old('fraksi', $anggota->fraksi ?? '') }}" class="w-full border-gray-300 rounded-md p-2">
+    </div>
+    <div>
+        <label class="block text-sm font-medium">Dapil</label>
+        <input type="text" name="dapil" value="{{ old('dapil', $anggota->dapil ?? '') }}" class="w-full border-gray-300 rounded-md p-2">
     </div>
     <div>
         <label class="block text-sm font-medium">Periode Terpilih</label>
         <input type="text" name="periode_terpilih" value="{{ old('periode_terpilih', $anggota->periode_terpilih ?? '') }}" class="w-full border-gray-300 rounded-md p-2">
     </div>
 
-    <div>
-        <label class="block text-sm font-medium">Fraksi</label>
-        <select name="fraksi_id" class="w-full border-gray-300 rounded-md p-2">
-            <option value="">-- Pilih Fraksi --</option>
-            @foreach($fraksi as $f)
-                <option value="{{ $f->id }}" {{ old('fraksi_id', $anggota->fraksi_id ?? '') == $f->id ? 'selected' : '' }}>{{ $f->nama_fraksi }}</option>
-            @endforeach
-        </select>
-    </div>
-
-    <div>
-        <label class="block text-sm font-medium">Komisi</label>
-        <select name="komisi_dpr_id" class="w-full border-gray-300 rounded-md p-2">
-            <option value="">-- Pilih Komisi --</option>
-            @foreach($komisi as $k)
-                <option value="{{ $k->id }}" {{ old('komisi_dpr_id', $anggota->komisi_dpr_id ?? '') == $k->id ? 'selected' : '' }}>{{ $k->nama_komisi }}</option>
-            @endforeach
-        </select>
-    </div>
+   
     <?php
     /*
     <div>

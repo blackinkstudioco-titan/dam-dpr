@@ -33,19 +33,19 @@ class AnggotaDprController extends Controller
 
     public function create()
     {
-        $fraksi = Fraksi::all();
-        $komisi = KomisiDpr::all();
-        return view('anggota_dpr.create', compact('fraksi', 'komisi'));
+        //$fraksi = Fraksi::all();
+        //$komisi = KomisiDpr::all();
+        return view('anggota_dpr.create');
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:100',
-            'partai' => 'required|string|max:100',
+            'dapil' => 'required|string|max:255',
             'periode_terpilih' => 'required|string|max:100',
-            'fraksi_id' => 'required|exists:fraksi,id',
-            'komisi_dpr_id' => 'required|exists:komisi_dpr_ri,id',
+            'fraksi' => 'required|string|max:255',
+            'jenis_kelamin' => 'required|string|max:50',
             //'dapil' => 'nullable|string|max:150',
             //'jabatan' => 'nullable|string|max:100',
             //'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -72,10 +72,10 @@ class AnggotaDprController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:100',
-            'partai' => 'required|string|max:100',
+            'dapil' => 'required|string|max:255',
             'periode_terpilih' => 'required|string|max:100',
-            'fraksi_id' => 'required|exists:fraksi,id',
-            'komisi_dpr_id' => 'required|exists:komisi_dpr_ri,id',
+            'fraksi' => 'required|string|max:255',
+            'jenis_kelamin' => 'required|string|max:50',
             //'dapil' => 'nullable|string|max:150',
             //'jabatan' => 'nullable|string|max:100',
             //'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',

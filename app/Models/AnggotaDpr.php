@@ -22,7 +22,7 @@ class AnggotaDpr extends Model
         'jenis_kelamin',  // baru
     ];
 
-    public function detailFraksi()
+    public function fraksi()
     {
         return $this->belongsTo(Fraksi::class, 'fraksi_id');
     }
