@@ -162,7 +162,7 @@
                                   @if($dataFoto->tgl_mm)
                                       <div class="mt-4">
                                           <dt class="text-sm font-medium text-gray-500">Tanggal foto</dt>
-                                          <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->tgl_mm->format('d F Y') }}</dd>
+                                          <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->created_at->format('d F Y') }}</dd>
                                       </div>
                                   @endif
                                   {{-- Keywords --}}

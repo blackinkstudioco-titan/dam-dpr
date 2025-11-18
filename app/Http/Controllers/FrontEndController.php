@@ -96,50 +96,81 @@ class FrontEndController extends Controller
       ]);
     }
     public function search(Request $request){
-      $query = DataFoto::query()->with('kategori:id,k_name');
-      
-      // Search functionality
-      if ($request->filled('q')) {
-          $query->search($request->q);
-      }
+    
+    $dataFoto = collect();
+    $dataArtikel = collect();
 
-      // Filter by publish status
-      if ($request->filled('status')) {
-          match($request->status) {
-              'published' => $query->where('publish', true),
-              'unpublished' => $query->where('publish', false),
-              default => null
-          };
-      }
+    $cat=$request->cat;
 
-      // Filter by category
-      if ($request->filled('kategori')) {
-          $query->where('kategorisasi_datatempo', $request->kategori);
-      }
+    if($cat=="foto"):
+        
+        $query = DataFoto::query()->with('kategori:id,k_name'); 
+        // Search functionality
+        if ($request->filled('q')) {
+            $query->search($request->q);
+        }
 
-      // Filter by date range
-      if ($request->filled(['start_date', 'end_date'])) {
-          $query->dateRange($request->start_date, $request->end_date);
-      }
+        // Filter by publish status
+        if ($request->filled('status')) {
+            match($request->status) {
+                'published' => $query->where('publish', true),
+                'unpublished' => $query->where('publish', false),
+                default => null
+            };
+        }
 
-      // Filter by subject
-      if ($request->filled('subyek')) {
-          $query->bySubject($request->subyek);
-      }
+        // Filter by category
+        if ($request->filled('kategori')) {
+            $query->where('kategorisasi_datatempo', $request->kategori);
+        }
 
-      // Sort
-      $sortBy = $request->get('sort_by', 'created_at');
-      $sortOrder = $request->get('sort_order', 'desc');
-      $query->orderBy($sortBy, $sortOrder);
+        // Filter by date range
+        if ($request->filled(['start_date', 'end_date'])) {
+            $query->dateRange($request->start_date, $request->end_date);
+        }
 
-      $dataFoto = $query->paginate($request->get('per_page', 12))
-                       ->withQueryString();
+        // Filter by subject
+        if ($request->filled('subyek')) {
+            $query->bySubject($request->subyek);
+        }
 
-      return view('front-end.search-result', [
-          'dataFoto' => $dataFoto,
-          'kategoriFoto' => KategoriFoto::all(),
-      ]);
+        // Sort
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
 
-    }
+        $dataFoto = $query->paginate($request->get('per_page', 12))
+                        ->withQueryString();
+
+        
+       
+    elseif($cat=="artikel"):
+        
+        $query = ArtikelPublish::where('active', 1);
+        // Search functionality
+        if ($request->filled('q')) {
+            $query->where('judul', 'LIKE', '%' . $request->q . '%')
+                  ->orWhere('isi', 'LIKE', '%' . $request->q . '%');
+        }
+
+        // Sort
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+
+        $dataArtikel = $query->paginate($request->get('per_page', 12))
+                        ->withQueryString();
+     
+
+    endif;
+     return view('front-end.search-result', [
+            'dataFoto' => $dataFoto,
+            'dataArtikel' => $dataArtikel,
+            'kategoriFoto' => KategoriFoto::all(),
+        ]);
+    
+
+    
+}
 
 }

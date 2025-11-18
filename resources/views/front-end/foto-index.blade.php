@@ -23,7 +23,7 @@
                           <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition">
                               <div class="absolute bottom-0 left-0 right-0 p-4">
                                   <h3 class="text-white font-semibold text-lg">{{ $foto->judul }}</h3>
-                                  <p class="text-gray-200 text-sm">{{ $foto->tgl_mm->format('d M Y') }}</p>
+                                  <p class="text-gray-200 text-sm">{{ $foto->created_at->format('d M Y') }}</p>
                               </div>
                           </div>
                     </a>

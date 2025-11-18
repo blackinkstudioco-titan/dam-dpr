@@ -40,7 +40,6 @@ Route::get('/api/anggota-dpr/search', [AnggotaDprController::class, 'search'])->
 Route::get('/', [FrontEndController::class, 'index'])->name('home');
 Route::get('/search', [FrontEndController::class, 'search'])->name('search');
 Route::get('/list-artikel', [FrontEndController::class, 'artikel'])->name('list-artikel');
-
 Route::get('/read-artikel/{slug}/{artikel_publish}', [FrontEndController::class, 'read_artikel'])
     ->name('read-artikel');
 

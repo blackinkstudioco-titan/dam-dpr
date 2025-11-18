@@ -9,7 +9,7 @@
                   <form action="{{ route('search') }}" method="GET" class="relative">
                     <div class="bg-gray-50 rounded-lg shadow-md p-6 sticky top-4">
                         <h3 class="text-xl font-bold text-gray-800 mb-4">Filter Pencarian</h3>
-
+                        <input type="hidden" name="cat" value="{{request('cat')}}">
                         <!-- Info Keyword -->
                         <div class="mb-6">
                             <p class="text-sm text-gray-600 mb-2">Kata Kunci:</p>
@@ -46,19 +46,18 @@
                     <!-- Header -->
                     <div class="mb-8">
                         <h2 class="text-3xl font-bold text-gray-800 mb-2">Hasil Pencarian</h2>
-                        <p class="text-gray-600">Ditemukan <strong>{{ $dataFoto->total() }} foto</strong> untuk kata kunci <strong>"{{ request('q') }}"</strong></p>
                     </div>
                     <div class="mb-8 bg-gray-200 p-3 text-gray-400 flex gap-4">
                     <x-nav-link
-                            :href="route('dashboard')"
-                            :active="request()->routeIs('dashboard')"
+                            :href="route('search', ['q' => request('q'), 'cat' => 'artikel'])"
+                            :active="request()->routeIs('artikel')"
                             class="text-red-700 hover:text-red-700 data-[active=true]:text-red-600 font-semibold transition"
                         >
                             {{ __('Data Artikel') }}
                         </x-nav-link>
 
                         <x-nav-link
-                            :href="route('search', ['q' => request('q'), 'cat' => request('cat')])"
+                            :href="route('search', ['q' => request('q'), 'cat' => 'foto'])"
                             :active="request()->routeIs('foto')"
                             class="text-red-700 hover:text-red-700 data-[active=true]:text-red-600 font-semibold transition"
                         >
@@ -81,7 +80,7 @@
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition">
                                         <div class="absolute bottom-0 left-0 right-0 p-4">
                                             <h3 class="text-white font-semibold text-lg">{{ $foto->judul }}</h3>
-                                            <p class="text-gray-200 text-sm">{{ $foto->tgl_mm->format('d M Y') }}</p>
+                                            <p class="text-gray-200 text-sm">{{ $foto->created_at->format('d M Y') }}</p>
                                         </div>
                                     </div>
                                 </a>
@@ -96,6 +95,47 @@
                                 </div>
                                 <div>
                                     {{ $dataFoto->withQueryString()->links() }}
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($dataArtikel->count() > 0)
+                        <!-- Article Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                            @foreach($dataArtikel as $artikel)
+                                <!-- Artikel item -->
+                                <a href="{{ route('read-artikel', ['slug' => Str::slug($artikel->judul), 'artikel_publish' => $artikel]) }}" class="block group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition">
+
+                                    <div class="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition p-4 flex flex-col justify-between">
+                                        <div>
+                                            <h3 class="font-semibold text-lg text-gray-800 mb-2 line-clamp-2">
+                                                {{ $artikel->judul }}
+                                            </h3>
+                                            <p class="text-sm text-gray-500 mb-1">
+                                                {{ $artikel->tanggal ? $artikel->tanggal->format('d M Y') : '-' }}
+                                            </p>
+                                            <p class="text-sm text-gray-600 line-clamp-3">
+                                                {{ \Illuminate\Support\Str::limit(strip_tags($artikel->isi), 120) }}
+                                            </p>
+                                        </div>
+
+                                        <div class="mt-4 flex justify-between items-center text-sm">
+                                            <span class="text-gray-500 italic">
+                                                {{ $artikel->penulis ?? 'Anonim' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                  </a>
+                            @endforeach
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="bg-white rounded-lg shadow-sm px-6 py-4">
+                            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                                <div class="text-sm text-gray-600">
+                                    Menampilkan {{ $dataArtikel->firstItem() }} - {{ $dataArtikel->lastItem() }} dari {{ $dataArtikel->total() }} artikel
+                                </div>
+                                <div>
+                                    {{ $dataArtikel->withQueryString()->links() }}
                                 </div>
                             </div>
                         </div>

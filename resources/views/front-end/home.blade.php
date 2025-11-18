@@ -40,7 +40,7 @@
                           <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition">
                               <div class="absolute bottom-0 left-0 right-0 p-4">
                                   <h3 class="text-white font-semibold text-lg">{{ $foto->judul }}</h3>
-                                  <p class="text-gray-200 text-sm">{{ $foto->tgl_mm->format('d M Y') }}</p>
+                                  <p class="text-gray-200 text-sm">{{ $foto->created_at->format('d M Y') }}</p>
                               </div>
                           </div>
                     </a>
@@ -68,6 +68,7 @@
               @else
               <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                       @foreach ($artikels as $artikel)
+                       <a href="{{ route('read-artikel', ['slug' => Str::slug($artikel->judul), 'artikel_publish' => $artikel]) }}" class="block group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition">
                           <div class="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition p-4 flex flex-col justify-between">
                               <div>
                                   <h3 class="font-semibold text-lg text-gray-800 mb-2 line-clamp-2">
@@ -87,6 +88,7 @@
                                   </span>
                               </div>
                           </div>
+                        </a>
                       @endforeach
 
               </div>
