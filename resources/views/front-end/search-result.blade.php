@@ -53,7 +53,7 @@
                             :active="request()->routeIs('artikel')"
                             class="text-red-700 hover:text-red-700 data-[active=true]:text-red-600 font-semibold transition"
                         >
-                            {{ __('Data Artikel') }}
+                            {{ __('Data Artikel').' ('.$dataArtikel->count().')' }}
                         </x-nav-link>
 
                         <x-nav-link
@@ -61,7 +61,7 @@
                             :active="request()->routeIs('foto')"
                             class="text-red-700 hover:text-red-700 data-[active=true]:text-red-600 font-semibold transition"
                         >
-                            {{ __('Data Foto') }}
+                            {{ __('Data Foto'). ' ('.$dataFoto->count().')' }}
                         </x-nav-link>
                     </div>
 
