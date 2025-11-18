@@ -16,10 +16,13 @@ class AnggotaDpr extends Model
         'fraksi_id',
         'komisi_dpr_id',
         'periode_terpilih',
-        'partai'
+        'partai',
+        'fraksi',         // baru
+        'dapil',          // baru
+        'jenis_kelamin',  // baru
     ];
 
-    public function fraksi()
+    public function detailFraksi()
     {
         return $this->belongsTo(Fraksi::class, 'fraksi_id');
     }
@@ -28,5 +31,4 @@ class AnggotaDpr extends Model
     {
         return $this->belongsTo(KomisiDpr::class, 'komisi_dpr_id');
     }
-    
 }

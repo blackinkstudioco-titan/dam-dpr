@@ -25,9 +25,9 @@ class FrontEndController extends Controller
         $dataFoto = $query->paginate($request->get('per_page', 8))
                          ->withQueryString();
 
-        $query = ArtikelPublish::query()->orderByDesc('id');
-        $artikel = $query->paginate(8);
-
+        $artikel = ArtikelPublish::where('active', 1)
+            ->orderByDesc('id')
+            ->paginate(12);
 
         return view('front-end.home', [
             'dataFoto' => $dataFoto,
