@@ -108,9 +108,11 @@
                     <div>
                         <h3 class="text-xl font-bold mb-4">Kontak</h3>
                         <ul class="space-y-2 text-gray-400">
-                            <li>Email: info@example.com</li>
-                            <li>Telp: (021) 1234-5678</li>
-                            <li>Alamat: Jakarta, Indonesia</li>
+                            
+                            <li>
+                                Jl.Jenderal Gatot Subroto,
+                                Senayan Jakarta 10270 - Indonesia
+                            </li>
                         </ul>
             
                     </div>
