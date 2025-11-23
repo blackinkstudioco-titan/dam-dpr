@@ -5,15 +5,28 @@ use App\Models\AlbumFoto;
 use App\Models\KomisiDpr;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class AlbumController extends Controller
 {
+     public function __construct(
+        
+    ) {
+        $this->middleware('auth');
+    }
     public function index()
     {
-        $albums = AlbumFoto::with(['latestPhoto', 'creator', 'event:id,nama_event'])
+        
+        $query = AlbumFoto::with(['latestPhoto', 'creator', 'event:id,nama_event'])
             ->withCount('fotos')
-            ->latest()
-            ->paginate(12);
+            ->latest();
+
+        if (auth()->user()?->hasAnyRole(['uploader'])) {
+            $query->where('created_by', Auth::id());
+        }
+
+        $albums = $query->paginate(12);
 
         return view('albums.index', compact('albums'));
     }

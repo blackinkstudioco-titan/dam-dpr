@@ -48,7 +48,22 @@
                                     </option>
                                 </select>
                             </div>
+                            {{-- user --}}
+                            <div>
+                                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ $reportType === 'upload' ? 'Penulis' : 'Editor' }}
+                                </label>
+                                <select name="user_id" id="user_id" 
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">Semua {{ $reportType === 'upload' ? 'Penulis' : 'Editor' }}</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}" {{ $userId == $user->id ? 'selected' : '' }}>
+                                            {{ $user->name }} ({{ $user->role_name }})
+                                        </option>
+                                    @endforeach
+                                </select>
 
+                            </div>
                             {{-- Start Date --}}
                             <div>
                                 <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
@@ -218,7 +233,7 @@
                                             </td>
                                             <td class="px-6 py-4">
                                                 <div class="text-sm text-gray-900">
-                                                    {{ $foto->kategori->nama_kategori ?? '-' }}
+                                                    {{ $foto->kategori->k_name ?? '-' }}
                                                 </div>
                                                 @if($foto->album)
                                                     <div class="text-xs text-gray-500">
@@ -235,9 +250,9 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 @if($reportType === 'edit')
-                                                    {{ $foto->edit_by ?? '-' }}
+                                                    {{ $foto?->editor?->name ?? '-' }}
                                                 @else
-                                                    {{ $foto->perekam ?? '-' }}
+                                                    {{ $foto?->uploader?->name ?? '-' }}
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

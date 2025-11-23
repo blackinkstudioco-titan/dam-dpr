@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Artikel;
 use App\Models\ArtikelPublish;
+use App\Models\Event;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -24,13 +25,14 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
     protected $status;
     protected $rowNumber = 0;
 
-    public function __construct($reportType, $startDate, $endDate, $rubrik = null, $status = null)
+    public function __construct($reportType, $startDate, $endDate, $rubrik = null, $status = null, $userId = null)
     {
         $this->reportType = $reportType;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->rubrik = $rubrik;
         $this->status = $status;
+        $this->userId = $userId;
     }
 
     /**
@@ -40,8 +42,10 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
     {
         if ($this->reportType === 'upload') {
             // Query dari tabel artikel (draft) dengan creator
-            $query = Artikel::with('creator');
-
+            $query = Artikel::with(['creator','event']);
+            if($this->userId){
+                $query->where('add_by', $this->userId);
+            }
             if ($this->startDate) {
                 $query->whereDate('add_date', '>=', $this->startDate);
             }
@@ -51,8 +55,10 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
             $query->orderBy('add_date', 'desc');
         } else {
             // Query dari tabel artikel_publish dengan editor
-            $query = ArtikelPublish::with(['editor', 'artikel']);
-
+            $query = ArtikelPublish::with(['editor', 'creator','event']);
+            if($this->userId){
+                $query->where('edit_by', $this->userId);
+            }
             if ($this->startDate) {
                 $query->whereDate('edit_date', '>=', $this->startDate);
             }
@@ -85,24 +91,19 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
     public function headings(): array
     {
         $dateColumn = $this->reportType === 'upload' ? 'Tanggal Upload' : 'Tanggal Edit (Publish)';
-        $userColumn = $this->reportType === 'upload' ? 'Ditambahkan Oleh' : 'Di Edit Oleh (Publisher)';
+        $userColumn = $this->reportType === 'upload' ? 'Penulis' : 'Di Edit Oleh (Publisher)';
         $idColumn = $this->reportType === 'upload' ? 'ID Draft' : 'ID Publish / ID Draft';
 
         return [
             'No',
-            $idColumn,
-            'Tanggal Artikel',
+            'Penugasan',
             'Judul',
-            'Rubrik',
             'Penulis',
-            'Sumber',
-            'Subyek',
-            'Keywords',
+            'Tanggal Penugasan',
             $dateColumn,
             $userColumn,
-            'Role User',
             'Status',
-            'Deskripsi',
+            'Foto',
         ];
     }
 
@@ -137,21 +138,19 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
 
         return [
             $this->rowNumber,
-            $idColumn,
-            $artikel->tanggal ? $artikel->tanggal->format('d-m-Y') : '-',
+            $artikel->event?->nama_event ? $artikel->event->nama_event : '-',
             $artikel->judul,
-            $artikel->rubrik ?? '-',
             $artikel->penulis ?? '-',
-            $artikel->sumber ?? '-',
-            $artikel->subyek ?? '-',
-            $artikel->keyword ?? '-',
+            $artikel->event?->tanggal ? $artikel->event->tanggal->format('d-m-Y H:i') : '-',
             $this->reportType === 'upload' 
                 ? ($artikel->add_date ? $artikel->add_date->format('d-m-Y H:i:s') : '-')
                 : ($artikel->edit_date ? $artikel->edit_date->format('d-m-Y H:i:s') : '-'),
-            $userName, // Nama user dari relasi
-            $userRole, // Role user dari relasi
+            $this->reportType === 'upload'
+                    ? ( $artikel->creator ? $artikel->creator->name : 'Unknown User' )
+                    : ( $artikel->editor ? $artikel->editor->name : 'Unknown User'),
+            
             $status,
-            strip_tags($artikel->deskripsi ?? '-'),
+            $artikel->foto ? 'Ada' : 'Tidak'
         ];
     }
 
@@ -191,11 +190,7 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
             'G' => 20,  // Sumber
             'H' => 20,  // Subyek
             'I' => 30,  // Keywords
-            'J' => 20,  // Tanggal Upload/Edit
-            'K' => 20,  // User Name
-            'L' => 12,  // User Role
-            'M' => 12,  // Status
-            'N' => 50,  // Deskripsi
+         
         ];
     }
 

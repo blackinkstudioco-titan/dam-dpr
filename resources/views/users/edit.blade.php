@@ -33,8 +33,8 @@
                             <x-input-label for="role" :value="__('Role')" />
                             <select id="role" name="role" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                                 <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="editor" {{ old('role', $user->role) === 'editor' ? 'selected' : '' }}>Editor Foto</option>
-                                <option value="uploader" {{ old('role', $user->role) === 'uploader' ? 'selected' : '' }}>Uploader Foto</option>
+                                <option value="editor" {{ old('role', $user->role) === 'editor' ? 'selected' : '' }}>Editor</option>
+                                <option value="uploader" {{ old('role', $user->role) === 'uploader' ? 'selected' : '' }}>Uploader</option>
                                 <option value="guest" {{ old('role', $user->role) === 'guest' ? 'selected' : '' }}>Guest</option>
                             </select>
                             <x-input-error :messages="$errors->get('role')" class="mt-2" />

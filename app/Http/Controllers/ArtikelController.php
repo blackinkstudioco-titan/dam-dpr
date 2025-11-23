@@ -21,20 +21,32 @@ class ArtikelController extends Controller
     {
         $search = $request->get('q');
         //$query = Artikel::query()->orderByDesc('id');
-
-
-        $query = Artikel::with('event')
+        
+        if (auth()->user()?->hasAnyRole(['admin', 'editor'])){
+          $query = Artikel::with('event')
             ->leftJoin('artikel_publish', 'artikel.id', '=', 'artikel_publish.artikel_draft_id')
             ->select('artikel.*')
             ->selectRaw('IF(artikel_publish.id IS NULL, 0, 1) as is_published')
             ->orderByDesc('artikel.id');
-
-
-        if ($search) {
-            $query->where('judul', 'like', "%$search%")
-                  ->orWhere('penulis', 'like', "%$search%")
-                  ->orWhere('keyword', 'like', "%$search%");
         }
+        else
+        {
+            $query = Artikel::with('event')
+            ->leftJoin('artikel_publish', 'artikel.id', '=', 'artikel_publish.artikel_draft_id')
+            ->select('artikel.*')
+            ->where('artikel.add_by', Auth::id())
+            ->selectRaw('IF(artikel_publish.id IS NULL, 0, 1) as is_published')
+            ->orderByDesc('artikel.id');
+        }
+        if ($search) {
+            $query->where('artikel.judul', 'like', "%$search%");
+                  //->Where('artikel.penulis', 'like', "%$search%")
+                  //->Where('artikel.keyword', 'like', "%$search%");
+        }
+     
+
+        
+        //dd($query->toSql());
 
         $artikels = $query->paginate(10);
         return view('data-artikel.index', compact('artikels', 'search'));
@@ -93,8 +105,16 @@ class ArtikelController extends Controller
         $komisi = KomisiDpr::all();
         //DB::enableQueryLog();
         $penugasan = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
-        $artikel = Artikel::findOrFail($id);
-        return view('data-artikel.edit', compact('artikel','penugasan','komisi'));
+        $artikel = Artikel::where('id', $id)
+                ->where('add_by', Auth::id())
+            ->first();
+        if($artikel){
+         return view('data-artikel.edit', compact('artikel','penugasan','komisi'));
+        }
+        else{
+          return redirect()->route('artikel.index')->with('error', 'Anda tidak memiliki izin untuk mengedit artikel ini.');
+        }
+        
     }
 
     public function update(Request $request, $id)
@@ -138,6 +158,9 @@ class ArtikelController extends Controller
 
           $validated['artikel_draft_id']=$id;
           $validated['active']=0;
+          $validated['edit_by'] = null;
+          $validated['add_date'] = now();
+          $validated['add_by'] = Auth::id();
           ArtikelPublish::firstOrCreate(
               ['artikel_draft_id' => $id],
               $validated
@@ -150,8 +173,16 @@ class ArtikelController extends Controller
 
     public function show($id)
     {
-        $artikel = Artikel::findOrFail($id);
-        return view('data-artikel.show', compact('artikel'));
+         $artikel = Artikel::where('id', $id)
+                ->where('add_by', Auth::id())
+            ->first();
+        if($artikel){
+         return view('data-artikel.show', compact('artikel'));
+        }
+        else{
+          return redirect()->route('artikel.index')->with('error', 'Anda tidak memiliki izin untuk mengedit artikel ini.');
+        }
+        
     }
 
 

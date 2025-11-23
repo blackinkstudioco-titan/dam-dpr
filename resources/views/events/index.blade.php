@@ -4,7 +4,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Events') }}
             </h2>
-            <a href="{{ route('events.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <a href="{{ route('events.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-150 ease-in-out">
                 Tambah Event
             </a>
         </div>

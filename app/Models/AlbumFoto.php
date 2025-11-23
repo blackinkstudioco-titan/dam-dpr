@@ -16,6 +16,7 @@ class AlbumFoto extends Model
         'created_by',
         'event_id',
         'komisi_dpr_id',
+        'kategori_foto_id',
         'edit_by',
     ];
 
@@ -24,9 +25,15 @@ class AlbumFoto extends Model
         'edit_at' => 'datetime',
         'event_id' => 'integer',
         'event_id' => 'integer',
+        'komisi_dpr_id' => 'integer',
+        'kategori_foto_id' => 'integer',
     ];
 
     /** 🔗 Relasi ke User */
+    public function kategoriFoto(): BelongsTo
+    {
+        return $this->belongsTo(KategoriFoto::class, 'kategori_foto_id');
+    }
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

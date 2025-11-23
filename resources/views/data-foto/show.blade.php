@@ -241,16 +241,16 @@
                             @endif
 
                             <div class="border-b pb-3">
-                                <dt class="text-sm font-medium text-gray-500">Dibuat oleh</dt>
-                                <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->k_name }}</dd>
+                                <dt class="text-sm font-medium text-gray-500">Uploder</dt>
+                                <dd class="text-sm text-gray-900 mt-1">{{ $dataFoto->uploader->name }}</dd>
                             </div>
 
                             @if($dataFoto->edit_by)
                                 <div>
-                                    <dt class="text-sm font-medium text-gray-500">Terakhir diubah</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Editor</dt>
                                     <dd class="text-sm text-gray-900 mt-1">
-                                        {{ $dataFoto->edit_by }}
-                                        <span class="block text-xs text-gray-500 mt-1">{{ $dataFoto->edit_date->format('d M Y H:i') }}</span>
+                                        {{ $dataFoto->editor->name }}
+                                        <span class="block text-xs text-gray-500 mt-1">{{ $dataFoto->edit_date ? $dataFoto->edit_date->format('d M Y H:i'):'-' }}</span>
                                     </dd>
                                 </div>
                             @endif

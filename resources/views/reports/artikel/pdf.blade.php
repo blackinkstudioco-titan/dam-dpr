@@ -209,10 +209,10 @@
         <thead>
             <tr>
                 <th style="width: 3%;">No</th>
-                <th style="width: 8%;">Tgl Artikel</th>
-                <th style="width: 30%;">Judul</th>
-                <th style="width: 10%;">Rubrik</th>
+                <th style="width: 8%;">Penugasan</th>
+                <th style="width: 30%;">Judul</th> 
                 <th style="width: 12%;">Penulis</th>
+                <th style="width: 10%;">Tanggal Penugasan</th>
                 <th style="width: 12%;">{{ $reportType === 'upload' ? 'Tgl Upload' : 'Tgl Edit' }}</th>
                 <th style="width: 10%;">{{ $reportType === 'upload' ? 'Add By' : 'Edit By' }}</th>
                 <th style="width: 8%;">Status</th>
@@ -223,10 +223,10 @@
             @foreach($artikels as $index => $artikel)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $artikel->tanggal ? $artikel->tanggal->format('d/m/Y') : '-' }}</td>
+                    <td> {{ $artikel->event?->nama_event ? $artikel->event->nama_event : '-' }}</td>
                     <td>{{ Str::limit($artikel->judul, 50) }}</td>
-                    <td>{{ $artikel->rubrik ?? '-' }}</td>
                     <td>{{ $artikel->penulis ?? '-' }}</td>
+                    <td>{{ $artikel->event?->tanggal ? $artikel->event->tanggal->format('d M Y H:i') : '-' }}</td>
                     <td>
                         @if($reportType === 'upload')
                             {{ $artikel->add_date ? $artikel->add_date->format('d/m/Y H:i') : '-' }}

@@ -12,7 +12,17 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Schedule untuk foto
+            $schedule->command('photos:process-schedule')
+                    ->everyMinute()
+                    ->withoutOverlapping()
+                    ->runInBackground();
+
+            // Schedule untuk artikel (tambahkan ini)
+            $schedule->command('artikel:process-schedule')
+                    ->everyMinute()
+                    ->withoutOverlapping()
+                    ->runInBackground();
     }
 
     /**

@@ -7,7 +7,7 @@
               </svg>
               {{ __('Data Artikel') }}
           </h2>
-          @if (auth()->user()?->hasAnyRole(['admin', 'editor']))
+          @if (auth()->user()?->hasAnyRole(['admin', 'editor','uploader']))
               <a href="{{ route('artikel.create') }}" class="bg-red-600 text-white px-4 py-2 rounded">+ Tambah Artikel</a>
           @endif
       </div>
@@ -71,7 +71,7 @@
                 <th class="border p-2">Tanggal Penugasan</th>
                 <th class="border p-2">Tanggal Artikel</th>
                 <th class="border p-2">AKD</th>
-                <th class="border p-2">Penulis</th>
+                <th class="border p-2">Uploader</th>
                 <th class="border p-2">Status</th>
                 <th class="border p-2">Aksi</th>
             </tr>
@@ -84,7 +84,7 @@
                     <td class="border p-2">{{ $a->event?->tanggal?->format('d-m-Y H:i:s') ?? '-' }}</td>
                     <td class="border p-2">{{ $a->tanggal->format('d-m-Y H:i:s') }}</td>
                     <td class="border p-2">{{ $a->komisiDpr?->nama_komisi?? '-' }}</td>
-                    <td class="border p-2">{{ $a->penulis }}</td>
+                    <td class="border p-2">{{ $a->creator->name }}</td>
                     <td class="border p-2">
 
                         @if ($a->is_published)

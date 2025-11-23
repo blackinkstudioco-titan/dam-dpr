@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Artikel;
+use App\Models\User;
+use App\Models\Event;
 use App\Models\ArtikelPublish;
 use App\Exports\ArtikelReportExport;
 use Illuminate\Http\Request;
@@ -15,7 +17,7 @@ class ReportArtikelController extends Controller
     /**
      * Display the report page
      */
-    public function index(Request $request)
+public function index(Request $request)
 {
     $reportType = $request->get('report_type', 'upload');
     $startDate = $request->get('start_date');
@@ -24,11 +26,15 @@ class ReportArtikelController extends Controller
     $rubrik = $request->get('rubrik');
     $status = $request->get('status');
 
+    $userId = $request->get('user_id');
+
     // Query builder - berbeda berdasarkan report type
     if ($reportType === 'upload') {
         // Report Upload: gunakan tabel artikel (draft) + eager load creator
-        $query = Artikel::with('creator');
-        
+        $query = Artikel::with(['creator','event']);
+        if($userId){
+            $query->where('add_by', $userId);
+        }
         if ($startDate) {
             $query->whereDate('add_date', '>=', $startDate);
         }
@@ -38,8 +44,10 @@ class ReportArtikelController extends Controller
         $query->orderBy('add_date', 'desc');
     } else {
         // Report Edit: gunakan tabel artikel_publish + eager load editor
-        $query = ArtikelPublish::with(['editor', 'artikel']);
-        
+        $query = ArtikelPublish::with(['editor', 'creator','event']);
+        if($userId){
+            $query->where('edit_by', $userId);
+        }
         if ($startDate) {
             $query->whereDate('edit_date', '>=', $startDate);
         }
@@ -79,6 +87,12 @@ class ReportArtikelController extends Controller
     );
     $rubriks = $rubriks->unique()->sort()->values();
 
+    // Get users for filter
+    $users = User::select('id', 'name', 'role')
+        ->orderBy('name')
+        ->get();
+
+    
     return view('reports.artikel.index', compact(
         'artikels', 
         'reportType', 
@@ -88,7 +102,9 @@ class ReportArtikelController extends Controller
         'perPage',
         'rubrik',
         'status',
-        'rubriks'
+        'rubriks',
+        'users',
+        'userId'
     ));
 }
 
@@ -97,16 +113,18 @@ class ReportArtikelController extends Controller
      */
     public function exportExcel(Request $request)
     {
+
         $reportType = $request->get('report_type', 'upload');
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
         $rubrik = $request->get('rubrik');
         $status = $request->get('status');
+        $userId = $request->get('user_id');
 
         $fileName = 'Report_Artikel_' . ucfirst($reportType) . '_' . date('Y-m-d_His') . '.xlsx';
 
         return Excel::download(
-            new ArtikelReportExport($reportType, $startDate, $endDate, $rubrik, $status), 
+            new ArtikelReportExport($reportType, $startDate, $endDate, $rubrik, $status,$userId), 
             $fileName
         );
     }
@@ -116,16 +134,19 @@ class ReportArtikelController extends Controller
      */
     public function exportPdf(Request $request)
     {
-          $reportType = $request->get('report_type', 'upload');
+    $reportType = $request->get('report_type', 'upload');
     $startDate = $request->get('start_date');
     $endDate = $request->get('end_date');
     $rubrik = $request->get('rubrik');
     $status = $request->get('status');
+    $userId = $request->get('user_id');
 
     // Query data - berbeda berdasarkan report type
     if ($reportType === 'upload') {
-        $query = Artikel::with('creator'); // Eager load creator
-        
+        $query = Artikel::with('creator','event'); // Eager load creator
+        if($userId){
+            $query->where('add_by', $userId);
+        }
         if ($startDate) {
             $query->whereDate('add_date', '>=', $startDate);
         }
@@ -134,8 +155,10 @@ class ReportArtikelController extends Controller
         }
         $query->orderBy('add_date', 'desc');
     } else {
-        $query = ArtikelPublish::with(['editor', 'artikel']); // Eager load editor
-        
+        $query = ArtikelPublish::with(['editor', 'creator','event']); // Eager load editor
+        if($userId){
+            $query->where('edit_by', $userId);
+        }
         if ($startDate) {
             $query->whereDate('edit_date', '>=', $startDate);
         }

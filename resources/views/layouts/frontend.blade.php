@@ -15,16 +15,65 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="bg-gray-50">
-      <div class="flex justify-between items-center bg-red-600">
-        <div class="space-x-8 sm:-my-px sm:ms-10 sm:flex text-gray px-6 py-4 rounded-lg">
-            <x-nav-link :href="route('list-artikel')" :active="request()->routeIs('list-artikel')" class="text-white">
-                {{ __('Data Artikel') }}
+    <div x-data="{ open: false }" class="bg-red-600">
+    <!-- Header -->
+    <div class="flex justify-between items-center px-4 py-3">
+        <!-- Menu -->
+        <div class="text-white font-bold text-lg">
+            <x-nav-link :href="route('home')" :active="request()->routeIs('home')" class="text-white px-4 py-2">
+               {{ __('Home') }}
             </x-nav-link>
-            <x-nav-link :href="route('foto')" :active="request()->routeIs('foto')" class="text-white">
+            <x-nav-link :href="route('list-artikel')" :active="request()->routeIs('list-artikel')" class="text-white px-4 py-2">
+               {{ __('Data Artikel') }}
+            </x-nav-link>
+            <x-nav-link :href="route('foto')" :active="request()->routeIs('foto')" class="text-white px-4 py-2">
                 {{ __('Data Foto') }}
             </x-nav-link>
         </div>
-      </div>
+
+        <!-- Burger Button (Mobile) -->
+        <button @click="open = !open" class="sm:hidden text-white focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+
+        <!-- Desktop Menu -->
+        <div class="hidden sm:flex space-x-8">
+          &nbsp;
+        </div>
+
+        <!-- Login & Register (Desktop) -->
+        <div class="hidden sm:flex items-center space-x-4">
+            @if (Route::has('login'))
+                @auth
+                    <a href="{{ url('/dashboard') }}" class="px-4 py-2 text-white hover:text-gray-600 font-medium">Dashboard</a>
+                @else
+                    <a href="{{ route('login') }}" class="px-4 py-2 text-white hover:text-gray-600 font-medium">Log in</a>
+                    @if (Route::has('register'))
+                        <a href="{{ route('register') }}" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-gray-700 font-medium">Register</a>
+                    @endif
+                @endauth
+            @endif
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div x-show="open" class="sm:hidden px-4 pb-4 space-y-2">
+        <!-- Login & Register (Mobile) -->
+        @if (Route::has('login'))
+            @auth
+                <a href="{{ url('/dashboard') }}" class="block px-4 py-2 text-gray-700 hover:text-red-600 font-medium">Dashboard</a>
+            @else
+                <a href="{{ route('login') }}" class="block px-4 py-2 text-gray-700 hover:text-red-600 font-medium">Log in</a>
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}" class="block px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium">Register</a>
+                @endif
+            @endauth
+        @endif
+    </div>
+
         <div class="min-h-screen bg-gray-100">
             @include('layouts.navigation_frontend')
             <!-- Page Content -->

@@ -60,11 +60,11 @@
                                             </span>
                                         @elseif($user->role === 'editor')
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                Editor Foto
+                                                Editor
                                             </span>
                                         @elseif($user->role === 'uploader')
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Uploader Foto
+                                                Uploader
                                             </span>
                                         @else
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">

@@ -52,7 +52,11 @@ class DataFoto extends Model
         'anggota_dpr_id', // ✅ field baru untuk relasi ke anggota DPR
         'komisi_dpr_id',
         'album_id',
-        'event_id',
+        'event_id', 
+        'add_by',
+        'scheduled_publish_at',
+        'scheduled_unpublish_at',
+        'schedule_status',
     ];
 
     /**
@@ -72,7 +76,22 @@ class DataFoto extends Model
         'anggota_dpr_id' => 'integer', // ✅ tambahkan cast integer
         'komisi_dpr_id' => 'integer',
         'event_id' => 'integer',
+        'add_by' => 'integer',
+        'scheduled_publish_at' => 'datetime',
+        'scheduled_unpublish_at' => 'datetime',
     ];
+    /** 🧭 Relationships */
+   
+    public function uploader()
+    {
+        return $this->belongsTo(User::class, 'add_by','id');
+    }
+     public function editor()
+    {
+        return $this->belongsTo(User::class, 'edit_by','id');
+    }
+
+
     public function event()
     {
         return $this->belongsTo(Event::class, 'event_id');
@@ -274,5 +293,50 @@ class DataFoto extends Model
         }
 
         return sprintf('MM%s%04d', $year, $number);
+    }
+
+    /** 🔍 Scopes untuk Schedule */
+    /** 🔍 Scopes untuk Schedule */
+    public function scopeScheduledToPublish($query)
+    {
+        return $query->where('scheduled_publish_at', '<=', now())
+                    ->where('schedule_status', 'pending')
+                    ->where(function($q) {
+                        $q->where('publish', 0)
+                        ->orWhere('publish', '0')
+                        ->orWhereNull('publish');
+                    });
+    }
+
+    public function scopeScheduledToUnpublish($query)
+    {
+        return $query->where('scheduled_unpublish_at', '<=', now())
+                    ->where('schedule_status', 'published')
+                    ->where(function($q) {
+                        $q->where('publish', 1)
+                        ->orWhere('publish', '1');
+                    });
+    }
+
+    /** Helper Methods untuk Schedule */
+    public function isScheduled(): bool
+    {
+        return $this->scheduled_publish_at !== null || $this->scheduled_unpublish_at !== null;
+    }
+
+    public function canBeScheduled(): bool
+    {
+        return $this->schedule_status === 'pending' || $this->schedule_status === 'cancelled';
+    }
+
+    public function getScheduleStatusLabelAttribute(): string
+    {
+        return match($this->schedule_status) {
+            'pending' => 'Menunggu',
+            'published' => 'Sudah Dipublish',
+            'unpublished' => 'Sudah Di-unpublish',
+            'cancelled' => 'Dibatalkan',
+            default => 'Tidak Terjadwal',
+        };
     }
 }

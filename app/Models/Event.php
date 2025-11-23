@@ -40,5 +40,9 @@ class Event extends Model
     {
         return $this->hasMany(AlbumFoto::class, 'event_id');
     }
+    public function artikel()
+    {
+        return $this->hasMany(Artikel::class, 'event_id');
+    }
 
 }

@@ -25,10 +25,28 @@ class AnggotaDprController extends Controller
 
         return response()->json($results);
     }
-    public function index()
+    public function index(Request $request)
     {
-        $anggota = AnggotaDpr::with(['fraksi', 'komisi'])->paginate(10);
-        return view('anggota_dpr.index', compact('anggota'));
+            $search = $request->get('search');
+            
+            $anggota = AnggotaDpr::query()
+                ->with(['fraksi', 'komisi'])
+                ->when($search, function ($query, $search) {
+                    return $query->where('nama', 'like', "%{$search}%")
+                                ->orWhere('dapil', 'like', "%{$search}%")
+                                ->orWhere('jenis_kelamin', 'like', "%{$search}%")
+                                ->orWhereHas('fraksi', function ($q) use ($search) {
+                                    $q->where('nama_fraksi', 'like', "%{$search}%");
+                                })
+                                ->orWhereHas('komisi', function ($q) use ($search) {
+                                    $q->where('nama_komisi', 'like', "%{$search}%");
+                                });
+                })
+                ->orderBy('nama', 'asc')
+                ->paginate(10)
+                ->withQueryString(); // Agar parameter search tetap ada saat pagination
+            
+            return view('anggota_dpr.index', compact('anggota', 'search'));
     }
 
     public function create()

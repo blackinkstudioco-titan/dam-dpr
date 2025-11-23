@@ -276,7 +276,7 @@
                                     <option value="">-- Kegiatan Lainnya --</option>
                                     @foreach($kategoriFoto as $id => $name)
                                         <option value="{{ $id }}" {{ old('kategorisasi_datatempo', $dataFoto->kategorisasi_datatempo) == $id ? 'selected' : '' }}>
-                                            {{ $name }}
+                                            {{ ucfirst($name) }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -285,16 +285,16 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
-                                <label for="konseptor" class="block text-sm font-medium text-gray-700 mb-2">Konseptor</label>
-                                <input type="text" id="konseptor" name="konseptor"
-                                       value="{{ old('konseptor', $dataFoto->konseptor) }}" maxlength="32"
+                                <label for="konseptor" class="block text-sm font-medium text-gray-700 mb-2">Editor **readonly</label>
+                                <input type="text" id="konseptor" name="konseptor" readonly
+                                       value="{{ Auth::user()->name }}" maxlength="32"
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                             </div>
 
                             <div>
-                                <label for="depositor" class="block text-sm font-medium text-gray-700 mb-2">Depositor</label>
-                                <input type="text" id="depositor" name="depositor"
-                                       value="{{ old('depositor', $dataFoto->depositor) }}" maxlength="15"
+                                <label for="depositor" class="block text-sm font-medium text-gray-700 mb-2">Uploader *readonly</label>
+                                <input type="text" id="depositor" name="depositor" readonly
+                                       value="{{ old('depositor', $dataFoto?->uploader?->name) }}" maxlength="15"
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                             </div>
                         </div>
@@ -325,7 +325,7 @@
                             </div>
                             <div>
                                 <span class="font-medium text-gray-700">Dibuat Oleh:</span>
-                                <span class="text-gray-600">{{ $dataFoto->k_name }}</span>
+                                <span class="text-gray-600">{{ $dataFoto->uploader->name }}</span>
                             </div>
                             <div>
                                 <span class="font-medium text-gray-700">Terakhir Diedit:</span>
@@ -333,7 +333,7 @@
                             </div>
                             <div>
                                 <span class="font-medium text-gray-700">Diedit Oleh:</span>
-                                <span class="text-gray-600">{{ $dataFoto->edit_by ?? '-' }}</span>
+                                <span class="text-gray-600">{{ $dataFoto->editor->name ?? '-' }}</span>
                             </div>
                             <div>
                                 <span class="font-medium text-gray-700">Views:</span>

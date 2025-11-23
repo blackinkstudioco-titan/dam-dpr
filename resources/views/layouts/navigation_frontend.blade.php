@@ -34,21 +34,6 @@
                     </button>
                 </form>
             </div>
-
-            <!-- Login & Register -->
-            <div class="flex items-center space-x-4">
-              @if (Route::has('login'))
-                      @auth
-                          <a href="{{ url('/dashboard') }}" class="px-4 py-2 text-gray-700 hover:text-red-600 font-medium">Dashboard</a>
-                      @else
-                          <a href="{{ route('login') }}" class="px-4 py-2 text-gray-700 hover:text-red-600 font-medium">Log in</a>
-
-                          @if (Route::has('register'))
-                              <a href="{{ route('register') }}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium">Register</a>
-                          @endif
-                      @endauth
-              @endif
-            </div>
         </div>
     </div>
 </nav>

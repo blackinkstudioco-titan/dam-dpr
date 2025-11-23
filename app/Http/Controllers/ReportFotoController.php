@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataFoto;
+use App\Models\User;
 use App\Exports\FotoReportExport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -20,10 +21,14 @@ class ReportFotoController extends Controller
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
         $perPage = $request->get('per_page', 25);
+        $userId = $request->get('user_id');
 
         $query = DataFoto::with(['kategori', 'anggotaDpr', 'komisiDpr', 'album']);
 
         if ($reportType === 'upload') {
+            if($userId){
+                 $query->where('add_by', $userId);
+            }
             if ($startDate) {
                 $query->whereDate('created_at', '>=', $startDate);
             }
@@ -32,6 +37,9 @@ class ReportFotoController extends Controller
             }
             $query->orderBy('created_at', 'desc');
         } else {
+            if($userId){
+                 $query->where('edit_by', $userId);
+            }
             if ($startDate) {
                 $query->whereDate('edit_date', '>=', $startDate);
             }
@@ -42,10 +50,15 @@ class ReportFotoController extends Controller
                   ->orderBy('edit_date', 'desc');
         }
 
+        // Get users for filter
+        $users = User::select('id', 'name', 'role')
+        ->orderBy('name')
+        ->get();
+
         $fotos = $query->paginate($perPage)->withQueryString();
         $stats = $this->getStatistics($reportType, $startDate, $endDate);
 
-        return view('reports.foto.index', compact('fotos', 'reportType', 'startDate', 'endDate', 'stats', 'perPage'));
+        return view('reports.foto.index', compact('fotos', 'reportType', 'startDate', 'endDate', 'stats', 'perPage','users','userId'));
     }
 
     /**

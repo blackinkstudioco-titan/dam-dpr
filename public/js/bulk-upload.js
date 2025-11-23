@@ -77,11 +77,12 @@ $(document).ready(function() {
         
         const namaAlbum = $('#nama_album').val().trim();
         const deskripsi = $('#deskripsi').val().trim();
-        //add data penugasan and komisi
+        //add data penugasan, kategori_foto_id and komisi
         const penugasan = $('#event_id').val().trim();
         const akd = $('#komisi_dpr_id').val().trim();
+        const kategori_foto_id = $('#kategori_foto_id').val().trim();
         
-        console.log('📝 Form data:', { namaAlbum, deskripsi });
+        console.log('📝 Form data:', { namaAlbum, deskripsi,kategori_foto_id,akd });
         
         if(!namaAlbum) {
             showError('nama_album', 'Nama album wajib diisi');
@@ -101,6 +102,7 @@ $(document).ready(function() {
                 deskripsi: deskripsi,
                 event_id: penugasan,
                 komisi_dpr_id: akd,
+                kategori_foto_id: kategori_foto_id,
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             beforeSend: function(xhr) {
@@ -108,10 +110,11 @@ $(document).ready(function() {
                     url: '/foto/bulk-upload/album',
                     method: 'POST',
                     data: { 
-                        nama_album: namaAlbum, 
+                        nama_album: namaAlbum,
                         deskripsi: deskripsi,
                         event_id: penugasan,
                         komisi_dpr_id: akd, 
+                        kategori_foto_id: kategori_foto_id,
                     }
                 });
             },
@@ -627,7 +630,7 @@ $(document).ready(function() {
                 k_name: form.find(`[name="k_name_${index}"]`).val(),
                 konseptor: form.find(`[name="konseptor_${index}"]`).val(),
                 l_access: form.find(`[name="l_access_${index}"]`).val(),
-                //kategorisasi_datatempo: form.find(`[name="kategorisasi_datatempo_${index}"]`).val() || null,
+                kategorisasi_datatempo: currentAlbum.kategori_foto_id,
                 //komisi_dpr_id: form.find(`[name="komisi_dpr_id_${index}"]`).val() || null,
                 //anggota_dpr_id: form.find(`[name="anggota_dpr_id_${index}"]`).val() || null,
                 publish: form.find(`[name="publish_${index}"]`).is(':checked') ? 1 : 0, // Ubah dari boolean ke integer

@@ -46,9 +46,13 @@
                 @endif
                 @if (auth()->user()?->hasAnyRole(['admin', 'editor']))
                 <a href="{{ route('artikel_publish.index') }}"
-                   class="bg-green-600  text-white px-4 py-2 rounded">
+                   class="bg-red-600  text-white px-4 py-2 rounded mr-3">
                     Editor Artikel
                 </a>
+                 <a href="{{ route('artikel-schedule.index') }}"
+                    class="bg-green-600 text-white px-4 py-2 rounded">
+                        Penjadwalan Artikel
+                  </a>
                 @endif
                 </div>
             </div>
@@ -70,7 +74,7 @@
                 <th class="border p-2">Tanggal Penugasan</th>
                 <th class="border p-2">Tanggal Draft</th>
                 <th class="border p-2">Tanggal Edit</th>
-                <th class="border p-2">Penulis</th>
+                <th class="border p-2">Uploader</th>
                 <th class="border p-2">Editor</th>
                 <th class="border p-2">Status</th>
                 <th class="border p-2">Aksi</th>
@@ -84,8 +88,8 @@
                     <td class="border p-2">{{ $a?->event?->tanggal->format('d-m-Y H:i:s')??'-' }}</td>
                     <td class="border p-2">{{ $a?->artikelDraft?->tanggal->format('d-m-Y H:i:s')??'-' }}</td>
                     <td class="border p-2">{{ $a?->tanggal->format('d-m-Y H:i:s')??'-' }}</td>
-                    <td class="border p-2">{{ $a->penulis }}</td>
-                    <td class="border p-2">{{ $a->editor->name }}</td>
+                    <td class="border p-2">{{ $a->artikelDraft?->creator?->name?? '-' }}</td>
+                    <td class="border p-2">{{ $a->editor?->name ?? '-' }}</td>
                     <td class="border p-2">
                       @if($a->active==1)
                         <span class="text-green-600">{{ 'Publish @'.$a->updated_at}}</span>

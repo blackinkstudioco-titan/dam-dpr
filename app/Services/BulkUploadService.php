@@ -182,6 +182,7 @@ class BulkUploadService
             'anggota_dpr_id' => $metaData['anggota_dpr_id'] ?? null,
             'publish' => $metaData['publish'] ?? 0,
             'event_id' => $metaData['event_id'] ?? null,
+            'add_by' => auth()->user()->id ?? null,
             
         ]);
     }

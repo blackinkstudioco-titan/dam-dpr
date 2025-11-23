@@ -51,7 +51,22 @@
                                     {{ $reportType === 'upload' ? 'Data dari tabel artikel (draft)' : 'Data dari tabel artikel_publish' }}
                                 </p>
                             </div>
+                            {{-- user --}}
+                            <div>
+                                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ $reportType === 'upload' ? 'Penulis' : 'Editor' }}
+                                </label>
+                                <select name="user_id" id="user_id" 
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">Semua {{ $reportType === 'upload' ? 'Penulis' : 'Editor' }}</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}" {{ $userId == $user->id ? 'selected' : '' }}>
+                                            {{ $user->name }} ({{ $user->role_name }})
+                                        </option>
+                                    @endforeach
+                                </select>
 
+                            </div>
                             {{-- Start Date --}}
                             <div>
                                 <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
@@ -71,11 +86,11 @@
                                        value="{{ $endDate }}"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             </div>
-
-                            {{-- Rubrik Filter --}}
+                            {{--
+                           
                             <div>
                                 <label for="rubrik" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Rubrik
+                                    Komisi
                                 </label>
                                 <select name="rubrik" id="rubrik" 
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -87,7 +102,7 @@
                                     @endforeach
                                 </select>
                             </div>
-
+                            --}}
                             {{-- Status Filter --}}
                             <div>
                                 <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
@@ -95,10 +110,8 @@
                                 </label>
                                 <select name="status" id="status" 
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                    <option value="" {{ $status === '' ? 'selected' : '' }}>Tidak Termasuk Deleted</option>
                                     <option value="active" {{ $status === 'active' ? 'selected' : '' }}>Active Saja</option>
                                     <option value="inactive" {{ $status === 'inactive' ? 'selected' : '' }}>Inactive Saja</option>
-                                    <option value="all" {{ $status === 'all' ? 'selected' : '' }}>Semua (Termasuk Deleted)</option>
                                 </select>
                             </div>
                         </div>
@@ -225,7 +238,7 @@
                                         </th>
                                    
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tanggal Artikel
+                                            Penugasan
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Judul / Rubrik
@@ -234,13 +247,16 @@
                                             Penulis
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tanggal Penugasan
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             {{ $reportType === 'upload' ? 'Tanggal Upload' : 'Tanggal Edit (Publish)' }}
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             @if($reportType === 'edit')
                                                 Di Edit Oleh
                                             @else
-                                                Ditambahkan Oleh
+                                                Penulis
                                             @endif
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -258,8 +274,8 @@
                                                 {{ $artikels->firstItem() + $index }}
                                             </td>
                                       
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $artikel->tanggal ? $artikel->tanggal->format('d M Y') : '-' }}
+                                            <td class="px-6 py-4  text-sm">
+                                                {{ $artikel->event?->nama_event ? $artikel->event->nama_event : '-' }}
                                             </td>
                                             <td class="px-6 py-4">
                                                 <div class="text-sm font-medium text-gray-900">
@@ -273,11 +289,18 @@
                                             </td>
                                             <td class="px-6 py-4">
                                                 <div class="text-sm text-gray-900">
-                                                    {{ $artikel->penulis ?? '-' }}
+                                                    @if($reportType === 'upload')
+                                                     {{ $artikel->creator->name ?? '-' }}
+                                                    @else
+                                                      {{ $artikel->artikelDraft->creator->name ?? '-' }}
+                                                    @endif
                                                 </div>
                                              
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td class="px-6 py-4 text-sm">
+                                                {{ $artikel->event?->tanggal ? $artikel->event->tanggal->format('d M Y H:i') : '-' }}
+                                            </td>
+                                            <td class="px-6 py-4  text-sm text-gray-500">
                                                 @if($reportType === 'upload')
                                                     {{ $artikel->add_date ? $artikel->add_date->format('d M Y H:i') : '-' }}
                                                 @else

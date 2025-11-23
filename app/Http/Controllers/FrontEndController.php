@@ -16,7 +16,9 @@ class FrontEndController extends Controller
     {
         //$latestPhotos = Photo::latest()->take(8)->get();
         //$latestArticles = Article::latest()->take(8)->get();
-        $query = DataFoto::query()->with('kategori:id,k_name');
+        $query = DataFoto::query()
+                 ->with('kategori:id,k_name')
+                 ->where('publish', 1); // Default filter publish = 1
         // Sort
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
@@ -58,6 +60,7 @@ class FrontEndController extends Controller
     public function foto(Request $request){
       //$latestPhotos = Photo::latest()->take(8)->get();
       //$latestArticles = Article::latest()->take(8)->get();
+      /*
       $query = DataFoto::query()->with('kategori:id,k_name');
       // Sort
       $sortBy = $request->get('sort_by', 'created_at');
@@ -69,6 +72,45 @@ class FrontEndController extends Controller
       return view('front-end.foto-index', [
           'dataFoto' => $dataFoto,
       ]);
+      */
+      $query = DataFoto::query()
+            ->with('kategori:id,k_name')
+            ->where('publish', 1); // Default filter publish = 1
+
+        // ✅ Filter kategori (jika ada)
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_id', $request->get('kategori_id'));
+        }
+
+        // ✅ Filter keyword (judul atau k_word)
+        if ($request->filled('keyword')) {
+            $keyword = $request->get('keyword');
+            $query->where(function ($q) use ($keyword) {
+                $q->where('judul', 'like', "%{$keyword}%")
+                ->orWhere('k_word', 'like', "%{$keyword}%");
+            });
+        }
+
+        // ✅ Filter tanggal masuk (range)
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tgl_masuk', [
+                $request->get('start_date'),
+                $request->get('end_date')
+            ]);
+        }
+
+        // ✅ Sort
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+
+        // ✅ Pagination
+        $dataFoto = $query->paginate($request->get('per_page', 12))
+                        ->withQueryString();
+
+        return view('front-end.foto-index', [
+            'dataFoto' => $dataFoto,
+        ]);
     }
     public function show($url_title="",DataFoto $dataFoto){
       // Load relationship
@@ -80,6 +122,7 @@ class FrontEndController extends Controller
 
       $query = DataFoto::query()
           ->where('id', '!=', $dataFoto->id)
+          ->where('publish', 1)
           ->where(function($q) use ($keywords) {
               foreach ($keywords as $keyword) {
                   $q->orWhere('judul', 'LIKE', "%{$keyword}%");
@@ -104,7 +147,8 @@ class FrontEndController extends Controller
 
     if($cat=="foto"):
         
-        $query = DataFoto::query()->with('kategori:id,k_name'); 
+        $query = DataFoto::query()->with('kategori:id,k_name')
+        ->where('publish', 1); 
         // Search functionality
         if ($request->filled('q')) {
             $query->search($request->q);

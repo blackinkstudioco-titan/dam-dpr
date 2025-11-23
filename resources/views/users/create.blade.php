@@ -33,8 +33,8 @@
                             <select id="role" name="role" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                                 <option value="">-- Pilih Role --</option>
                                 <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="editor" {{ old('role') === 'editor' ? 'selected' : '' }}>Editor Foto</option>
-                                <option value="uploader" {{ old('role') === 'uploader' ? 'selected' : '' }}>Uploader Foto</option>
+                                <option value="editor" {{ old('role') === 'editor' ? 'selected' : '' }}>Editor</option>
+                                <option value="uploader" {{ old('role') === 'uploader' ? 'selected' : '' }}>Uploader</option>
                                 <option value="guest" {{ old('role') === 'guest' ? 'selected' : '' }}>Guest</option>
                             </select>
                             <x-input-error :messages="$errors->get('role')" class="mt-2" />

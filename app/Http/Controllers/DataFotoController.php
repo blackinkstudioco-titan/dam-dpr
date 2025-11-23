@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataFoto;
+use App\Models\User;
 use App\Models\Event; //penugasan
 use App\Models\KomisiDpr;
 use App\Models\AnggotaDpr;
@@ -74,6 +75,11 @@ class DataFotoController extends Controller
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
+        
+        if (auth()->user()?->hasAnyRole(['uploader'])){
+            $query->where('add_by', Auth::id());
+        }
+
 
         $dataFoto = $query->paginate($request->get('per_page', 12))
                          ->withQueryString();
@@ -110,13 +116,14 @@ class DataFotoController extends Controller
         DB::beginTransaction();
 
         try {
+          //dd(Auth::user()->id);
           // Validasi ukuran file
            $request->validate([
                'foto' => 'required|image|mimes:jpeg,jpg,png,gif|max:15360', // 15 MB
            ]);
             // Upload image and extract EXIF
             $uploadResult = $this->imageService->uploadImage($request->file('foto'));
-
+            
             // Create new DataFoto with auto-generated MM ID
             $dataFoto = DataFoto::create([
                 'judul' => $request->judul,
@@ -142,8 +149,8 @@ class DataFotoController extends Controller
                 'anggota_dpr_id' => $request->anggota_dpr_id,
                 'komisi_dpr_id' => $request->komisi_dpr_id,
                 'event_id' => $request->event_id, //penugasan
-                'edit_by' => Auth::user()->name,
-                'edit_date' => now(),
+                'add_by' => Auth::user()->id,
+                'add_date' => now(),
             ]);
 
             // Update data
@@ -197,6 +204,14 @@ class DataFotoController extends Controller
      */
     public function edit(DataFoto $dataFoto)
     {
+        
+        // Pastikan hanya pemilik data yang bisa akses
+        if (auth()->user()?->hasAnyRole(['uploader'])){
+            if ($dataFoto->add_by !== Auth::id()) {
+                    abort(403, 'Anda tidak memiliki akses untuk mengedit foto ini.');
+            }
+        }
+
         // Load relationship
         $dataFoto->load('kategori:id,k_name');
         $penugasan = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
@@ -235,7 +250,7 @@ class DataFotoController extends Controller
                 'publish' => $request->boolean('publish'),
                 'anggota_dpr_id' => $request->anggota_dpr_id,
                 'komisi_dpr_id' => $request->komisi_dpr_id,
-                'edit_by' => Auth::user()->name,
+                'edit_by' => Auth::user()->id,
                 'edit_date' => now(),
                 'event_id' => $request->event_id, //penugasan
             ];
@@ -377,7 +392,7 @@ class DataFotoController extends Controller
       $manager = new ImageManager(new Driver());
       $image = $manager->read($filePath);
 
-      $watermarkPath = public_path('images/wm_dpr_ri_logo.png');
+      $watermarkPath = public_path('images/wm2_dpr_ri_logo.png');
       if (!file_exists($watermarkPath)) {
           abort(500, 'Watermark tidak ditemukan.');
       }
@@ -385,11 +400,23 @@ class DataFotoController extends Controller
       $watermark = $manager->read($watermarkPath);
 
       // ✅ CARA BARU: Gunakan parameter opacity di place()
+      /*
       $image->place(
           element: $watermark,
-          position: 'center',
-          opacity: 100  // 0-100, dimana 0 = transparan penuh, 100 = opaque penuh
+          position: 'bottom-right',
+          opacity: 80  // 0-100, dimana 0 = transparan penuh, 100 = opaque penuh
       );
+      */
+      $watermark->resize(726, null); // Ubah ukuran watermark jika perlu
+
+        $image->place(
+            $watermark,        // element
+            'bottom-right',    // position
+            20,                // offset X
+            40,                // offset Y
+            80                 // opacity
+        );
+
 
       $tempPath = storage_path('app/public/temp_' . uniqid() . '.jpg');
       $tempDir = dirname($tempPath);

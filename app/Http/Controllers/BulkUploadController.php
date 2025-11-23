@@ -22,6 +22,7 @@ class BulkUploadController extends Controller
     public function __construct(BulkUploadService $uploadService)
     {
         $this->uploadService = $uploadService;
+        $this->middleware('auth');
     }
 
     /**
@@ -34,7 +35,8 @@ class BulkUploadController extends Controller
             ->get();
         $penugasan = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
         $komisi = KomisiDpr::all();
-        return view('bulk-upload.index', compact('albums','penugasan','komisi'));
+        $kategoriFoto = KategoriFoto::orderBy('k_name', 'asc')->get();
+        return view('bulk-upload.index', compact('albums','penugasan','komisi','kategoriFoto'));
     }
 
     /**
@@ -48,6 +50,7 @@ class BulkUploadController extends Controller
                 'deskripsi' => $request->deskripsi,
                 'event_id' => $request->event_id,
                 'komisi_dpr_id' => $request->komisi_dpr_id,
+                'kategori_foto_id' => $request->kategori_foto_id,
                 'created_by' => auth()->id(),
             ]);
 
@@ -60,6 +63,7 @@ class BulkUploadController extends Controller
                     'deskripsi' => $album->deskripsi,
                     'event_id' => $request->event_id,
                     'komisi_dpr_id' => $request->komisi_dpr_id,
+                    'kategori_foto_id' => $request->kategori_foto_id,
                 ]
             ]);
         } catch (\Exception $e) {
@@ -135,7 +139,7 @@ class BulkUploadController extends Controller
             'photos.*.k_name' => 'nullable|string',
             'photos.*.konseptor' => 'nullable|string',
             'photos.*.l_access' => 'nullable|integer|in:1,2,3',
-            'photos.*.kategorisasi_datatempo' => 'nullable|exists:kategori_foto,id',
+            'photos.*.kategorisasi_datatempo' => 'nullable|integer',
             //'photos.*.komisi_dpr_id' => 'nullable|exists:komisi_dpr,id',
             //'photos.*.anggota_dpr_id' => 'nullable|exists:anggota_dpr,id',
             'photos.*.publish' => 'nullable|in:0,1', // Ubah dari boolean ke in:0,1

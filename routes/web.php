@@ -15,6 +15,10 @@ use App\Http\Controllers\ReportFotoController;
 use App\Http\Controllers\ReportArtikelController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\KategoriFotoController;
+use App\Http\Controllers\KomisiDprController;
+use App\Http\Controllers\PhotoScheduleController;
+use App\Http\Controllers\ArtikelScheduleController;
 
 
 /*
@@ -95,7 +99,7 @@ Route::middleware(['auth'])->group(function () {
 
   });
   // Admin dan Editor bisa edit dan delete
-   Route::middleware(['role:admin,editor'])->group(function () {
+   Route::middleware(['role:admin,editor,uploader'])->group(function () {
        Route::resource('data-foto', DataFotoController::class)->only(['edit', 'update', 'destroy']);
 
    });
@@ -143,7 +147,7 @@ Route::prefix('foto')->group(function () {
     });
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','role:admin,editor'])->group(function () {
     // Report Routes foto
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/foto', [ReportFotoController::class, 'index'])->name('foto.index');
@@ -161,8 +165,44 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','role:admin,editor'])->group(function () {
+    Route::resource('kategori-foto', KategoriFotoController::class);
+});
+
+Route::middleware(['auth','role:admin,editor'])->group(function () {
     Route::resource('events', EventController::class);
+});
+
+Route::middleware(['auth','role:admin,editor'])->group(function () {
+    Route::resource('komisi-dpr', KomisiDprController::class);
+});
+
+
+Route::middleware(['auth','role:admin,editor'])->group(function () {
+    Route::prefix('photo-schedule')->name('photo-schedule.')->group(function () {
+        Route::get('/', [PhotoScheduleController::class, 'index'])->name('index');
+        Route::get('/create', [PhotoScheduleController::class, 'create'])->name('create');
+        Route::post('/', [PhotoScheduleController::class, 'store'])->name('store');
+        Route::get('/{foto}/edit', [PhotoScheduleController::class, 'edit'])->name('edit');
+        Route::put('/{foto}', [PhotoScheduleController::class, 'update'])->name('update');
+        Route::post('/{foto}/cancel', [PhotoScheduleController::class, 'cancel'])->name('cancel');
+        Route::delete('/{foto}', [PhotoScheduleController::class, 'destroy'])->name('destroy');
+    });
+});
+
+
+
+Route::middleware(['auth', 'role:admin,editor'])->group(function () {
+    Route::prefix('artikel-schedule')->name('artikel-schedule.')->group(function () {
+        Route::get('/', [ArtikelScheduleController::class, 'index'])->name('index');
+        Route::get('/create', [ArtikelScheduleController::class, 'create'])->name('create');
+        Route::post('/', [ArtikelScheduleController::class, 'store'])->name('store');
+        Route::get('/{artikel}/edit', [ArtikelScheduleController::class, 'edit'])->name('edit');
+        Route::put('/{artikel}', [ArtikelScheduleController::class, 'update'])->name('update');
+        Route::post('/{artikel}/cancel', [ArtikelScheduleController::class, 'cancel'])->name('cancel');
+        Route::delete('/{artikel}', [ArtikelScheduleController::class, 'destroy'])->name('destroy');
+        Route::post('/batch-cancel', [ArtikelScheduleController::class, 'batchCancel'])->name('batch-cancel');
+    });
 });
 
 require __DIR__.'/auth.php';

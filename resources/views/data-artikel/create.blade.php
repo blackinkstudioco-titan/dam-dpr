@@ -124,7 +124,7 @@
             </div>
             <div>
                 <label class="block font-medium">Penulis</label>
-                <input type="text" name="penulis" value="{{ old('penulis') }}"
+                <input type="text" name="penulis" value="{{ Auth::user()->name }}"
                     class="w-full border-gray-300 p-2 rounded focus:ring-blue-500 focus:border-blue-500" required>
             </div>
             <div>

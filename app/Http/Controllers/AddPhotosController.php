@@ -16,6 +16,7 @@ class AddPhotosController extends Controller
     public function __construct()
     {
         $this->imageManager = new ImageManager(new Driver());
+        $this->middleware('auth');
     }
 
     public function index(AlbumFoto $album)
@@ -68,7 +69,8 @@ class AddPhotosController extends Controller
                     'thumbnail_url' => asset('storage' . $thumbnailPath),
                     'meta_data' => $exifData,
                     'album_id' => $album->id,
-                    'event_id' => $album->event_id
+                    'event_id' => $album->event_id,
+                    'kategorisasi_datatempo' => $album->kategori_foto_id?? null,
                 ]
             ]);
 
@@ -162,8 +164,10 @@ class AddPhotosController extends Controller
                 DataFoto::create([
                     'album_id' => $album->id,
                     'event_id' => $album->event_id,
+                    'kategorisasi_datatempo' => $album->kategori_foto_id?? null,
                     'original_foto_url' => $photo['original_path'],
                     'thumbnail_foto_url' => $photo['thumbnail_path'],
+                    'subyek' => null,
                     'judul' => $photo['judul'],
                     'deskrp' => $photo['deskrp'] ?? null,
                     'k_word' => $photo['k_word'] ?? null,
@@ -173,6 +177,7 @@ class AddPhotosController extends Controller
                     'publish' => $photo['publish'] ?? 0,
                     'tgl_masuk' => now(),
                     'depositor' => auth()->user()->name,
+                    'add_by' => auth()->user()->id,
                     'mm_id' => DataFoto::generateMmId(),
                     'meta_data' => $photo['meta_data'] ?? null  // Add this line to save EXIF data
                 ]);

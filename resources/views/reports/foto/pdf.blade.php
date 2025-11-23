@@ -222,7 +222,7 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $foto->mm_id }}</td>
                     <td>{{ Str::limit($foto->judul, 40) }}</td>
-                    <td>{{ $foto->kategori->nama_kategori ?? '-' }}</td>
+                    <td>{{ $foto->kategori->k_name ?? '-' }}</td>
                     <td>
                         @if($reportType === 'upload')
                             {{ $foto->created_at->format('d/m/Y H:i') }}

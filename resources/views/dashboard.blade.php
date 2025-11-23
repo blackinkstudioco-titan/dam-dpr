@@ -8,7 +8,7 @@
 
 
             @if (auth()->user()?->hasAnyRole(['admin', 'editor']))
-
+            <div class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                 <a href="{{ route('reports.artikel.index') }}" 
                    class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,6 +23,7 @@
                     </svg>
                     Report Foto
                 </a>
+            </div>
             @endif
          
             </div>
@@ -36,7 +37,7 @@
             <div class="bg-gradient-to-r from-indigo-500 to-purple-600 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-white">
                     <h3 class="text-2xl font-bold mb-2">Selamat Datang, {{ auth()->user()->name }}! 👋</h3>
-                    <p class="text-indigo-100">Berikut adalah ringkasan sistem Digital Asset Management Anda.</p>
+                    <p class="text-indigo-100">Berikut adalah ringkasan sistem Digital Asset Management DPR RI.</p>
                 </div>
             </div>
 
@@ -220,7 +221,7 @@
                     </div>
                 </div>
             </div>
-
+            @if (auth()->user()?->hasAnyRole(['admin', 'editor','uploader']))
             {{-- ========================================
                 STATISTIK USER
             ======================================== --}}
@@ -391,6 +392,7 @@
             </div>
 
             --}}
+            @endif
 
         </div>
     </div>

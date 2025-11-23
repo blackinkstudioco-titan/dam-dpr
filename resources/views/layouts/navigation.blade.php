@@ -12,10 +12,14 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex text-white">
+                    <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
+                        {{ __('Home') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                      <x-nav-link :href="route('artikel.index')" :active="request()->routeIs('artikel.*')">
+                    @if (auth()->user()?->hasAnyRole(['admin', 'editor', 'uploader']))
+                    <x-nav-link :href="route('artikel.index')" :active="request()->routeIs('artikel.*')">
                         {{ __('Data Artikel') }}
                     </x-nav-link>
                     <x-nav-link :href="route('data-foto.index')" :active="request()->routeIs('data-foto.*')">
@@ -24,9 +28,12 @@
                     <x-nav-link :href="route('albums.index')" :active="request()->routeIs('albums.index')">
                         {{ __('Album Foto') }}
                     </x-nav-link>
+                    @if (auth()->user()?->hasAnyRole(['admin', 'editor']))
                     <x-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')">
                         {{ __('Penugasan') }}
                     </x-nav-link>
+                    @endif
+                    @endif
                     <!-- Data Foto - Tampil untuk admin dan uploader -->
                     @if(auth()->user()->role === 'admin')
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
@@ -56,9 +63,13 @@
                               class="absolute left-0 top-full mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
                               style="display: none;">
                              <div class="py-1">
-                                 <a href="{{ route('data-foto.index') }}"
+                                 <a href="{{ route('kategori-foto.index') }}"
                                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('data-foto.*') ? 'bg-gray-100 font-semibold' : '' }}">
                                      {{ __('Kategori Foto') }}
+                                 </a>
+                                 <a href="{{ route('komisi-dpr.index') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('data-foto.*') ? 'bg-gray-100 font-semibold' : '' }}">
+                                     {{ __('AKD DPR') }}
                                  </a>
                                  <a href="{{ route('anggota-dpr.index') }}"
                                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('anggota-dpr.*') ? 'bg-gray-100 font-semibold' : '' }}">
@@ -120,23 +131,43 @@
 
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-        </div>
-
+     
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
+           
 
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
+            <div class="mt-3 space-y-1 text-white">
+                <x-responsive-nav-link :href="route('home')" class="{{ request()->routeIs('home') ? 'text-gray-900 font-bold' : 'text-white' }}">
+                    {{ __('Home') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('profile.edit')" class="{{ request()->routeIs('profile.*') ? 'text-gray-900 font-bold' : 'text-white' }}">
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="{{ request()->routeIs('dashboard') ? 'text-gray-900 font-bold' : 'text-white' }}">
+                  {{ __('Dashboard') }}
+                </x-responsive-nav-link>
+                @if (auth()->user()?->hasAnyRole(['admin', 'editor', 'uploader']))
+                <x-responsive-nav-link :href="route('data-foto.index')" :active="request()->routeIs('data-foto.*')" class="{{ request()->routeIs('data-foto.*') ? 'text-gray-900 font-bold' : 'text-white' }} active:text-gray-900">
+                    {{ __('Data Foto') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('albums.index')" :active="request()->routeIs('albums.*')" class="{{ request()->routeIs('albums.*') ? 'text-gray-900 font-bold' : 'text-white' }}">
+                    {{ __('Album Foto') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('artikel.index')" :active="request()->routeIs('artikel.*')" class="{{ request()->routeIs('artikel.*') ? 'text-gray-900 font-bold' : 'text-white' }}">
+                    {{ __('Data Artikel') }}
+                </x-responsive-nav-link>
+                @if (auth()->user()?->hasAnyRole(['admin', 'editor']))
+                 <x-responsive-nav-link :href="route('events.index')" :active="request()->routeIs('events.*')" class="{{ request()->routeIs('events.*') ? 'text-gray-900 font-bold' : 'text-white' }}">
+                    {{ __('Penugasan') }}
+                </x-responsive-nav-link>
+                @endif
+                @endif
+                @if(auth()->user()->role === 'admin')
+                <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')" class="{{ request()->routeIs('users.*') ? 'text-gray-900 font-bold' : 'text-white' }}">
+                        {{ __('Manajemen User') }}
+                </x-responsive-nav-link>
+                @endif
+             
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
@@ -144,7 +175,7 @@
 
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
-                                        this.closest('form').submit();">
+                                        this.closest('form').submit();" class="text-white">
                         {{ __('Log Out') }}
                     </x-responsive-nav-link>
                 </form>

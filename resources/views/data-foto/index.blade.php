@@ -9,6 +9,12 @@
             </h2>
             @if (auth()->user()?->hasAnyRole(['admin', 'editor','uploader']))
             <div class="flex justify-end space-x-2">
+                    @if (auth()->user()?->hasAnyRole(['admin', 'editor']))
+                    <a href="{{ route('photo-schedule.index') }}"
+                    class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition duration-150 ease-in-out">
+                        Penjadwalan Foto
+                    </a>
+                    @endif
                     <a href="{{ route('albums.index') }}"
                     class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-150 ease-in-out">
                         Album Foto

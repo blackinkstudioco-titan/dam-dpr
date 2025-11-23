@@ -104,7 +104,7 @@
                             </div>
                           </div>
                          </div>
-                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                               <div>
                            
                                   <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2 mt-2">
@@ -114,6 +114,21 @@
                                     <option value="{{ 0 }}"> - Alat Kelengkapan DPR - </option>
                                         @foreach($komisi as $k)
                                             <option value="{{ $k->id }}">{{ $k->nama_komisi }} - {{ $k->bidang }}</option>
+                                        @endforeach
+                                  </select>
+                              </div>
+
+                          </div>
+                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div>
+                           
+                                  <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2 mt-2">
+                                      Kategori Foto<span class="text-xs text-gray-500 font-normal">(Optional)</span>
+                                  </label>
+                                  <select id="kategori_foto_id" name="kategori_foto_id" class="...">
+                                    <option value="{{ 0 }}"> - Kategori Foto - </option>
+                                        @foreach($kategoriFoto as $k)
+                                            <option value="{{ $k->id }}">{{ $k->k_name }}</option>
                                         @endforeach
                                   </select>
                               </div>
