@@ -217,39 +217,31 @@ public function index(Request $request)
     /**
      * Get statistics for the report
      */
+   
     private function getStatistics($reportType, $startDate, $endDate)
     {
         if ($reportType === 'upload') {
-            // Statistik dari tabel artikel (draft)
             $query = Artikel::query();
 
             if ($startDate) $query->whereDate('add_date', '>=', $startDate);
             if ($endDate) $query->whereDate('add_date', '<=', $endDate);
 
-            return [
-                'total_artikel' => $query->count(),
-                'total_active' => $query->where('active', 1)->where('del', 0)->count(),
-                'total_inactive' => $query->where('active', 0)->where('del', 0)->count(),
-                'total_deleted' => $query->where('del', 1)->count(),
-                'artikel_with_foto' => $query->whereNotNull('foto')->where('foto', '!=', '')->count(),
-                'total_rubrik' => $query->distinct('rubrik')->count('rubrik'),
-            ];
         } else {
-            // Statistik dari tabel artikel_publish
             $query = ArtikelPublish::query();
 
             if ($startDate) $query->whereDate('edit_date', '>=', $startDate);
             if ($endDate) $query->whereDate('edit_date', '<=', $endDate);
             $query->whereNotNull('edit_date');
-
-            return [
-                'total_artikel' => $query->count(),
-                'total_active' => $query->where('active', 1)->where('del', 0)->count(),
-                'total_inactive' => $query->where('active', 0)->where('del', 0)->count(),
-                'total_deleted' => $query->where('del', 1)->count(),
-                'artikel_with_foto' => $query->whereNotNull('foto')->where('foto', '!=', '')->count(),
-                'total_rubrik' => $query->distinct('rubrik')->count('rubrik'),
-            ];
         }
+
+        return [
+            'total_artikel'      => (clone $query)->count(),
+            'total_active'       => (clone $query)->where('active', 1)->where('del', 0)->count(),
+            'total_inactive'     => (clone $query)->where('active', 0)->where('del', 0)->count(),
+            'total_deleted'      => (clone $query)->where('del', 1)->count(),
+            'artikel_with_foto'  => (clone $query)->whereNotNull('foto')->where('foto', '!=', '')->count(),
+            'total_rubrik'       => (clone $query)->distinct('rubrik')->count('rubrik'),
+        ];
     }
+
 }

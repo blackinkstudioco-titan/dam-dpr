@@ -183,6 +183,9 @@
                                             No
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Penugasan
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Thumbnail
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -190,6 +193,9 @@
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Kategori / Album
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tanggal Penugasan
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             {{ $reportType === 'upload' ? 'Tanggal Upload' : 'Tanggal Edit' }}
@@ -200,9 +206,6 @@
                                             @else
                                                 Fotogafer
                                             @endif
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Size
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Status
@@ -217,6 +220,9 @@
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {{ $fotos->firstItem() + $index }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ $foto->event->nama_event ?? '-' }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <img src="{{ $foto->thumbnail_url }}" 
@@ -242,6 +248,10 @@
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                     {{$foto?->event?->tanggal??'-'}} 
+                                                
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 @if($reportType === 'upload')
                                                     {{ $foto->created_at->format('d M Y H:i') }}
                                                 @else
@@ -254,9 +264,6 @@
                                                 @else
                                                     {{ $foto?->uploader?->name ?? '-' }}
                                                 @endif
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $foto->formatted_file_size }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 @if($foto->publish == 1)

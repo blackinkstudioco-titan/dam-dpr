@@ -204,7 +204,7 @@
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <div class="text-sm text-gray-500">Total Rubrik</div>
+                        <div class="text-sm text-gray-500">Total Kategori</div>
                         <div class="text-2xl font-bold text-blue-600">{{ number_format($stats['total_rubrik']) }}</div>
                     </div>
                 </div>

@@ -52,8 +52,8 @@ class ReportFotoController extends Controller
 
         // Get users for filter
         $users = User::select('id', 'name', 'role')
-        ->orderBy('name')
-        ->get();
+            ->orderBy('name')
+            ->get();
 
         $fotos = $query->paginate($perPage)->withQueryString();
         $stats = $this->getStatistics($reportType, $startDate, $endDate);
@@ -155,12 +155,14 @@ class ReportFotoController extends Controller
         }
 
         return [
-            'total_foto' => $query->count(),
-            'total_size' => $this->formatBytes($query->sum('f_size')),
-            'total_published' => $query->where('publish', 1)->count(),
-            'total_draft' => $query->where('publish', 0)->count(),
-            'total_views' => $query->sum('view'),
-            'total_downloads' => $query->sum('download'),
+           
+            'total_foto'      => (clone $query)->count(),
+            'total_size'      => $this->formatBytes((clone $query)->sum('f_size')),
+            'total_published' => (clone $query)->where('publish', 1)->count(),
+            'total_draft'     => (clone $query)->where('publish', 0)->count(),
+            'total_views'     => (clone $query)->sum('view'),
+            'total_downloads' => (clone $query)->sum('download'),
+
         ];
     }
 

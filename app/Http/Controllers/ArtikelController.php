@@ -105,9 +105,15 @@ class ArtikelController extends Controller
         $komisi = KomisiDpr::all();
         //DB::enableQueryLog();
         $penugasan = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
-        $artikel = Artikel::where('id', $id)
-                ->where('add_by', Auth::id())
-            ->first();
+    
+        
+        $artikel = Artikel::where('id', $id);
+        if (!Auth::check() || !Auth::user()->hasAnyRole(['admin', 'editor'])) {
+            $artikel->where('add_by', Auth::id());
+        }
+
+        $artikel=$artikel->first();
+        
         if($artikel){
          return view('data-artikel.edit', compact('artikel','penugasan','komisi'));
         }
@@ -173,9 +179,15 @@ class ArtikelController extends Controller
 
     public function show($id)
     {
-         $artikel = Artikel::where('id', $id)
-                ->where('add_by', Auth::id())
-            ->first();
+        
+        $artikel = Artikel::where('id', $id);
+
+        if (!Auth::check() || !Auth::user()->hasAnyRole(['admin', 'editor'])) {
+            $artikel->where('add_by', Auth::id());
+        }
+
+        $artikel = $artikel->first();
+
         if($artikel){
          return view('data-artikel.show', compact('artikel'));
         }
