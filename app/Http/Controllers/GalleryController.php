@@ -33,8 +33,8 @@ class GalleryController extends Controller
 
         // Map ke struktur yang sama
         $images = $foto->map(function ($item) {
-            $path = $item->url; // ini adalah path relatif di disk 'public', contoh: 'uploads/galeri/2025/12/img-001.jpg'
-
+            //$path = $item->url; // ini adalah path relatif di disk 'public', contoh: 'uploads/galeri/2025/12/img-001.jpg'
+            $path = $item->url ? ltrim($item->url, '/') : null;
             // Bangun URL publik; pakai fallback jika file tidak ada
             $publicUrl = ($path && Storage::disk('public')->exists($path))
                 ? Storage::url($path)
