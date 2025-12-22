@@ -32,6 +32,8 @@ class ArtikelPublish extends Model
         'scheduled_publish_at',      // ← Tambahkan
         'scheduled_unpublish_at',    // ← Tambahkan
         'schedule_status',           // ← Tambahkan
+        'anggota_dpr',
+        'kategori_id',
     ];
 
     protected $casts = [
@@ -47,6 +49,7 @@ class ArtikelPublish extends Model
         'anggota_dpr_id' => 'integer',
         'scheduled_publish_at' => 'datetime',    // ← Tambahkan
         'scheduled_unpublish_at' => 'datetime',  // ← Tambahkan
+        'kategori_id'  => 'integer',
     ];
 
     /**

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\KategoriFoto;
+use App\Models\DataFoto;
+use App\Models\Artikel;
+use App\Models\ArtikelPublish;
 use Illuminate\Http\Request;
 
 class KategoriFotoController extends Controller
@@ -17,6 +20,8 @@ class KategoriFotoController extends Controller
         $kategoriFoto = KategoriFoto::query()
             ->search($search)
             ->withCount('dataFoto')
+            ->withCount('artikel')
+            ->withCount('artikelPublish')
             ->orderBy('k_name', 'asc')
             ->paginate(10);
 
@@ -56,9 +61,13 @@ class KategoriFotoController extends Controller
     public function show(KategoriFoto $kategoriFoto)
     {
         $kategoriFoto->loadCount('dataFoto');
-        $photos = $kategoriFoto->dataFoto()->paginate(12);
-
-        return view('kategori-foto.show', compact('kategoriFoto', 'photos'));
+        $kategoriFoto->loadCount('artikel');
+        $kategoriFoto->loadCount('artikelPublish');
+        $dataFoto = $kategoriFoto->dataFoto()->paginate(12);
+        $artikels = $kategoriFoto->artikel()->paginate(12);
+        $artikelPublish = $kategoriFoto->artikelPublish()->paginate(12);
+        
+        return view('kategori-foto.show', compact('kategoriFoto', 'dataFoto','artikels','artikelPublish'));
     }
 
     /**

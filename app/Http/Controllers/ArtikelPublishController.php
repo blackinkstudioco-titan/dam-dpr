@@ -6,6 +6,7 @@ use App\Models\ArtikelPublish;
 use App\Models\Event;
 use App\Models\KomisiDpr;
 use App\Models\AnggotaDpr;
+use App\Models\KategoriFoto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -74,8 +75,8 @@ class ArtikelPublishController extends Controller
            //DB::enableQueryLog();
           $penugasan = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
           $artikel = ArtikelPublish::findOrFail($id);
-
-          return view('data-artikel.edit-editor', compact('artikel','penugasan','komisi'));
+          $kategori = KategoriFoto::pluck('k_name', 'id');
+          return view('data-artikel.edit-editor', compact('artikel','penugasan','komisi','kategori'));
     }
 
     public function update(Request $request, $id)
@@ -87,13 +88,15 @@ class ArtikelPublishController extends Controller
           'tanggal' => 'required|date',
           'isi' => 'required|string',
           'penulis' => 'required|string',
-          'sumber' => 'required|string',
+          'sumber' => ' nullable|string',
           'keyword' => 'required|string',
-          'subyek' => 'required|string',
+          'subyek' => 'nullable|string',
           'foto' => 'nullable|image|max:2048',
-           'event_id' => 'nullable|integer',
+          'event_id' => 'nullable|integer',
           'komisi_dpr_id' => 'nullable|integer',
           'anggota_dpr_id' => 'nullable|integer',
+          'anggota_dpr' => 'nullable|string',
+          'kategori_id' => 'nullable|integer',
         ]);
 
         if ($request->hasFile('foto')) {

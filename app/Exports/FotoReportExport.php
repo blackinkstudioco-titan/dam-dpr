@@ -67,12 +67,12 @@ class FotoReportExport implements FromQuery, WithHeadings, WithMapping, WithStyl
 
         return [
             'No',
-            'MM ID',
+            'Penugasan',
             'Judul',
             'Deskripsi',
             'Kategori',
             'Album',
-            'Komisi DPR',
+            'Tgl Penugasan',
             $dateColumn,
             $userColumn,
             'Size',
@@ -93,16 +93,16 @@ class FotoReportExport implements FromQuery, WithHeadings, WithMapping, WithStyl
 
         return [
             $this->rowNumber,
-            $foto->mm_id,
+            $foto?->event?->nama_event ?? '-',
             $foto->judul,
             strip_tags($foto->deskrp),
-            $foto->kategori->nama_kategori ?? '-',
+            $foto->kategori->k_name ?? '-',
             $foto->album->nama_album ?? '-',
-            $foto->komisiDpr->nama_komisi ?? '-',
+            $foto?->event?->tanggal ?? '-',
             $this->reportType === 'upload' 
                 ? $foto->created_at->format('d-m-Y H:i:s') 
                 : ($foto->edit_date ? $foto->edit_date->format('d-m-Y H:i:s') : '-'),
-            $this->reportType === 'upload' ? ($foto->perekam ?? '-') : ($foto->edit_by ?? '-'),
+            $this->reportType === 'upload' ? ($foto->uploader->name ?? '-') : ($foto->editor->name ?? '-'),
             $this->formatBytes($foto->f_size),
             $foto->publish == 1 ? 'Published' : 'Draft',
             $foto->view ?? 0,

@@ -32,7 +32,10 @@ class Artikel extends Model
         'edit_date',
         'komisi_dpr_id',
         'anggota_dpr_id',
-        'event_id'
+        'event_id',
+        'anggota_dpr',
+        'kategori_id',
+
 
     ];
 
@@ -46,7 +49,8 @@ class Artikel extends Model
         'edit_by' => 'integer',
         'komisi_dpr_id' => 'integer',
         'anggota_dpr_id' => 'integer',
-        'event_id' => 'integer'
+        'event_id' => 'integer',
+        'kategori_id'  => 'integer',
 
     ];
 

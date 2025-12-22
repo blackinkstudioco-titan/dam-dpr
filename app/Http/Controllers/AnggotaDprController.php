@@ -5,23 +5,44 @@ use Illuminate\Http\Request;
 use App\Models\AnggotaDpr;
 use App\Models\Fraksi;
 use App\Models\KomisiDpr;
+use Illuminate\Http\JsonResponse;
 
 class AnggotaDprController extends Controller
 {
-    public function search(Request $request)
+    public function search(Request $request): JsonResponse
     {
-        $term = $request->get('q', '');
-        $anggota = AnggotaDpr::query()
-            ->where('nama', 'LIKE', "%{$term}%")
-            ->limit(20)
-            ->get();
+        $term = trim((string) $request->input('term', ''));
+        
+        // Log detail
+        \Log::info('=== SEARCH DPR DEBUG ===');
+        \Log::info('Raw term: ' . var_export($term, true));
+        \Log::info('Term length: ' . mb_strlen($term));
+        \Log::info('Request all: ' . json_encode($request->all()));
+        
+        if (mb_strlen($term) < 2) {
+            \Log::info('Term too short, returning empty');
+            return response()->json([]);
+        }
+        
+        if (mb_strlen($term) > 100) {
+            \Log::info('Term too long, returning empty');
+            return response()->json([]);
+        }
 
-        $results = $anggota->map(function ($a) {
-            return [
-                'id' => $a->id,
-                'text' => "{$a->nama} - {$a->fraksi} ({$a->dapil})"
-            ];
-        });
+        $likePattern = "%{$term}%";
+        \Log::info('LIKE pattern: ' . $likePattern);
+
+        $results = \App\Models\AnggotaDpr::where('nama', 'like', $likePattern)
+            ->orderBy('nama', 'asc')
+            ->limit(10)
+            ->pluck('nama')
+            ->filter()
+            ->values()
+            ->toArray();
+        
+        \Log::info('Results count: ' . count($results));
+        \Log::info('Results: ' . json_encode($results));
+        \Log::info('========================');
 
         return response()->json($results);
     }
@@ -116,6 +137,46 @@ class AnggotaDprController extends Controller
 
         $anggota_dpr->delete();
         return redirect()->route('anggota-dpr.index')->with('success', 'Data berhasil dihapus!');
+    }
+    /**
+     * Search keywords for autocomplete.
+     */
+   public function searchDpr(Request $request): JsonResponse
+    {
+        $term = trim((string) $request->input('term', ''));
+        
+        // Log detail
+        \Log::info('=== SEARCH DPR DEBUG ===');
+        \Log::info('Raw term: ' . var_export($term, true));
+        \Log::info('Term length: ' . mb_strlen($term));
+        \Log::info('Request all: ' . json_encode($request->all()));
+        
+        if (mb_strlen($term) < 2) {
+            \Log::info('Term too short, returning empty');
+            return response()->json([]);
+        }
+        
+        if (mb_strlen($term) > 100) {
+            \Log::info('Term too long, returning empty');
+            return response()->json([]);
+        }
+
+        $likePattern = "%{$term}%";
+        \Log::info('LIKE pattern: ' . $likePattern);
+
+        $results = \App\Models\AnggotaDpr::where('nama', 'like', $likePattern)
+            ->orderBy('nama', 'asc')
+            ->limit(10)
+            ->pluck('nama')
+            ->filter()
+            ->values()
+            ->toArray();
+        
+        \Log::info('Results count: ' . count($results));
+        \Log::info('Results: ' . json_encode($results));
+        \Log::info('========================');
+
+        return response()->json($results);
     }
 
 }

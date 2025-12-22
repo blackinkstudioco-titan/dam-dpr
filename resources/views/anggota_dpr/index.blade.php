@@ -4,10 +4,12 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Anggota DPR') }}
             </h2>
+            @if(auth()->user()?->hasAnyRole(['admin']))
             <a href="{{ route('anggota-dpr.create') }}" 
                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Tambah Anggota
             </a>
+            @endif
         </div>
     </x-slot>
 
@@ -94,10 +96,8 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex gap-2">
-                                                <a href="{{ route('anggota-dpr.show', $a->id) }}" 
-                                                   class="text-blue-600 hover:text-blue-900">
-                                                    Lihat
-                                                </a>
+                                             
+                                                @if(auth()->user()?->hasAnyRole(['admin']))
                                                 <a href="{{ route('anggota-dpr.edit', $a->id) }}" 
                                                    class="text-yellow-600 hover:text-yellow-900">
                                                     Edit
@@ -113,6 +113,7 @@
                                                         Hapus
                                                     </button>
                                                 </form>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

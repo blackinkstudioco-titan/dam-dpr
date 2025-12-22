@@ -40,7 +40,7 @@
                         {{ __('Manajemen User') }}
                     </x-nav-link>
                     @endif
-                    @if(auth()->user()->role === 'admin')
+                    @if(auth()->user()?->hasAnyRole(['admin', 'editor']))
                     <!-- Dropdown Menu Master Data -->
                      <div class="relative inline-flex items-center" x-data="{ open: false }">
                          <button @click="open = !open"
@@ -65,7 +65,7 @@
                              <div class="py-1">
                                  <a href="{{ route('kategori-foto.index') }}"
                                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('data-foto.*') ? 'bg-gray-100 font-semibold' : '' }}">
-                                     {{ __('Kategori Foto') }}
+                                     {{ __('Kategori') }}
                                  </a>
                                  <a href="{{ route('komisi-dpr.index') }}"
                                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('data-foto.*') ? 'bg-gray-100 font-semibold' : '' }}">

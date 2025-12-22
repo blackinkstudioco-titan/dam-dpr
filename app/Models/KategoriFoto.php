@@ -65,6 +65,14 @@ class KategoriFoto extends Model
     {
         return $this->hasMany(DataFoto::class, 'kategorisasi_datatempo', 'id');
     }
+    public function artikel()
+    {
+        return $this->hasMany(Artikel::class, 'kategori_id', 'id');
+    }
+    public function artikelPublish()
+    {
+        return $this->hasMany(ArtikelPublish::class, 'kategori_id', 'id');
+    }
 
     /**
      * Get count of photos in this category.

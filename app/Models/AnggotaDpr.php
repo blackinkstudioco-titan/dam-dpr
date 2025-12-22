@@ -31,4 +31,15 @@ class AnggotaDpr extends Model
     {
         return $this->belongsTo(KomisiDpr::class, 'komisi_dpr_id');
     }
+    /**
+     * Search keywords by term.
+     */
+    public static function searchKeywords(string $term, int $limit = 10): array
+    {
+        return self::where('nama', 'like', "%{$term}%")
+            ->orderBy('nama', 'asc')
+            ->limit($limit)
+            ->pluck('nama')
+            ->toArray();
+    }
 }

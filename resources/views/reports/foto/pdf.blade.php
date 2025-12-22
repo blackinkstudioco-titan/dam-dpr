@@ -205,9 +205,10 @@
         <thead>
             <tr>
                 <th style="width: 3%;">No</th>
-                <th style="width: 10%;">MM ID</th>
+                <th style="width: 10%;">Penugasan</th>
                 <th style="width: 25%;">Judul</th>
                 <th style="width: 12%;">Kategori</th>
+                <th style="width: 12%;">Tgl Penugasan</th>
                 <th style="width: 12%;">{{ $reportType === 'upload' ? 'Tgl Upload' : 'Tgl Edit' }}</th>
                 <th style="width: 10%;">{{ $reportType === 'upload' ? 'Fotografer' : 'Edit By' }}</th>
                 <th style="width: 8%;">Size</th>
@@ -220,9 +221,10 @@
             @foreach($fotos as $index => $foto)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $foto->mm_id }}</td>
+                    <td>{{ $foto?->event?->nama_event ?? '-' }}</td>
                     <td>{{ Str::limit($foto->judul, 40) }}</td>
                     <td>{{ $foto->kategori->k_name ?? '-' }}</td>
+                    <td>{{ $foto?->event?->tanggal ?? '-' }}</td>
                     <td>
                         @if($reportType === 'upload')
                             {{ $foto->created_at->format('d/m/Y H:i') }}
@@ -232,9 +234,9 @@
                     </td>
                     <td>
                         @if($reportType === 'upload')
-                            {{ $foto->perekam ?? '-' }}
+                            {{ $foto?->uploader?->name ?? '-' }}
                         @else
-                            {{ $foto->edit_by ?? '-' }}
+                            {{ $foto?->editor?->name ?? '-' }}
                         @endif
                     </td>
                     <td>{{ $foto->formatted_file_size }}</td>

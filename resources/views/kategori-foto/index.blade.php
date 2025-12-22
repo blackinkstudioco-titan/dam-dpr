@@ -4,10 +4,12 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Kategori Foto') }}
             </h2>
+            @if(auth()->user()?->hasAnyRole(['admin']))
             <a href="{{ route('kategori-foto.create') }}" 
                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Tambah Kategori
             </a>
+            @endif
         </div>
     </x-slot>
 
@@ -61,6 +63,12 @@
                                         Nama Kategori
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Jumlah Draft Artikel
+                                    </th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Jumlah Artikel Editor
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Jumlah Foto
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -78,6 +86,12 @@
                                             {{ $kategori->k_name }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $kategori->artikel_count ?? 0 }} artikel
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $kategori->artikel_publish_count ?? 0 }} artikel
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $kategori->data_foto_count ?? 0 }} foto
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -86,6 +100,7 @@
                                                    class="text-blue-600 hover:text-blue-900">
                                                     Lihat
                                                 </a>
+                                                @if(auth()->user()?->hasAnyRole(['admin']))
                                                 <a href="{{ route('kategori-foto.edit', $kategori->id) }}" 
                                                    class="text-yellow-600 hover:text-yellow-900">
                                                     Edit
@@ -101,6 +116,7 @@
                                                         Hapus
                                                     </button>
                                                 </form>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

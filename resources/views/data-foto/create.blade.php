@@ -146,12 +146,10 @@
                             </div>
                           </div>
                          </div>
+                         
                           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                               <div>
-                                <div>
-                                  <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2">Anggota DPR <span class="text-xs text-gray-500 font-normal">(Optional)</span></label>
-                                  <select id="anggota_dpr_id" name="anggota_dpr_id" class="w-full border-gray-300 rounded"></select>
-                                </div>
+                          
                               <div>
                                   <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2 mt-2">
                                       Alat Kelengkapan DPR (AKD) <span class="text-xs text-gray-500 font-normal">(Optional)</span>
@@ -166,7 +164,42 @@
 
                           </div>
                         </div>
+                        <!-- Anggota DPR -->
+                          <div>
+            <label for="anggota_dpr" class="block text-sm font-medium text-gray-700 mb-2">
+                Anggota DPR (Optional)
+                <span class="text-xs text-gray-500 font-normal">(Pisahkan dengan koma)</span>
+            </label>
 
+            <div class="relative">
+                <textarea id="anggota_dpr"
+                            name="anggota_dpr"
+                            rows="3"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                            placeholder="Ketik minimal 2 huruf untuk melihat suggestion..."
+                            autocomplete="off">{{ old('anggota_dpr') }}</textarea>
+
+                <div id="AnggotaDPRSuggestions"
+                    class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <div id="AnggotaDPRList" class="py-1"></div>
+
+                    <div id="loadingSpinnerAnggota" class="hidden p-3 text-center">
+                        <svg class="inline w-5 h-5 text-red-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-2 flex items-center justify-between">
+                <p class="text-xs text-gray-500">Ketik minimal 2 huruf untuk melihat suggestion</p>
+                <span class="text-xs text-gray-600">
+                    <span id="anggotaDPRCount" class="font-semibold text-red-600">0</span> keywords
+                </span>
+            </div>
+            </div>
                         <!-- Keywords -->
                         <div>
                             <label for="k_word" class="block text-sm font-medium text-gray-700 mb-2">
@@ -280,6 +313,7 @@
 
                         </div>
 
+                        @if (auth()->user()?->hasAnyRole(['admin', 'editor']))
                         <div class="flex items-center">
                             <input type="checkbox" id="publish" name="publish" value="1"
                                    class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
@@ -288,6 +322,8 @@
                                 <span class="font-medium">Publikasikan foto ini</span>
                             </label>
                         </div>
+                        @endif
+
                     </div>
                 </div>
 
@@ -595,6 +631,192 @@
         });
 
         updateKeywordCount();
+
+        //anggota dpr suggestion
+const anggotaInput = document.getElementById('anggota_dpr');
+const anggotaBox   = document.getElementById('AnggotaDPRSuggestions');
+const anggotaList  = document.getElementById('AnggotaDPRList');
+const loadingAnggota = document.getElementById('loadingSpinnerAnggota');
+const anggotaCount = document.getElementById('anggotaDPRCount');
+
+let anggotaTimeout;
+let abortController = null;
+
+function updateAnggotaCount() {
+  const text = anggotaInput.value.trim();
+  const count = text ? text.split(',').filter(k => k.trim()).length : 0;
+  anggotaCount.textContent = count;
+}
+
+function getCurrentAnggotaWord() {
+  const pos = anggotaInput.selectionStart;
+  const text = anggotaInput.value;
+  
+  console.log('=== DEBUG getCurrentAnggotaWord ===');
+  console.log('Full text:', text);
+  console.log('Cursor position:', pos);
+  
+  // Ambil teks sebelum cursor
+  const before = text.substring(0, pos);
+  console.log('Text before cursor:', before);
+  
+  // Cari koma terakhir sebelum cursor
+  const lastComma = before.lastIndexOf(',');
+  console.log('Last comma index:', lastComma);
+  
+  // Ambil kata setelah koma terakhir (atau dari awal jika tidak ada koma)
+  let currentWord;
+  if (lastComma === -1) {
+    // Tidak ada koma, ambil dari awal
+    currentWord = before.trim();
+  } else {
+    // Ada koma, ambil setelah koma terakhir
+    currentWord = before.substring(lastComma + 1).trim();
+  }
+  
+  console.log('Current word extracted:', `"${currentWord}"`);
+  console.log('Current word length:', currentWord.length);
+  console.log('=================================');
+  
+  return currentWord;
+}
+
+// Ambil label string dari berbagai bentuk item
+function getItemLabel(item) {
+  if (typeof item === 'string') return item.trim();
+  if (!item || typeof item !== 'object') return '';
+  const label = item.nama ?? item.label ?? item.name ?? item.text ?? '';
+  return String(label).trim();
+}
+
+async function searchAnggota(term) {
+  console.log('🔎 searchAnggota called with term:', `"${term}"`, 'length:', term.length);
+  
+  if (term.length < 2) {
+    console.log('❌ Term too short, hiding suggestions');
+    anggotaBox.classList.add('hidden');
+    return;
+  }
+
+  // Cancel previous request
+  if (abortController) {
+    console.log('⚠️ Aborting previous request');
+    abortController.abort();
+  }
+  abortController = new AbortController();
+
+  loadingAnggota.classList.remove('hidden');
+  anggotaList.innerHTML = '';
+
+  const url = `/api/anggota-dpr/search?term=${encodeURIComponent(term)}`;
+  console.log('📡 Fetching URL:', url);
+
+  try {
+    const response = await fetch(url, {
+      headers: { 'Accept': 'application/json' },
+      signal: abortController.signal
+    });
+    
+    console.log('📥 Response status:', response.status);
+    
+    if (!response.ok) throw new Error('Search failed');
+
+    const results = await response.json();
+    console.log('✅ Results received:', results);
+    console.log('Results count:', results.length);
+    
+    loadingAnggota.classList.add('hidden');
+
+    const labels = Array.from(new Set(
+      (Array.isArray(results) ? results : [])
+        .map(getItemLabel)
+        .filter(label => label.length > 0)
+    ));
+
+    console.log('📋 Processed labels:', labels);
+
+    if (labels.length > 0) {
+      renderAnggotaSuggestions(labels);
+      anggotaBox.classList.remove('hidden');
+    } else {
+      anggotaList.innerHTML = '<div class="px-4 py-2 text-sm text-gray-500">Tidak ada hasil untuk "' + term + '"</div>';
+      anggotaBox.classList.remove('hidden');
+    }
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      console.log('⚠️ Request aborted');
+    } else {
+      console.error('❌ Search error:', err);
+    }
+    loadingAnggota.classList.add('hidden');
+    anggotaBox.classList.add('hidden');
+  }
+}
+
+function renderAnggotaSuggestions(labels) {
+  anggotaList.innerHTML = '';
+  labels.forEach(label => {
+    const div = document.createElement('div');
+    div.className = 'px-4 py-2 hover:bg-red-50 cursor-pointer text-sm text-gray-700';
+    div.textContent = label;
+    div.addEventListener('click', () => insertAnggota(label));
+    anggotaList.appendChild(div);
+  });
+}
+
+function insertAnggota(value) {
+  const pos = anggotaInput.selectionStart;
+  const text = anggotaInput.value;
+  const before = text.substring(0, pos);
+  const after  = text.substring(pos);
+  const lastComma = before.lastIndexOf(',');
+
+  let beforeWord;
+  if (lastComma === -1) {
+    beforeWord = '';
+  } else {
+    beforeWord = before.substring(0, lastComma + 1);
+  }
+
+  const needsSpace = beforeWord.trim().length > 0 ? ' ' : '';
+  anggotaInput.value = beforeWord + needsSpace + value + ', ' + after;
+
+  // Rapikan spasi/koma ganda
+  anggotaInput.value = anggotaInput.value
+    .replace(/\s*,\s*/g, ', ')
+    .replace(/,\s*,/g, ', ')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/^,\s*/,'')
+    .replace(/,\s*$/,'');
+
+  anggotaBox.classList.add('hidden');
+  updateAnggotaCount();
+  anggotaInput.focus();
+}
+
+anggotaInput.addEventListener('input', () => {
+  console.log('⌨️ Input event triggered');
+  updateAnggotaCount();
+  clearTimeout(anggotaTimeout);
+  
+  anggotaTimeout = setTimeout(() => {
+    const currentWord = getCurrentAnggotaWord();
+    searchAnggota(currentWord);
+  }, 300);
+});
+
+anggotaInput.addEventListener('keydown', e => {
+  if (e.key === 'Escape') anggotaBox.classList.add('hidden');
+});
+
+document.addEventListener('click', e => {
+  if (!anggotaInput.contains(e.target) && !anggotaBox.contains(e.target)) {
+    anggotaBox.classList.add('hidden');
+  }
+});
+
+updateAnggotaCount();
+
     </script>
     @endpush
 </x-app-layout>

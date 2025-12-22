@@ -4,10 +4,12 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Alat Kelengkapan DPR (AKD)') }}
             </h2>
+            @if(auth()->user()?->hasAnyRole(['admin']))
             <a href="{{ route('komisi-dpr.create') }}" 
                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Tambah AKD
             </a>
+            @endif
         </div>
     </x-slot>
 
@@ -88,6 +90,7 @@
                                                    class="text-blue-600 hover:text-blue-900">
                                                     Lihat
                                                 </a>
+                                                @if(auth()->user()?->hasAnyRole(['admin']))
                                                 <a href="{{ route('komisi-dpr.edit', $komisi->id) }}" 
                                                    class="text-yellow-600 hover:text-yellow-900">
                                                     Edit
@@ -103,6 +106,7 @@
                                                         Hapus
                                                     </button>
                                                 </form>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

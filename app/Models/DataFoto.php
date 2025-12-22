@@ -57,6 +57,7 @@ class DataFoto extends Model
         'scheduled_publish_at',
         'scheduled_unpublish_at',
         'schedule_status',
+        'anggota_dpr'
     ];
 
     /**

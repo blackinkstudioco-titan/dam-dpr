@@ -151,6 +151,7 @@ class DataFotoController extends Controller
                 'event_id' => $request->event_id, //penugasan
                 'add_by' => Auth::user()->id,
                 'add_date' => now(),
+                'anggota_dpr' => $request->anggota_dpr,
             ]);
 
             // Update data
@@ -392,7 +393,7 @@ class DataFotoController extends Controller
       $manager = new ImageManager(new Driver());
       $image = $manager->read($filePath);
 
-      $watermarkPath = public_path('images/wm2_dpr_ri_logo.png');
+      $watermarkPath = public_path('images/wm3_dpr_ri_logo.png');
       if (!file_exists($watermarkPath)) {
           abort(500, 'Watermark tidak ditemukan.');
       }
@@ -407,7 +408,7 @@ class DataFotoController extends Controller
           opacity: 80  // 0-100, dimana 0 = transparan penuh, 100 = opaque penuh
       );
       */
-      $watermark->resize(726, null); // Ubah ukuran watermark jika perlu
+      $watermark->resize(512, null); // Ubah ukuran watermark jika perlu
 
         $image->place(
             $watermark,        // element

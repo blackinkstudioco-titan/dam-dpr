@@ -7,6 +7,7 @@ use App\Models\ArtikelPublish;
 use App\Models\KomisiDpr;
 use App\Models\Event;
 use App\Models\AnggotaDpr;
+use App\Models\KategoriFoto;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -55,10 +56,12 @@ class ArtikelController extends Controller
     public function create()
     {
 
-        $komisi = KomisiDpr::all();
+       
         //DB::enableQueryLog();
         $penugasan = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
-        return view('data-artikel.create',compact('penugasan','komisi'));
+        $komisi = KomisiDpr::all();
+        $kategori = KategoriFoto::pluck('k_name', 'id');
+        return view('data-artikel.create',compact('penugasan','komisi','kategori'));
     }
 
     public function store(Request $request)
@@ -71,13 +74,15 @@ class ArtikelController extends Controller
             'tanggal' => 'required|date',
             'isi' => 'required|string',
             'penulis' => 'required|string',
-            'sumber' => 'required|string',
+            'sumber' => 'nullable|string',
             'keyword' => 'required|string',
-            'subyek' => 'required|string',
+            'subyek' => 'nullable|string',
             'foto' => 'nullable|image|max:2048',
             'event_id' => 'nullable|integer',
             'komisi_dpr_id' => 'nullable|integer',
             'anggota_dpr_id' => 'nullable|integer',
+            'anggota_dpr' => 'nullable|string',
+            'kategori_id' => 'nullable|integer',
         ]);
 
         if ($request->hasFile('foto')) {
@@ -105,7 +110,7 @@ class ArtikelController extends Controller
         $komisi = KomisiDpr::all();
         //DB::enableQueryLog();
         $penugasan = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
-    
+        $kategori = KategoriFoto::pluck('k_name', 'id');
         
         $artikel = Artikel::where('id', $id);
         if (!Auth::check() || !Auth::user()->hasAnyRole(['admin', 'editor'])) {
@@ -115,7 +120,7 @@ class ArtikelController extends Controller
         $artikel=$artikel->first();
         
         if($artikel){
-         return view('data-artikel.edit', compact('artikel','penugasan','komisi'));
+         return view('data-artikel.edit', compact('artikel','penugasan','komisi','kategori'));
         }
         else{
           return redirect()->route('artikel.index')->with('error', 'Anda tidak memiliki izin untuk mengedit artikel ini.');
@@ -132,13 +137,15 @@ class ArtikelController extends Controller
           'tanggal' => 'required|date',
           'isi' => 'required|string',
           'penulis' => 'required|string',
-          'sumber' => 'required|string',
+          'sumber' => 'nullable|string',
           'keyword' => 'required|string',
-          'subyek' => 'required|string',
+          'subyek' => 'nullable|string',
           'foto' => 'nullable|image|max:2048',
           'event_id' => 'nullable|integer',
           'komisi_dpr_id' => 'nullable|integer',
           'anggota_dpr_id' => 'nullable|integer',
+          'kategori_id' => 'nullable|integer',
+          'anggota_dpr' => 'nullable|string',
         ]);
 
         if ($request->hasFile('foto')) {

@@ -5,10 +5,12 @@
                 {{ __('Detail Kelengkapan DPR (AKD): ') }} {{ $komisiDpr->nama_komisi }}
             </h2>
             <div class="flex gap-2">
+                @if(auth()->user()?->hasAnyRole(['admin']))
                 <a href="{{ route('komisi-dpr.edit', $komisiDpr->id) }}" 
                    class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
                     Edit
                 </a>
+                @endif
                 <a href="{{ route('komisi-dpr.index') }}" 
                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                     Kembali
@@ -52,7 +54,7 @@
                             </div>
                         </div>
                     </div>
-
+                @if(auth()->user()?->hasAnyRole(['admin']))
                     <!-- Delete Button -->
                     <div class="mt-6 pt-6 border-t">
                         <form action="{{ route('komisi-dpr.destroy', $komisiDpr->id) }}" 
@@ -66,6 +68,7 @@
                             </button>
                         </form>
                     </div>
+                @endif
                 </div>
             </div>
         </div>

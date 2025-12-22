@@ -19,6 +19,7 @@ use App\Http\Controllers\KategoriFotoController;
 use App\Http\Controllers\KomisiDprController;
 use App\Http\Controllers\PhotoScheduleController;
 use App\Http\Controllers\ArtikelScheduleController;
+use App\Http\Controllers\GalleryController;
 
 
 /*
@@ -88,7 +89,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 Route::middleware(['auth'])->group(function () {
-  Route::middleware(['role:admin'])->group(function () {
+  Route::middleware(['role:admin,editor'])->group(function () {
       Route::resource('users', UserController::class);
       Route::resource('anggota-dpr', AnggotaDprController::class);
   });
@@ -204,5 +205,8 @@ Route::middleware(['auth', 'role:admin,editor'])->group(function () {
         Route::post('/batch-cancel', [ArtikelScheduleController::class, 'batchCancel'])->name('batch-cancel');
     });
 });
+
+//summernote gallery routes
+Route::get('/gallery/images', [GalleryController::class, 'getImages'])->name('gallery.images');
 
 require __DIR__.'/auth.php';
