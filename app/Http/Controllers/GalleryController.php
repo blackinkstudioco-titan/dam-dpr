@@ -29,7 +29,7 @@ class GalleryController extends Controller
        
 
         // Ambil dari DB: id, url (alias), judul
-        $foto = DataFoto::select('id', 'original_foto_url as url', 'judul')->get();
+        $foto = DataFoto::select('id', 'thumbnail_foto_url as url', 'judul')->get();
 
         // Map ke struktur yang sama
         $images = $foto->map(function ($item) {
