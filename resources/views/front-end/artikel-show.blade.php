@@ -34,7 +34,6 @@
                       @endif
 
                       <div class="prose max-w-none pl-20">
-                            test heheh
                           {!! add_image_caption($artikel->isi) !!}
                       </div>
 
