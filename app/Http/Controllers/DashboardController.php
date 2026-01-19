@@ -6,9 +6,13 @@ use App\Models\User;
 use App\Models\Artikel;
 use App\Models\ArtikelPublish;
 use App\Models\DataFoto;
+use App\Models\AnggotaDpr;
+use App\Models\KomisiDpr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
+
 
 class DashboardController extends Controller
 {
@@ -99,8 +103,111 @@ class DashboardController extends Controller
                                       ->limit(5)
                                       ->with('creator')
                                       ->get();
+        // Render view dengan data statistik
+
+       
+        $jumlahPerKomisi = KomisiDpr::leftJoin('data_foto', 'komisi_dpr.id', '=', 'data_foto.komisi_dpr_id')
+                ->select('komisi_dpr.id', 'komisi_dpr.nama_komisi', \DB::raw('COUNT(data_foto.id) as total_foto'))
+                ->groupBy('komisi_dpr.id', 'komisi_dpr.nama_komisi')
+                ->orderBy('total_foto', 'desc')
+                ->limit(5)
+                ->get();
+        
+        
+        $jumlahPerKegiatan = DB::table('kategori_foto')
+            ->leftJoin('data_foto', 'kategori_foto.id', '=', 'data_foto.kategorisasi_datatempo')
+            ->select(
+                'kategori_foto.id',
+                'kategori_foto.k_name',
+                DB::raw('COUNT(data_foto.id) as total_foto')
+            )
+            ->groupBy('kategori_foto.id', 'kategori_foto.k_name')
+            ->orderByDesc('total_foto')
+            ->limit(5)
+            ->get();
+
+        //anggota dpr menggunakan regex
+
+        // 1) Kamus anggota
+            $anggota = AnggotaDpr::select('id','nama')->get();
+            $map = [];             // canonical name => ['id'=>.., 'nama'=>..]
+            $counts = [];          // id => total
+            foreach ($anggota as $a) {
+                $key = $this->canonical($a->nama);
+                $map[$key] = ['id' => $a->id, 'nama' => $a->nama];
+                $counts[$a->id] = 0;
+            }
+
+        // 2) Scan data_foto
+        $rows = DataFoto::query()
+            ->whereNotNull('anggota_dpr')
+            ->where('publish', 1) // opsional
+            ->get(['id','anggota_dpr']);
+
+        foreach ($rows as $row) {
+            // Heuristik split: pecah kasar by koma, lalu normalisasi dan cocokkan dengan kamus
+            $tokens = collect(explode(',', $row->anggota_dpr))
+                ->map(fn($t) => trim($t))
+                ->filter()
+                ->values();
+
+        // Gabungkan kembali token gelar ke nama sebelumnya (opsional, kalau kamu temukan pola sering)
+        $names = [];
+        $buf = '';
+        foreach ($tokens as $t) {
+                // heuristik sederhana: token pendek dominan gelar
+                if ($buf === '') { $buf = $t; continue; }
+                if (strlen(str_replace(['.',' '],'',$t)) <= 5) {
+                    $buf .= ', '.$t; // anggap gelar -> merge
+                } else {
+                    $names[] = $buf;
+                    $buf = $t;
+                }
+            }
+            if ($buf !== '') $names[] = $buf;
+
+            foreach ($names as $raw) {
+                $key = $this->canonical($raw);
+                if (isset($map[$key])) {
+                    $counts[$map[$key]['id']]++;
+                }
+            }
+        }
+
+        // 3) Susun hasil
+        /*
+        $JumlahPerAnggotaDPR = collect($counts)
+            ->map(fn($total, $id) => [
+                'id' => $id,
+                'nama' => $anggota->firstWhere('id', $id)->nama ?? (string)$id,
+                'total_foto' => $total,
+            ])
+            ->sortByDesc('total_foto')
+            ->values();
+        */
+        
+        
+        $JumlahPerAnggotaDPR = collect($counts)
+            ->map(function ($total, $id) use ($anggota) {
+                return [
+                    'id'         => $id,
+                    'nama'       => optional($anggota->firstWhere('id', $id))->nama ?? (string) $id,
+                    'total_foto' => (int) $total,
+                ];
+            })
+            ->filter(fn ($row) => ($row['total_foto'] ?? 0) > 0) // hanya > 0
+            ->sortByDesc('total_foto')                            // urutkan desc
+            ->take(5)                                             // ambil 5 teratas
+            ->values();
+
+
+
+
 
         return view('dashboard', compact(
+            'JumlahPerAnggotaDPR',
+            'jumlahPerKegiatan',
+            'jumlahPerKomisi',
             // Foto Stats
             'totalFoto',
             'fotoPublished',
@@ -135,6 +242,7 @@ class DashboardController extends Controller
             'recentArtikelDrafts',
             'recentArtikelPublish',
             'topArticleCreators'
+
         ));
     }
 
@@ -153,4 +261,23 @@ class DashboardController extends Controller
         
         return round($bytes, 2) . ' ' . $units[$i];
     }
+
+    private function canonical(string $name): string {
+        // Normalisasi (buang gelar umum prefix/suffix jika ada, samakan case)
+        $n = ' '.trim($name).' ';
+        $n = preg_replace(['/\\bprof\\.\\s*/i','/\\bdr\\.\\s*/i','/\\bdrs\\.\\s*/i','/\\bdra\\.\\s*/i','/\\bir\\.\\s*/i','/\\bhj\\.\\s*/i','/\\bh\\.\\s*/i'], '', $n);
+        $parts = array_map('trim', explode(',', $n));
+        $keep = [];
+        foreach ($parts as $p) {
+            if ($p === '') continue;
+            // buang part yg “tampak” gelar suffix (opsional)
+            if (preg_match('/^(s|m)[a-z\\. ]{0,6}$/i', str_replace('.', '', $p))) continue;
+            $keep[] = $p;
+        }
+        $n = preg_replace('/\\s+/', ' ', trim(implode(' ', $keep)));
+        return mb_strtoupper($n, 'UTF-8');
+    }
+
+
+
 }

@@ -60,6 +60,11 @@
                           <input type="file" name="foto"
                               class="border-gray-300 p-2 rounded focus:ring-blue-500 focus:border-blue-500">
                       </div>
+                      <div>
+                            <label class="block font-medium">Caption Foto</label>
+                            <input type="text" name="subyek" value="{{ old('subyek',$artikel->subyek)}}"
+                                class="w-full border-gray-300 p-2 rounded focus:ring-blue-500 focus:border-blue-500">
+                      </div>
 
                       <!-- Preview Foto Lama -->
                       @if($artikel->foto)
@@ -396,12 +401,15 @@ function loadGalleryImages() {
         });
 }
 
-function insertImageToEditor(imageUrl) {
+function insertImageToEditor(imageUrl,deskrp) {
     if (currentSummernoteEditor) {
         // Method 1: Using jQuery summernote API
         $('#editor').summernote('insertImage', imageUrl, function($image) {
             $image.css('max-width', '100%');
             $image.addClass('img-fluid');
+            if(deskrp){
+                $image.attr('alt', deskrp);
+            }
         });
         
         closeGalleryModal();

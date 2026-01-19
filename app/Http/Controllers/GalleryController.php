@@ -29,7 +29,7 @@ class GalleryController extends Controller
        
 
         // Ambil dari DB: id, url (alias), judul
-        $foto = DataFoto::select('id', 'thumbnail_foto_url as url', 'judul')->get();
+        $foto = DataFoto::select('id', 'thumbnail_foto_url as url', 'judul','deskrp')->get();
 
         // Map ke struktur yang sama
         $images = $foto->map(function ($item) {
@@ -45,6 +45,7 @@ class GalleryController extends Controller
                 'name'  => $item->judul ?: basename($path ?? ''), // nama/label (judul jika ada, atau nama file)
                 'path'  => $path,                       // path relatif (dari DB), berguna jika perlu operasi file
                 'id'    => $item->id,                   // (opsional) simpan id kalau kamu butuh
+                'deskrp'=> $item->deskrp                // deskripsi tambahan
             ];
         });
 

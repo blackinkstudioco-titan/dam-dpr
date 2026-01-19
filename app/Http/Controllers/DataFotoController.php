@@ -253,7 +253,8 @@ class DataFotoController extends Controller
                 'komisi_dpr_id' => $request->komisi_dpr_id,
                 'edit_by' => Auth::user()->id,
                 'edit_date' => now(),
-                'event_id' => $request->event_id, //penugasan
+                'event_id' => $request->event_id, //penugasan 
+                'anggota_dpr' => $request->anggota_dpr,
             ];
 
             // Check if new photo is uploaded
@@ -346,7 +347,7 @@ class DataFotoController extends Controller
     /**
      * Download photo file.
      */
-    /*
+    
     public function download(DataFoto $dataFoto)
     {
         if (!$dataFoto->original_foto_url || !Storage::disk('public')->exists($dataFoto->original_foto_url)) {
@@ -361,8 +362,8 @@ class DataFotoController extends Controller
 
         return response()->download($filePath, $fileName);
     }
-    */
-    public function download(DataFoto $dataFoto)
+    
+    public function download_wm(DataFoto $dataFoto)
     {
       // ✅ Tingkatkan memory limit untuk proses watermark
       ini_set('memory_limit', '512M'); // atau '1024M' untuk file sangat besar

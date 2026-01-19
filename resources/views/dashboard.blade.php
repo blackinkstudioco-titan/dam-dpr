@@ -41,6 +41,163 @@
                 </div>
             </div>
 
+             {{-- ========================================
+                STATISTIK AKD, KEGIATAN & ANGGOTA DPR
+            ======================================== --}}
+
+            <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    Statistik Berdasarkan Kategori
+                </h3>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                {{-- Foto Terbaru --}}
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Foto Alat Kegiatan DPR
+                        </h4>
+                        <div class="space-y-3">
+                            @forelse($jumlahPerKomisi as $foto)
+                                <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">{{ Str::limit($foto->nama_komisi, 40) }}</p>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">{{$foto->total_foto}}</span>
+                                  
+                                </div>
+                            @empty
+                                <p class="text-sm text-gray-500 text-center py-4">Belum ada foto</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Anggota DPR --}}
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Foto Anggota DPR
+                        </h4>
+                        <div class="space-y-3">
+                              @forelse($JumlahPerAnggotaDPR as $foto)
+                                <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">{{ Str::limit($foto['nama'], 40) }}</p>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">{{$foto['total_foto']}}</span>
+                                  
+                                </div>
+                            @empty
+                                <p class="text-sm text-gray-500 text-center py-4">Belum ada foto</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Kegiatan DPR --}}
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Foto Kegiatan DPR
+                        </h4>
+                        <div class="space-y-3">
+                            @forelse($jumlahPerKegiatan as $foto)
+                                <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">{{ Str::limit($foto->k_name, 40) }}</p>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">{{$foto->total_foto}}</span>
+                                  
+                                </div>
+                            @empty
+                                <p class="text-sm text-gray-500 text-center py-4">Belum ada foto</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            {{-- ========================================
+                AKTIVITAS TERBARU
+            ======================================== --}}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {{-- Foto Terbaru --}}
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Foto Terbaru
+                        </h4>
+                        <div class="space-y-3">
+                            @forelse($recentFotos as $foto)
+                                <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition">
+                                    <img src="{{ $foto->thumbnail_url }}" alt="{{ $foto->judul }}" class="w-12 h-12 object-cover rounded">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">{{ Str::limit($foto->judul, 40) }}</p>
+                                        <p class="text-xs text-gray-500">{{ $foto->created_at->diffForHumans() }}</p>
+                                    </div>
+                                    @if($foto->publish == 1)
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Published</span>
+                                    @else
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Draft</span>
+                                    @endif
+                                </div>
+                            @empty
+                                <p class="text-sm text-gray-500 text-center py-4">Belum ada foto</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Artikel Draft Terbaru --}}
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Artikel Draft Terbaru
+                        </h4>
+                        <div class="space-y-3">
+                            @forelse($recentArtikelDrafts as $artikel)
+                                <div class="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded-lg transition">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">{{ Str::limit($artikel->judul, 50) }}</p>
+                                        <p class="text-xs text-gray-500">
+                                            Oleh: {{ $artikel->creator_name }} • {{ $artikel->add_date ? $artikel->add_date->diffForHumans() : '-' }}
+                                        </p>
+                                    </div>
+                                    @if($artikel->active == 1)
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                    @else
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Inactive</span>
+                                    @endif
+                                </div>
+                            @empty
+                                <p class="text-sm text-gray-500 text-center py-4">Belum ada artikel draft</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
             {{-- ========================================
                 STATISTIK FOTO
             ======================================== --}}
@@ -71,6 +228,7 @@
                             </div>
                         </div>
                     </div>
+                    
 
                     {{-- Foto Published --}}
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-lg transition-shadow duration-300">
@@ -284,71 +442,7 @@
                 </div>
             </div>
 
-            {{-- ========================================
-                AKTIVITAS TERBARU
-            ======================================== --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {{-- Foto Terbaru --}}
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            Foto Terbaru
-                        </h4>
-                        <div class="space-y-3">
-                            @forelse($recentFotos as $foto)
-                                <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition">
-                                    <img src="{{ $foto->thumbnail_url }}" alt="{{ $foto->judul }}" class="w-12 h-12 object-cover rounded">
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-gray-900 truncate">{{ Str::limit($foto->judul, 40) }}</p>
-                                        <p class="text-xs text-gray-500">{{ $foto->created_at->diffForHumans() }}</p>
-                                    </div>
-                                    @if($foto->publish == 1)
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Published</span>
-                                    @else
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Draft</span>
-                                    @endif
-                                </div>
-                            @empty
-                                <p class="text-sm text-gray-500 text-center py-4">Belum ada foto</p>
-                            @endforelse
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Artikel Draft Terbaru --}}
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
-                            Artikel Draft Terbaru
-                        </h4>
-                        <div class="space-y-3">
-                            @forelse($recentArtikelDrafts as $artikel)
-                                <div class="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded-lg transition">
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-gray-900 truncate">{{ Str::limit($artikel->judul, 50) }}</p>
-                                        <p class="text-xs text-gray-500">
-                                            Oleh: {{ $artikel->creator_name }} • {{ $artikel->add_date ? $artikel->add_date->diffForHumans() : '-' }}
-                                        </p>
-                                    </div>
-                                    @if($artikel->active == 1)
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>
-                                    @else
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Inactive</span>
-                                    @endif
-                                </div>
-                            @empty
-                                <p class="text-sm text-gray-500 text-center py-4">Belum ada artikel draft</p>
-                            @endforelse
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
 
             {{-- Quick Actions --}}
             {{-- 

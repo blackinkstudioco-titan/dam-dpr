@@ -23,7 +23,7 @@ class EventController extends Controller
     {
         $validated = $request->validate([
             'nama_event' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string',
+            'deskripsi' => 'required|string',
             'tanggal' => 'required|date',
         ]);
 
@@ -57,7 +57,7 @@ class EventController extends Controller
     {
         $request->validate([
             'nama_event' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string',
+            'deskripsi' => 'required|string',
             'tanggal' => 'required|date',
             'waktu' => 'required|date_format:H:i',
         ]);
