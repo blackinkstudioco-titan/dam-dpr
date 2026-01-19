@@ -374,7 +374,7 @@ function loadGalleryImages() {
                 const imgDiv = document.createElement('div');
                 imgDiv.className = 'relative group cursor-pointer overflow-hidden rounded-lg border-2 border-transparent hover:border-blue-500 transition';
                 imgDiv.innerHTML = `
-                    <img src="${image.url}" alt="${image.name}" 
+                    <img src="${image.url}" alt="${image.deskrp || image.name}" 
                          class="w-full h-32 object-cover">
                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition flex items-center justify-center">
                         <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -385,7 +385,7 @@ function loadGalleryImages() {
                 `;
                 
                 imgDiv.onclick = function() {
-                    insertImageToEditor(image.url);
+                    insertImageToEditor(image.url,image.deskrp);
                 };
                 
                 galleryGrid.appendChild(imgDiv);
@@ -397,12 +397,15 @@ function loadGalleryImages() {
         });
 }
 
-function insertImageToEditor(imageUrl) {
+function insertImageToEditor(imageUrl,deskrp) {
     if (currentSummernoteEditor) {
         // Method 1: Using jQuery summernote API
         $('#editor').summernote('insertImage', imageUrl, function($image) {
             $image.css('max-width', '100%');
             $image.addClass('img-fluid');
+            if(deskrp){
+                $image.attr('alt', deskrp);
+            }
         });
         
         closeGalleryModal();
