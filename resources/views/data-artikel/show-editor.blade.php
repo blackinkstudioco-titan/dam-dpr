@@ -30,15 +30,20 @@
                   <p><strong>Sumber:</strong> {{ $artikel->sumber ?? '-' }}</p>
               </div>
 
-              @if ($artikel->foto)
-                  <div class="mb-6">
-                      <img src="{{ asset('storage/' . $artikel->foto) }}" alt="{{ $artikel->judul }}"
-                           class="rounded-lg shadow-md w-full max-h-[450px] object-cover">
-                  </div>
-              @endif
+               @if ($artikel->foto)
+                          <div class="mb-6">
+                            <figure>
+                              <img src="{{ asset('storage/' . $artikel->foto) }}" alt="{{ $artikel->judul }}"
+                                   class="rounded-lg shadow-md w-full max-h-[450px] object-cover">
+                            <figcaption class="text-sm text-gray-600 italic mt-2 text-left">
+                                {{ $artikel->subyek }} / Dok.DPR RI
+                            </figcaption>
+                            </figure>
+                          </div>
+                @endif
 
               <div class="prose max-w-none">
-                  {!! $artikel->isi !!}
+                  {!! add_image_caption($artikel->isi) !!}
               </div>
 
               @if ($artikel->keyword)
