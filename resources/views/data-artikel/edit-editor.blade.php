@@ -114,7 +114,7 @@
                                    <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2 mt-2">
                                       Penugasan <span class="text-xs text-gray-500 font-normal">(Optional)</span>
                                   </label>
-                                  <select name="event_id" class="...">
+                                  <select name="event_id" class="w-full border-gray-300 p-2 rounded focus:ring-blue-500 focus:border-blue-500">
                                     <option value="{{ null }}"> - Pilih Penugasan - </option>
 
                                         @foreach($penugasan as $p)
@@ -145,7 +145,7 @@
                                   <label for="subyek" class="block text-sm font-medium text-gray-700 mb-2 mt-2">
                                       Alat Kelengkapan DPR (AKD) <span class="text-xs text-gray-500 font-normal">(Optional)</span>
                                   </label>
-                                  <select name="komisi_dpr_id" class="...">
+                                  <select name="komisi_dpr_id" class="w-full border-gray-300 p-2 rounded focus:ring-blue-500 focus:border-blue-500">
                                     <option value="{{ 0 }}"> - Alat Kelengkapan DPR - </option>
                                         @foreach($komisi as $k)
                                             <option value="{{ $k->id }}" {{ $artikel->komisi_dpr_id == $k->id ? 'selected' : '' }}>{{ $k->nama_komisi }} - {{ $k->bidang }}</option>
@@ -219,11 +219,9 @@
                  
 
                       <div class="flex items-center space-x-3 mt-2">
-
                           <label for="active">Status Publish:</label>
                           <input type="checkbox" id="active" name="active" {{ $artikel->active ? 'checked' : '' }} value="1">
-                          <span>{{ $artikel->active ? 'Published' : 'Not Published' }}</span>
-
+                          <span>{{ $artikel->active ? 'Published' : 'Published' }}</span>
                       </div>
 
                       </div>
@@ -246,7 +244,6 @@
                               </svg>
                               <span id="btnText">Publish Artikel</span>
                           </button>
-
                       </div>
                   </div>
               </form>
@@ -288,29 +285,28 @@
     </div>
 </div>
 
-  {{-- Summernote CSS --}}
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
+    {{-- TinyMCE CDN --}}
+    <script src="https://cdn.tiny.cloud/1/zegt6r1mw6ygkl8pwyzrjyt1dzc14sasypxqoeqprvfuhpjs/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
-    {{-- jQuery + Summernote JS --}}
+    {{-- jQuery untuk Select2 dan Autocomplete --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/eissasoubhi/summernote-gallery@main/summernote-gallery.js"></script>
-        <style>
+
+    <style>
         .select2-container--default .select2-selection--single {
             background-color: #fff;
-            border: 1px solid #d1d5db; /* Tailwind gray-300 */
-            border-radius: 0.375rem;   /* rounded-md */
-            padding: 0.5rem 0.75rem;   /* py-2 px-3 */
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
             height: 2.5rem;
             display: flex;
             align-items: center;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__rendered {
-            color: #374151; /* gray-700 */
-            font-size: 0.875rem; /* text-sm */
+            color: #374151;
+            font-size: 0.875rem;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -318,9 +314,170 @@
             right: 0.75rem;
         }
     </style>
-    {{-- Inisialisasi Summernote --}}
+
     <script>
-           //select anggota DPR
+        // PRE-PROCESS: Fix image paths sebelum TinyMCE load
+        document.addEventListener('DOMContentLoaded', function() {
+            const editorTextarea = document.getElementById('editor');
+            if (editorTextarea) {
+                let content = editorTextarea.value;
+                
+                // Fix berbagai format path yang mungkin ada
+                content = content.replace(/\.\.\/storage\//g, '/storage/');
+                content = content.replace(/src="storage\//g, 'src="/storage/');
+                content = content.replace(/href="storage\//g, 'href="/storage/');
+                
+                editorTextarea.value = content;
+            }
+        });
+
+        // Initialize TinyMCE
+        tinymce.init({
+            selector: '#editor',
+            height: 500,
+            menubar: true,
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: true,
+            document_base_url: '{{ url("/") }}/',
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | bold italic underline strikethrough | ' +
+                'alignleft aligncenter alignright alignjustify | ' +
+                'bullist numlist outdent indent | forecolor backcolor | ' +
+                'link image media gallery | removeformat | code fullscreen | help',
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px }',
+            image_advtab: true,
+            image_caption: true,
+            setup: function(editor) {
+                editor.ui.registry.addButton('gallery', {
+                    text: 'Gallery',
+                    icon: 'gallery',
+                    onAction: function() {
+                        openGalleryModal();
+                    }
+                });
+                editor.on('BeforeSetContent', function(e) {
+                    if (e.content) {
+                        e.content = e.content.replace(/\.\.\/storage\//g, '/storage/');
+                        e.content = e.content.replace(/src="storage\//g, 'src="/storage/');
+                        e.content = e.content.replace(/href="storage\//g, 'href="/storage/');
+                    }
+                });
+            },
+            file_picker_callback: function(callback, value, meta) {
+                if (meta.filetype === 'image') {
+                    var input = document.createElement('input');
+                    input.setAttribute('type', 'file');
+                    input.setAttribute('accept', 'image/*');
+                    input.onchange = function() {
+                        var file = this.files[0];
+                        var reader = new FileReader();
+                        reader.onload = function() {
+                            callback(reader.result, {
+                                alt: file.name
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    };
+                    input.click();
+                }
+            }
+        });
+
+        // Gallery Modal Functions
+        function openGalleryModal() {
+            document.getElementById('galleryModal').classList.remove('hidden');
+            loadGalleryImages();
+        }
+
+        function closeGalleryModal() {
+            document.getElementById('galleryModal').classList.add('hidden');
+        }
+
+        function loadGalleryImages() {
+            const galleryGrid = document.getElementById('galleryGrid');
+            galleryGrid.innerHTML = '<div class="col-span-full text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div><p class="mt-2 text-gray-600">Memuat gambar...</p></div>';
+
+            fetch('{{ route("gallery.images") }}')
+                .then(response => response.json())
+                .then(images => {
+                    galleryGrid.innerHTML = '';
+                    
+                    if (images.length === 0) {
+                        galleryGrid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">Tidak ada gambar</div>';
+                        return;
+                    }
+
+                    images.forEach(image => {
+                        const imgDiv = document.createElement('div');
+                        imgDiv.className = 'relative group cursor-pointer overflow-hidden rounded-lg border-2 border-transparent hover:border-blue-500 transition';
+                        imgDiv.innerHTML = `
+                            <img src="${image.url}" alt="${image.deskrp || image.name}" 
+                                 class="w-full h-32 object-cover">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition flex items-center justify-center">
+                                <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <p class="text-xs text-center mt-1 text-gray-600 truncate px-1">${image.name}</p>
+                        `;
+                        
+                        imgDiv.onclick = function() {
+                            insertImageToEditor(image.url, image.deskrp || image.name);
+                        };
+                        
+                        galleryGrid.appendChild(imgDiv);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading images:', error);
+                    galleryGrid.innerHTML = '<div class="col-span-full text-center py-8 text-red-500">Gagal memuat gambar. Silakan coba lagi.</div>';
+                });
+        }
+
+        function insertImageToEditor(imageUrl, description) {
+            tinymce.activeEditor.insertContent(
+                `<img src="${imageUrl}" alt="${description}" style="max-width: 100%;" />`
+            );
+            closeGalleryModal();
+        }
+
+        // Search functionality in gallery
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('gallerySearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const imageContainers = document.querySelectorAll('#galleryGrid > div');
+                    
+                    imageContainers.forEach(container => {
+                        const imgElement = container.querySelector('img');
+                        const textElement = container.querySelector('p');
+                        const alt = imgElement?.alt.toLowerCase() || '';
+                        const text = textElement?.textContent.toLowerCase() || '';
+                        
+                        if (alt.includes(searchTerm) || text.includes(searchTerm)) {
+                            container.classList.remove('hidden');
+                        } else {
+                            container.classList.add('hidden');
+                        }
+                    });
+                });
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('galleryModal')?.addEventListener('click', function(e) {
+            if (e.target.id === 'galleryModal') {
+                closeGalleryModal();
+            }
+        });
+
+        // Select anggota DPR
         $(document).ready(function() {
             $('#anggota_dpr_id').select2({
                 placeholder: 'Cari nama anggota DPR...',
@@ -344,455 +501,276 @@
                 width: '100%'
             });
         });
-    
-          //sumernote
 
-// Gallery Modal Functions
-let currentSummernoteEditor = null;
+        // Preview Foto Baru
+        document.querySelector('input[name="foto"]').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-function openGalleryModal() {
-    document.getElementById('galleryModal').classList.remove('hidden');
-    loadGalleryImages();
-}
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const preview = document.getElementById('preview');
+                const imagePreview = document.getElementById('imagePreview');
+                const imageInfo = document.getElementById('imageInfo');
 
-function closeGalleryModal() {
-    document.getElementById('galleryModal').classList.add('hidden');
-}
+                preview.src = event.target.result;
+                imagePreview.classList.remove('hidden');
+                imageInfo.innerHTML = `
+                    <p><strong>Nama:</strong> ${file.name}</p>
+                    <p><strong>Ukuran:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
+                    <p><strong>Tipe:</strong> ${file.type}</p>
+                `;
+            };
+            reader.readAsDataURL(file);
+        });
 
-function loadGalleryImages() {
-    const galleryGrid = document.getElementById('galleryGrid');
-    galleryGrid.innerHTML = '<div class="col-span-full text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div><p class="mt-2 text-gray-600">Memuat gambar...</p></div>';
+        function clearImage() {
+            document.querySelector('input[name="foto"]').value = '';
+            document.getElementById('imagePreview').classList.add('hidden');
+        }
 
-    // Fetch images from your API endpoint
-    fetch('{{ route("gallery.images") }}')
-        .then(response => response.json())
-        .then(images => {
-            galleryGrid.innerHTML = '';
-            
-            if (images.length === 0) {
-                galleryGrid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">Tidak ada gambar</div>';
+        // Keyword autocomplete
+        const keywordInput = document.getElementById('k_word');
+        const suggestionsBox = document.getElementById('keywordSuggestions');
+        const suggestionsList = document.getElementById('suggestionsList');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const keywordCount = document.getElementById('keywordCount');
+        let searchTimeout;
+
+        function updateKeywordCount() {
+            const text = keywordInput.value.trim();
+            const count = text ? text.split(';').filter(k => k.trim()).length : 0;
+            keywordCount.textContent = count;
+        }
+
+        function getCurrentWord() {
+            const pos = keywordInput.selectionStart;
+            const text = keywordInput.value;
+            const before = text.substring(0, pos);
+            const lastComma = before.lastIndexOf(';');
+            return before.substring(lastComma + 1).trim();
+        }
+
+        async function searchKeywords(term) {
+            if (term.length < 2) {
+                suggestionsBox.classList.add('hidden');
                 return;
             }
 
-            images.forEach(image => {
-                const imgDiv = document.createElement('div');
-                imgDiv.className = 'relative group cursor-pointer overflow-hidden rounded-lg border-2 border-transparent hover:border-blue-500 transition';
-                imgDiv.innerHTML = `
-                    <img src="${image.url}" alt="${image.deskrp || image.name}" 
-                         class="w-full h-32 object-cover">
-                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition flex items-center justify-center">
-                        <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </div>
-                    <p class="text-xs text-center mt-1 text-gray-600 truncate px-1">${image.name}</p>
-                `;
-                
-                imgDiv.onclick = function() {
-                    insertImageToEditor(image.url,image.deskrp);
-                };
-                
-                galleryGrid.appendChild(imgDiv);
-            });
-        })
-        .catch(error => {
-            console.error('Error loading images:', error);
-            galleryGrid.innerHTML = '<div class="col-span-full text-center py-8 text-red-500">Gagal memuat gambar. Silakan coba lagi.</div>';
-        });
-}
+            loadingSpinner.classList.remove('hidden');
+            suggestionsList.innerHTML = '';
 
-function insertImageToEditor(imageUrl,deskrp) {
-    if (currentSummernoteEditor) {
-        // Method 1: Using jQuery summernote API
-        $('#editor').summernote('insertImage', imageUrl, function($image) {
-            $image.css('max-width', '100%');
-            $image.addClass('img-fluid');
-            if(deskrp){
-                $image.attr('alt', deskrp);
-            }
-        });
-        
-        closeGalleryModal();
-    }
-}
+            try {
+                const response = await fetch(`/api/keywords/search?term=${encodeURIComponent(term)}`);
+                if (!response.ok) throw new Error('Search failed');
 
-// Search functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('gallerySearch');
-    if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const imageContainers = document.querySelectorAll('#galleryGrid > div');
-            
-            imageContainers.forEach(container => {
-                const imgElement = container.querySelector('img');
-                const textElement = container.querySelector('p');
-                const alt = imgElement?.alt.toLowerCase() || '';
-                const text = textElement?.textContent.toLowerCase() || '';
-                
-                if (alt.includes(searchTerm) || text.includes(searchTerm)) {
-                    container.classList.remove('hidden');
+                const keywords = await response.json();
+                loadingSpinner.classList.add('hidden');
+
+                if (keywords.length > 0) {
+                    renderSuggestions(keywords);
+                    suggestionsBox.classList.remove('hidden');
                 } else {
-                    container.classList.add('hidden');
+                    suggestionsList.innerHTML = '<div class="px-4 py-2 text-sm text-gray-500">Tidak ada suggestion</div>';
+                    suggestionsBox.classList.remove('hidden');
                 }
-            });
-        });
-    }
-
-    // Initialize Summernote
-    $('#editor').summernote({
-        placeholder: 'Tulis isi artikel di sini...',
-        tabsize: 2,
-        height: 300,
-        toolbar: [
-            ['style', ['style']],
-            ['font', ['bold', 'italic', 'underline', 'clear']],
-            ['fontname', ['fontname']],
-            ['color', ['color']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['insert', ['link', 'picture', 'video', 'gallery']],
-            ['view', ['fullscreen', 'codeview', 'help']]
-        ],
-        buttons: {
-            gallery: function(context) {
-                const ui = $.summernote.ui;
-                
-                const button = ui.button({
-                    contents: '<i class="note-icon-picture"></i> <span class="note-icon-caret"></span>',
-                    tooltip: 'Gallery',
-                    click: function() {
-                        // Set current editor reference
-                        currentSummernoteEditor = context;
-                        openGalleryModal();
-                    }
-                });
-                
-                return button.render();
-            }
-        },
-        callbacks: {
-            onInit: function() {
-                console.log('Summernote initialized');
-                currentSummernoteEditor = this;
+            } catch (error) {
+                loadingSpinner.classList.add('hidden');
+                suggestionsBox.classList.add('hidden');
             }
         }
-    });
-});
 
-// Close modal when clicking outside
-document.getElementById('galleryModal')?.addEventListener('click', function(e) {
-    if (e.target.id === 'galleryModal') {
-        closeGalleryModal();
-    }
-});
+        function renderSuggestions(keywords) {
+            suggestionsList.innerHTML = '';
+            keywords.forEach(keyword => {
+                const div = document.createElement('div');
+                div.className = 'px-4 py-2 hover:bg-red-50 cursor-pointer text-sm text-gray-700';
+                div.textContent = keyword;
+                div.addEventListener('click', () => insertKeyword(keyword));
+                suggestionsList.appendChild(div);
+            });
+        }
 
-        //endsummernote
-        
+        function insertKeyword(keyword) {
+            const pos = keywordInput.selectionStart;
+            const text = keywordInput.value;
+            const before = text.substring(0, pos);
+            const after = text.substring(pos);
+            const lastComma = before.lastIndexOf(';');
+            const beforeWord = before.substring(0, lastComma + 1);
 
-      // Preview Foto Baru
-      document.querySelector('input[name="foto"]').addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (!file) return;
+            keywordInput.value = beforeWord + (beforeWord.trim() ? ' ' : '') + keyword + '; ' + after;
+            suggestionsBox.classList.add('hidden');
+            updateKeywordCount();
+            keywordInput.focus();
+        }
 
-          const reader = new FileReader();
-          reader.onload = function(event) {
-              const preview = document.getElementById('preview');
-              const imagePreview = document.getElementById('imagePreview');
-              const imageInfo = document.getElementById('imageInfo');
+        keywordInput.addEventListener('input', () => {
+            updateKeywordCount();
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => searchKeywords(getCurrentWord()), 300);
+        });
 
-              preview.src = event.target.result;
-              imagePreview.classList.remove('hidden');
-              imageInfo.innerHTML = `
-                  <p><strong>Nama:</strong> ${file.name}</p>
-                  <p><strong>Ukuran:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
-                  <p><strong>Tipe:</strong> ${file.type}</p>
-              `;
-          };
-          reader.readAsDataURL(file);
-      });
+        keywordInput.addEventListener('keydown', e => {
+            if (e.key === 'Escape') suggestionsBox.classList.add('hidden');
+        });
 
-      function clearImage() {
-          document.querySelector('input[name="foto"]').value = '';
-          document.getElementById('imagePreview').classList.add('hidden');
-      }
-      // Keyword autocomplete
-      const keywordInput = document.getElementById('k_word');
-      const suggestionsBox = document.getElementById('keywordSuggestions');
-      const suggestionsList = document.getElementById('suggestionsList');
-      const loadingSpinner = document.getElementById('loadingSpinner');
-      const keywordCount = document.getElementById('keywordCount');
-      let searchTimeout;
+        document.addEventListener('click', e => {
+            if (!keywordInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                suggestionsBox.classList.add('hidden');
+            }
+        });
 
-      function updateKeywordCount() {
-          const text = keywordInput.value.trim();
-          const count = text ? text.split(',').filter(k => k.trim()).length : 0;
-          keywordCount.textContent = count;
-      }
+        updateKeywordCount();
 
-      function getCurrentWord() {
-          const pos = keywordInput.selectionStart;
-          const text = keywordInput.value;
-          const before = text.substring(0, pos);
-          const lastComma = before.lastIndexOf(',');
-          return before.substring(lastComma + 1).trim();
-      }
+        // Anggota DPR suggestion
+        const anggotaInput = document.getElementById('anggota_dpr');
+        const anggotaBox   = document.getElementById('AnggotaDPRSuggestions');
+        const anggotaList  = document.getElementById('AnggotaDPRList');
+        const loadingAnggota = document.getElementById('loadingSpinnerAnggota');
+        const anggotaCount = document.getElementById('anggotaDPRCount');
 
-      async function searchKeywords(term) {
-          if (term.length < 2) {
-              suggestionsBox.classList.add('hidden');
-              return;
-          }
+        let anggotaTimeout;
+        let abortController = null;
 
-          loadingSpinner.classList.remove('hidden');
-          suggestionsList.innerHTML = '';
+        function updateAnggotaCount() {
+            const text = anggotaInput.value.trim();
+            const count = text ? text.split(';').filter(k => k.trim()).length : 0;
+            anggotaCount.textContent = count;
+        }
 
-          try {
-              const response = await fetch(`/api/keywords/search?term=${encodeURIComponent(term)}`);
-              if (!response.ok) throw new Error('Search failed');
+        function getCurrentAnggotaWord() {
+            const pos = anggotaInput.selectionStart;
+            const text = anggotaInput.value;
+            const before = text.substring(0, pos);
+            const lastComma = before.lastIndexOf(';');
+            
+            let currentWord;
+            if (lastComma === -1) {
+                currentWord = before.trim();
+            } else {
+                currentWord = before.substring(lastComma + 1).trim();
+            }
+            
+            return currentWord;
+        }
 
-              const keywords = await response.json();
-              loadingSpinner.classList.add('hidden');
+        function getItemLabel(item) {
+            if (typeof item === 'string') return item.trim();
+            if (!item || typeof item !== 'object') return '';
+            const label = item.nama ?? item.label ?? item.name ?? item.text ?? '';
+            return String(label).trim();
+        }
 
-              if (keywords.length > 0) {
-                  renderSuggestions(keywords);
-                  suggestionsBox.classList.remove('hidden');
-              } else {
-                  suggestionsList.innerHTML = '<div class="px-4 py-2 text-sm text-gray-500">Tidak ada suggestion</div>';
-                  suggestionsBox.classList.remove('hidden');
-              }
-          } catch (error) {
-              loadingSpinner.classList.add('hidden');
-              suggestionsBox.classList.add('hidden');
-          }
-      }
+        async function searchAnggota(term) {
+            if (term.length < 2) {
+                anggotaBox.classList.add('hidden');
+                return;
+            }
 
-      function renderSuggestions(keywords) {
-          suggestionsList.innerHTML = '';
-          keywords.forEach(keyword => {
-              const div = document.createElement('div');
-              div.className = 'px-4 py-2 hover:bg-red-50 cursor-pointer text-sm text-gray-700';
-              div.textContent = keyword;
-              div.addEventListener('click', () => insertKeyword(keyword));
-              suggestionsList.appendChild(div);
-          });
-      }
+            if (abortController) {
+                abortController.abort();
+            }
+            abortController = new AbortController();
 
-      function insertKeyword(keyword) {
-          const pos = keywordInput.selectionStart;
-          const text = keywordInput.value;
-          const before = text.substring(0, pos);
-          const after = text.substring(pos);
-          const lastComma = before.lastIndexOf(',');
-          const beforeWord = before.substring(0, lastComma + 1);
+            loadingAnggota.classList.remove('hidden');
+            anggotaList.innerHTML = '';
 
-          keywordInput.value = beforeWord + (beforeWord.trim() ? ' ' : '') + keyword + ', ' + after;
-          suggestionsBox.classList.add('hidden');
-          updateKeywordCount();
-          keywordInput.focus();
-      }
+            const url = `/api/anggota-dpr/search?term=${encodeURIComponent(term)}`;
 
-      keywordInput.addEventListener('input', () => {
-          updateKeywordCount();
-          clearTimeout(searchTimeout);
-          searchTimeout = setTimeout(() => searchKeywords(getCurrentWord()), 300);
-      });
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Accept': 'application/json' },
+                    signal: abortController.signal
+                });
+                
+                if (!response.ok) throw new Error('Search failed');
 
-      keywordInput.addEventListener('keydown', e => {
-          if (e.key === 'Escape') suggestionsBox.classList.add('hidden');
-      });
+                const results = await response.json();
+                loadingAnggota.classList.add('hidden');
 
-      document.addEventListener('click', e => {
-          if (!keywordInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
-              suggestionsBox.classList.add('hidden');
-          }
-      });
+                const labels = Array.from(new Set(
+                    (Array.isArray(results) ? results : [])
+                        .map(getItemLabel)
+                        .filter(label => label.length > 0)
+                ));
 
-      updateKeywordCount();
+                if (labels.length > 0) {
+                    renderAnggotaSuggestions(labels);
+                    anggotaBox.classList.remove('hidden');
+                } else {
+                    anggotaList.innerHTML = '<div class="px-4 py-2 text-sm text-gray-500">Tidak ada hasil untuk "' + term + '"</div>';
+                    anggotaBox.classList.remove('hidden');
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error('Search error:', err);
+                }
+                loadingAnggota.classList.add('hidden');
+                anggotaBox.classList.add('hidden');
+            }
+        }
 
-     //anggota dpr suggestion
-const anggotaInput = document.getElementById('anggota_dpr');
-const anggotaBox   = document.getElementById('AnggotaDPRSuggestions');
-const anggotaList  = document.getElementById('AnggotaDPRList');
-const loadingAnggota = document.getElementById('loadingSpinnerAnggota');
-const anggotaCount = document.getElementById('anggotaDPRCount');
+        function renderAnggotaSuggestions(labels) {
+            anggotaList.innerHTML = '';
+            labels.forEach(label => {
+                const div = document.createElement('div');
+                div.className = 'px-4 py-2 hover:bg-red-50 cursor-pointer text-sm text-gray-700';
+                div.textContent = label;
+                div.addEventListener('click', () => insertAnggota(label));
+                anggotaList.appendChild(div);
+            });
+        }
 
-let anggotaTimeout;
-let abortController = null;
+        function insertAnggota(value) {
+            const pos = anggotaInput.selectionStart;
+            const text = anggotaInput.value;
+            const before = text.substring(0, pos);
+            const after  = text.substring(pos);
+            const lastComma = before.lastIndexOf(';');
 
-function updateAnggotaCount() {
-  const text = anggotaInput.value.trim();
-  const count = text ? text.split(',').filter(k => k.trim()).length : 0;
-  anggotaCount.textContent = count;
-}
+            let beforeWord;
+            if (lastComma === -1) {
+                beforeWord = '';
+            } else {
+                beforeWord = before.substring(0, lastComma + 1);
+            }
 
-function getCurrentAnggotaWord() {
-  const pos = anggotaInput.selectionStart;
-  const text = anggotaInput.value;
-  
-  console.log('=== DEBUG getCurrentAnggotaWord ===');
-  console.log('Full text:', text);
-  console.log('Cursor position:', pos);
-  
-  // Ambil teks sebelum cursor
-  const before = text.substring(0, pos);
-  console.log('Text before cursor:', before);
-  
-  // Cari koma terakhir sebelum cursor
-  const lastComma = before.lastIndexOf(',');
-  console.log('Last comma index:', lastComma);
-  
-  // Ambil kata setelah koma terakhir (atau dari awal jika tidak ada koma)
-  let currentWord;
-  if (lastComma === -1) {
-    // Tidak ada koma, ambil dari awal
-    currentWord = before.trim();
-  } else {
-    // Ada koma, ambil setelah koma terakhir
-    currentWord = before.substring(lastComma + 1).trim();
-  }
-  
-  console.log('Current word extracted:', `"${currentWord}"`);
-  console.log('Current word length:', currentWord.length);
-  console.log('=================================');
-  
-  return currentWord;
-}
+            const needsSpace = beforeWord.trim().length > 0 ? ' ' : '';
+            anggotaInput.value = beforeWord + needsSpace + value + '; ' + after;
 
-// Ambil label string dari berbagai bentuk item
-function getItemLabel(item) {
-  if (typeof item === 'string') return item.trim();
-  if (!item || typeof item !== 'object') return '';
-  const label = item.nama ?? item.label ?? item.name ?? item.text ?? '';
-  return String(label).trim();
-}
+            anggotaInput.value = anggotaInput.value
+                .replace(/\s*,\s*/g, ', ')
+                .replace(/,\s*,/g, ', ')
+                .replace(/\s{2,}/g, ' ')
+                .replace(/^,\s*/,'')
+                .replace(/,\s*$/,'');
 
-async function searchAnggota(term) {
-  console.log('🔎 searchAnggota called with term:', `"${term}"`, 'length:', term.length);
-  
-  if (term.length < 2) {
-    console.log('❌ Term too short, hiding suggestions');
-    anggotaBox.classList.add('hidden');
-    return;
-  }
+            anggotaBox.classList.add('hidden');
+            updateAnggotaCount();
+            anggotaInput.focus();
+        }
 
-  // Cancel previous request
-  if (abortController) {
-    console.log('⚠️ Aborting previous request');
-    abortController.abort();
-  }
-  abortController = new AbortController();
+        anggotaInput.addEventListener('input', () => {
+            updateAnggotaCount();
+            clearTimeout(anggotaTimeout);
+            
+            anggotaTimeout = setTimeout(() => {
+                const currentWord = getCurrentAnggotaWord();
+                searchAnggota(currentWord);
+            }, 300);
+        });
 
-  loadingAnggota.classList.remove('hidden');
-  anggotaList.innerHTML = '';
+        anggotaInput.addEventListener('keydown', e => {
+            if (e.key === 'Escape') anggotaBox.classList.add('hidden');
+        });
 
-  const url = `/api/anggota-dpr/search?term=${encodeURIComponent(term)}`;
-  console.log('📡 Fetching URL:', url);
+        document.addEventListener('click', e => {
+            if (!anggotaInput.contains(e.target) && !anggotaBox.contains(e.target)) {
+                anggotaBox.classList.add('hidden');
+            }
+        });
 
-  try {
-    const response = await fetch(url, {
-      headers: { 'Accept': 'application/json' },
-      signal: abortController.signal
-    });
-    
-    console.log('📥 Response status:', response.status);
-    
-    if (!response.ok) throw new Error('Search failed');
-
-    const results = await response.json();
-    console.log('✅ Results received:', results);
-    console.log('Results count:', results.length);
-    
-    loadingAnggota.classList.add('hidden');
-
-    const labels = Array.from(new Set(
-      (Array.isArray(results) ? results : [])
-        .map(getItemLabel)
-        .filter(label => label.length > 0)
-    ));
-
-    console.log('📋 Processed labels:', labels);
-
-    if (labels.length > 0) {
-      renderAnggotaSuggestions(labels);
-      anggotaBox.classList.remove('hidden');
-    } else {
-      anggotaList.innerHTML = '<div class="px-4 py-2 text-sm text-gray-500">Tidak ada hasil untuk "' + term + '"</div>';
-      anggotaBox.classList.remove('hidden');
-    }
-  } catch (err) {
-    if (err.name === 'AbortError') {
-      console.log('⚠️ Request aborted');
-    } else {
-      console.error('❌ Search error:', err);
-    }
-    loadingAnggota.classList.add('hidden');
-    anggotaBox.classList.add('hidden');
-  }
-}
-
-function renderAnggotaSuggestions(labels) {
-  anggotaList.innerHTML = '';
-  labels.forEach(label => {
-    const div = document.createElement('div');
-    div.className = 'px-4 py-2 hover:bg-red-50 cursor-pointer text-sm text-gray-700';
-    div.textContent = label;
-    div.addEventListener('click', () => insertAnggota(label));
-    anggotaList.appendChild(div);
-  });
-}
-
-function insertAnggota(value) {
-  const pos = anggotaInput.selectionStart;
-  const text = anggotaInput.value;
-  const before = text.substring(0, pos);
-  const after  = text.substring(pos);
-  const lastComma = before.lastIndexOf(',');
-
-  let beforeWord;
-  if (lastComma === -1) {
-    beforeWord = '';
-  } else {
-    beforeWord = before.substring(0, lastComma + 1);
-  }
-
-  const needsSpace = beforeWord.trim().length > 0 ? ' ' : '';
-  anggotaInput.value = beforeWord + needsSpace + value + ', ' + after;
-
-  // Rapikan spasi/koma ganda
-  anggotaInput.value = anggotaInput.value
-    .replace(/\s*,\s*/g, ', ')
-    .replace(/,\s*,/g, ', ')
-    .replace(/\s{2,}/g, ' ')
-    .replace(/^,\s*/,'')
-    .replace(/,\s*$/,'');
-
-  anggotaBox.classList.add('hidden');
-  updateAnggotaCount();
-  anggotaInput.focus();
-}
-
-anggotaInput.addEventListener('input', () => {
-  console.log('⌨️ Input event triggered');
-  updateAnggotaCount();
-  clearTimeout(anggotaTimeout);
-  
-  anggotaTimeout = setTimeout(() => {
-    const currentWord = getCurrentAnggotaWord();
-    searchAnggota(currentWord);
-  }, 300);
-});
-
-anggotaInput.addEventListener('keydown', e => {
-  if (e.key === 'Escape') anggotaBox.classList.add('hidden');
-});
-
-document.addEventListener('click', e => {
-  if (!anggotaInput.contains(e.target) && !anggotaBox.contains(e.target)) {
-    anggotaBox.classList.add('hidden');
-  }
-});
-
-updateAnggotaCount();
-
-  </script>
+        updateAnggotaCount();
+    </script>
 </x-app-layout>

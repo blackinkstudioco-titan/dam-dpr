@@ -7,6 +7,23 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+        <div class="bg-white rounded-lg shadow-sm mb-6">
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <!-- Search -->
+                    <div class="md:col-span-8">
+                    <form method="GET" class="flex gap-2">
+                    <div class="flex">
+                        <input type="text" name="q" value="{{ $search }}" placeholder="Cari User..." class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <button class="bg-red-600 text-white px-4 rounded">Cari</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+            </div>
+        </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 

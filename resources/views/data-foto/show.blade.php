@@ -166,7 +166,7 @@
                                 <div class="mt-6">
                                     <h4 class="text-sm font-semibold text-gray-700 mb-2">Keywords</h4>
                                     <div class="flex flex-wrap gap-2">
-                                        @foreach(explode(',', $dataFoto->k_word) as $keyword)
+                                        @foreach(explode(';', $dataFoto->k_word) as $keyword)
                                             <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
                                                 {{ trim($keyword) }}
                                             </span>

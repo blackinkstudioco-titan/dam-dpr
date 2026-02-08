@@ -146,7 +146,7 @@ class DashboardController extends Controller
 
         foreach ($rows as $row) {
             // Heuristik split: pecah kasar by koma, lalu normalisasi dan cocokkan dengan kamus
-            $tokens = collect(explode(',', $row->anggota_dpr))
+            $tokens = collect(explode(';', $row->anggota_dpr))
                 ->map(fn($t) => trim($t))
                 ->filter()
                 ->values();

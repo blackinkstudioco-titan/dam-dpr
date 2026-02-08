@@ -20,6 +20,7 @@ use App\Http\Controllers\KomisiDprController;
 use App\Http\Controllers\PhotoScheduleController;
 use App\Http\Controllers\ArtikelScheduleController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\ReportController;
 
 
 /*
@@ -161,6 +162,15 @@ Route::middleware(['auth','role:admin,editor'])->group(function () {
         Route::get('/artikel', [ReportArtikelController::class, 'index'])->name('artikel.index');
         Route::get('/artikel/export-excel', [ReportArtikelController::class, 'exportExcel'])->name('artikel.export.excel');
         Route::get('/artikel/export-pdf', [ReportArtikelController::class, 'exportPdf'])->name('artikel.export.pdf');
+    });
+    //Report AKD
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/akd/foto_akd', [ReportController::class, 'foto_akd'])->name('akd.foto_akd');
+        Route::get('/akd/artikel_akd', [ReportController::class, 'artikel_akd'])->name('akd.artikel_akd');
+        Route::get('/kegiatan/foto_kegiatan', [ReportController::class, 'foto_kegiatan'])->name('kegiatan.foto_kegiatan');
+        Route::get('/kegiatan/artikel_kegiatan', [ReportController::class, 'artikel_kegiatan'])->name('kegiatan.artikel_kegiatan');
+        Route::get('/anggota_dpr/foto_dpr', [ReportController::class, 'foto_dpr'])->name('anggota_dpr.foto_dpr');
+        Route::get('/anggota_dpr/artikel_dpr', [ReportController::class, 'artikel_dpr'])->name('anggota_dpr.artikel_dpr');
     });
 });
 

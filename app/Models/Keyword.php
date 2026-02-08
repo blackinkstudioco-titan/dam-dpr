@@ -44,7 +44,7 @@ class Keyword extends Model
 
         // Split by comma and clean each keyword
         $keywordArray = array_filter(
-            array_map('trim', explode(',', $keywords)),
+            array_map('trim', explode(';', $keywords)),
             fn($item) => !empty($item)
         );
 

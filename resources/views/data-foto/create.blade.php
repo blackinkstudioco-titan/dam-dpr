@@ -109,7 +109,7 @@
                                    id="judul"
                                    name="judul"
                                    value="{{ old('judul') }}"
-                                   maxlength="60"
+                                   
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                    placeholder="Masukkan judul foto"
                                    required>
@@ -168,7 +168,7 @@
                           <div>
             <label for="anggota_dpr" class="block text-sm font-medium text-gray-700 mb-2">
                 Anggota DPR (Optional)
-                <span class="text-xs text-gray-500 font-normal">(Pisahkan dengan koma)</span>
+                <span class="text-xs text-gray-500 font-normal">(Pisahkan dengan ';')</span>
             </label>
 
             <div class="relative">
@@ -204,7 +204,7 @@
                         <div>
                             <label for="k_word" class="block text-sm font-medium text-gray-700 mb-2">
                                 Keywords
-                                <span class="text-xs text-gray-500 font-normal">(Pisahkan dengan koma)</span>
+                                <span class="text-xs text-gray-500 font-normal">(Pisahkan dengan ';')</span>
                             </label>
                             <div class="relative">
                                 <textarea id="k_word"
@@ -252,7 +252,7 @@
                                     Fotografer <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="perekam" name="perekam"
-                                       value="{{ old('perekam', Auth::user()->name) }}" maxlength="60"
+                                       value="{{ old('perekam', Auth::user()->name) }}"
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
                             </div>
 
@@ -261,7 +261,7 @@
                                     Subyek <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="subyek" name="subyek"
-                                       value="{{ old('subyek') }}" maxlength="20"
+                                       value="{{ old('subyek') }}" 
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
                             </div>
 
@@ -281,7 +281,7 @@
                                     Lokasi Foto <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="mm_lok" name="mm_lok"
-                                       value="{{ old('mm_lok') }}" maxlength="60"
+                                       value="{{ old('mm_lok') }}" 
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                        placeholder="Contoh: Bandung, Jawa Barat" required>
                             </div>
@@ -306,7 +306,7 @@
                             <div>
                                 <label for="konseptor" class="block text-sm font-medium text-gray-700 mb-2">Uploader *readonly</label>
                                 <input type="text" id="konseptor" name="konseptor" readonly
-                                       value="{{ old('konseptor', Auth::user()->name) }}" maxlength="32"
+                                       value="{{ old('konseptor', Auth::user()->name) }}" 
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                             </div>
 
@@ -548,7 +548,7 @@
 
         function updateKeywordCount() {
             const text = keywordInput.value.trim();
-            const count = text ? text.split(',').filter(k => k.trim()).length : 0;
+            const count = text ? text.split(';').filter(k => k.trim()).length : 0;
             keywordCount.textContent = count;
         }
 
@@ -556,7 +556,7 @@
             const pos = keywordInput.selectionStart;
             const text = keywordInput.value;
             const before = text.substring(0, pos);
-            const lastComma = before.lastIndexOf(',');
+            const lastComma = before.lastIndexOf(';');
             return before.substring(lastComma + 1).trim();
         }
 
@@ -605,10 +605,10 @@
             const text = keywordInput.value;
             const before = text.substring(0, pos);
             const after = text.substring(pos);
-            const lastComma = before.lastIndexOf(',');
+            const lastComma = before.lastIndexOf(';');
             const beforeWord = before.substring(0, lastComma + 1);
 
-            keywordInput.value = beforeWord + (beforeWord.trim() ? ' ' : '') + keyword + ', ' + after;
+            keywordInput.value = beforeWord + (beforeWord.trim() ? ' ' : '') + keyword + '; ' + after;
             suggestionsBox.classList.add('hidden');
             updateKeywordCount();
             keywordInput.focus();
@@ -632,7 +632,7 @@
 
         updateKeywordCount();
 
-        //anggota dpr suggestion
+   //anggota dpr suggestion
 const anggotaInput = document.getElementById('anggota_dpr');
 const anggotaBox   = document.getElementById('AnggotaDPRSuggestions');
 const anggotaList  = document.getElementById('AnggotaDPRList');
@@ -644,7 +644,7 @@ let abortController = null;
 
 function updateAnggotaCount() {
   const text = anggotaInput.value.trim();
-  const count = text ? text.split(',').filter(k => k.trim()).length : 0;
+  const count = text ? text.split(';').filter(k => k.trim()).length : 0;
   anggotaCount.textContent = count;
 }
 
@@ -661,7 +661,7 @@ function getCurrentAnggotaWord() {
   console.log('Text before cursor:', before);
   
   // Cari koma terakhir sebelum cursor
-  const lastComma = before.lastIndexOf(',');
+  const lastComma = before.lastIndexOf(';');
   console.log('Last comma index:', lastComma);
   
   // Ambil kata setelah koma terakhir (atau dari awal jika tidak ada koma)
@@ -769,7 +769,7 @@ function insertAnggota(value) {
   const text = anggotaInput.value;
   const before = text.substring(0, pos);
   const after  = text.substring(pos);
-  const lastComma = before.lastIndexOf(',');
+  const lastComma = before.lastIndexOf(';');
 
   let beforeWord;
   if (lastComma === -1) {
@@ -779,7 +779,7 @@ function insertAnggota(value) {
   }
 
   const needsSpace = beforeWord.trim().length > 0 ? ' ' : '';
-  anggotaInput.value = beforeWord + needsSpace + value + ', ' + after;
+  anggotaInput.value = beforeWord + needsSpace + value + '; ' + after;
 
   // Rapikan spasi/koma ganda
   anggotaInput.value = anggotaInput.value
@@ -816,6 +816,7 @@ document.addEventListener('click', e => {
 });
 
 updateAnggotaCount();
+    </script>
 
     </script>
     @endpush

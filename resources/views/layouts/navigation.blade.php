@@ -40,12 +40,74 @@
                         {{ __('Manajemen User') }}
                     </x-nav-link>
                     @endif
+
                     @if(auth()->user()?->hasAnyRole(['admin', 'editor']))
                     <!-- Dropdown Menu Master Data -->
                      <div class="relative inline-flex items-center" x-data="{ open: false }">
                          <button @click="open = !open"
                                  class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out
-                                 {{ request()->routeIs('data-foto.*') ? 'border-indigo-400 text-white focus:border-indigo-700' : 'border-transparent text-gray-300 hover:text-white hover:border-gray-300 focus:text-white focus:border-gray-300' }}">
+                                 {{ request()->routeIs('data-foto.*') ? 'border-indigo-400 text-white focus:border-indigo-700' : 'border-transparent text-gray-300 hover:text-white  focus:text-white focus:border-gray-300' }}">
+                             <span>{{ __('Report') }}</span>
+                             <svg class="ml-1 h-4 w-4 transition-transform duration-200" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                             </svg>
+                         </button>
+
+                         <div x-show="open"
+                              @click.away="open = false"
+                              x-transition:enter="transition ease-out duration-200"
+                              x-transition:enter-start="opacity-0 transform scale-95"
+                              x-transition:enter-end="opacity-100 transform scale-100"
+                              x-transition:leave="transition ease-in duration-75"
+                              x-transition:leave-start="opacity-100 transform scale-100"
+                              x-transition:leave-end="opacity-0 transform scale-95"
+                              class="absolute left-0 top-full mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
+                              style="display: none;">
+                             <div class="py-1">
+                                 <a href="{{ route('reports.artikel.index') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('data-foto.*') ? 'bg-gray-100 font-semibold' : '' }}">
+                                     {{ __('Report Artikel') }}
+                                 </a>
+                                 <a href="{{ route('reports.foto.index') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('data-foto.*') ? 'bg-gray-100 font-semibold' : '' }}">
+                                     {{ __('Report Foto') }}
+                                 </a>
+                                 <a href="{{ route('reports.akd.foto_akd') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('anggota-dpr.*') ? 'bg-gray-100 font-semibold' : '' }}">
+                                     {{ __('Report Foto AKD') }}
+                                 </a>
+                                  <a href="{{ route('reports.akd.artikel_akd') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('anggota-dpr.*') ? 'bg-gray-100 font-semibold' : '' }}">
+                                     {{ __('Report Artikel AKD') }}
+                                 </a>
+                                  <a href="{{ route('reports.kegiatan.foto_kegiatan') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('anggota-dpr.*') ? 'bg-gray-100 font-semibold' : '' }}">
+                                     {{ __('Report Foto Kegiatan') }}
+                                 </a>
+                                  <a href="{{ route('reports.kegiatan.artikel_kegiatan') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('anggota-dpr.*') ? 'bg-gray-100 font-semibold' : '' }}">
+                                     {{ __('Report Artikel Kegiatan') }}
+                                 </a>
+                                <a href="{{ route('reports.anggota_dpr.foto_dpr') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('anggota-dpr.*') ? 'bg-gray-100 font-semibold' : '' }}">
+                                     {{ __('Report Foto Anggota DPR') }}
+                                 </a>
+                                 <a href="{{ route('reports.anggota_dpr.artikel_dpr') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('anggota-dpr.*') ? 'bg-gray-100 font-semibold' : '' }}">
+                                     {{ __('Report Artikel Anggota DPR') }}
+                                 </a>
+                                 <!-- Tambahkan submenu lain di sini jika diperlukan -->
+                             </div>
+                         </div>
+                     </div>
+                     @endif
+
+                    @if(auth()->user()?->hasAnyRole(['admin', 'editor']))
+                    <!-- Dropdown Menu Master Data -->
+                     <div class="relative inline-flex items-center" x-data="{ open: false }">
+                         <button @click="open = !open"
+                                 class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out
+                                 {{ request()->routeIs('data-foto.*') ? 'border-indigo-400 text-white focus:border-indigo-700' : 'border-transparent text-gray-300 hover:text-white  focus:text-white focus:border-gray-300' }}">
                              <span>{{ __('Master Data') }}</span>
                              <svg class="ml-1 h-4 w-4 transition-transform duration-200" :class="{'rotate-180': open}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
