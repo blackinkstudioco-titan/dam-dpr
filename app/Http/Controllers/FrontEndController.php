@@ -130,7 +130,8 @@ class FrontEndController extends Controller
                   $q->orWhere('k_word', 'LIKE', "%{$keyword}%");
               }
               
-          });
+          })
+          ->orWhere('album_id',$dataFoto->album_id);
 
       $fotoTerkait = $query->orderBy('created_at', 'desc')
       ->paginate(8)
