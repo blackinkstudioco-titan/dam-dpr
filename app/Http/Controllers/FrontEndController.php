@@ -126,7 +126,10 @@ class FrontEndController extends Controller
           ->where(function($q) use ($keywords) {
               foreach ($keywords as $keyword) {
                   $q->orWhere('judul', 'LIKE', "%{$keyword}%");
+                  $q->orWhere('deskrp', 'LIKE', "%{$keyword}%");
+                  $q->orWhere('k_word', 'LIKE', "%{$keyword}%");
               }
+              
           });
 
       $fotoTerkait = $query->orderBy('created_at', 'desc')
