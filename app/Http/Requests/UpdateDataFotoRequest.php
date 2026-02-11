@@ -20,19 +20,19 @@ class UpdateDataFotoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'judul' => ['required', 'string', 'max:60'],
+            'judul' => ['required', 'string'],
             'deskrp' => ['required', 'string'],
             'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:51200'], // max 50MB, nullable for update
-            'k_word' => ['nullable', 'string', 'max:250'],
-            'perekam' => ['required', 'string', 'max:60'],
-            'subyek' => ['required', 'string', 'max:20'],
-            'mm_lok' => ['required', 'string', 'max:60'],
+            'k_word' => ['nullable', 'string', 'max:500'],
+            'perekam' => ['required', 'string'],
+            'subyek' => ['required', 'string'],
+            'mm_lok' => ['required', 'string'],
             'tgl_mm' => ['required', 'date'],
-            'konseptor' => ['nullable', 'string', 'max:32'],
-            'depositor' => ['nullable', 'string', 'max:15'],
-            'judul_en' => ['nullable', 'string', 'max:60'],
+            'konseptor' => ['nullable', 'string'],
+            'depositor' => ['nullable', 'string'],
+            'judul_en' => ['nullable', 'string'],
             'deskrp_en' => ['nullable', 'string'],
-            'kategorisasi_datatempo' => ['nullable', 'string', 'max:100'],
+            'kategorisasi_datatempo' => ['nullable', 'string'],
             'publish' => ['nullable', 'boolean'],
         ];
     }
