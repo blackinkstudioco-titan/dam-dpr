@@ -20,13 +20,20 @@ class FotoReportExport implements FromQuery, WithHeadings, WithMapping, WithStyl
     protected $reportType;
     protected $startDate;
     protected $endDate;
+    protected $akd;
+    protected $jenisFoto;
+    protected $DPR;
     protected $rowNumber = 0;
 
-    public function __construct($reportType, $startDate, $endDate)
+    public function __construct($reportType, $startDate, $endDate,$akd,$kegiatan,$DPR)
     {
         $this->reportType = $reportType;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
+        $this->akd = $akd;
+        $this->jenisFoto = $kegiatan;
+        $this->DPR = $DPR;
+        
     }
 
     /**
@@ -43,6 +50,15 @@ class FotoReportExport implements FromQuery, WithHeadings, WithMapping, WithStyl
             if ($this->endDate) {
                 $query->whereDate('created_at', '<=', $this->endDate);
             }
+            if($this->akd){
+                $query->where('komisi_dpr_id', $this->akd);
+            }
+            if($this->jenisFoto){
+                $query->where('kategorisasi_datatempo', $this->jenisFoto);
+            }
+            if($this->DPR){
+                $query->where('anggota_dpr','like', "%{$this->DPR}%");
+            }
             $query->orderBy('created_at', 'desc');
         } else {
             if ($this->startDate) {
@@ -50,6 +66,15 @@ class FotoReportExport implements FromQuery, WithHeadings, WithMapping, WithStyl
             }
             if ($this->endDate) {
                 $query->whereDate('edit_date', '<=', $this->endDate);
+            }
+            if($this->akd){
+                $query->where('komisi_dpr_id', $this->akd);
+            }
+            if($this->jenisFoto){
+                $query->where('kategorisasi_datatempo', $this->jenisFoto);
+            }
+            if($this->DPR){
+                $query->where('anggota_dpr','like', "%{$this->DPR}%");
             }
             $query->whereNotNull('edit_date')->orderBy('edit_date', 'desc');
         }
@@ -68,11 +93,13 @@ class FotoReportExport implements FromQuery, WithHeadings, WithMapping, WithStyl
         return [
             'No',
             'Penugasan',
+            'Tanggal',
             'Judul',
             'Deskripsi',
             'Kategori',
             'Album',
-            'Tgl Penugasan',
+            'AKD',
+            'Anggota DPR',
             $dateColumn,
             $userColumn,
             'Size',
@@ -94,11 +121,13 @@ class FotoReportExport implements FromQuery, WithHeadings, WithMapping, WithStyl
         return [
             $this->rowNumber,
             $foto?->event?->nama_event ?? '-',
+            $foto?->event?->tanggal ?? '-',
             $foto->judul,
             strip_tags($foto->deskrp),
             $foto->kategori->k_name ?? '-',
             $foto->album->nama_album ?? '-',
-            $foto?->event?->tanggal ?? '-',
+            $foto->komisiDpr->nama_komisi ?? '-',
+            $foto->anggota_dpr ?? '-',
             $this->reportType === 'upload' 
                 ? $foto->created_at->format('d-m-Y H:i:s') 
                 : ($foto->edit_date ? $foto->edit_date->format('d-m-Y H:i:s') : '-'),

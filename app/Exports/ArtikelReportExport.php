@@ -24,8 +24,11 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
     protected $rubrik;
     protected $status;
     protected $rowNumber = 0;
+    protected $akd;
+    protected $jenisFoto;
+    protected $DPR;
 
-    public function __construct($reportType, $startDate, $endDate, $rubrik = null, $status = null, $userId = null)
+    public function __construct($reportType, $startDate, $endDate, $rubrik = null, $status = null, $userId = null,$akd,$kegiatan,$DPR)
     {
         $this->reportType = $reportType;
         $this->startDate = $startDate;
@@ -33,6 +36,9 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
         $this->rubrik = $rubrik;
         $this->status = $status;
         $this->userId = $userId;
+        $this->akd = $akd;
+        $this->jenisFoto = $kegiatan;
+        $this->DPR = $DPR;
     }
 
     /**
@@ -52,6 +58,15 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
             if ($this->endDate) {
                 $query->whereDate('add_date', '<=', $this->endDate);
             }
+            if($this->akd){
+                $query->where('komisi_dpr_id', $this->akd);
+            }
+            if($this->jenisFoto){
+                $query->where('kategori_id', $this->jenisFoto);
+            }
+            if($this->DPR){
+                $query->where('anggota_dpr','like', "%{$this->DPR}%");
+            }
             $query->orderBy('add_date', 'desc');
         } else {
             // Query dari tabel artikel_publish dengan editor
@@ -64,6 +79,15 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
             }
             if ($this->endDate) {
                 $query->whereDate('edit_date', '<=', $this->endDate);
+            }
+            if($this->akd){
+                $query->where('komisi_dpr_id', $this->akd);
+            }
+            if($this->jenisFoto){
+                $query->where('kategori_id', $this->jenisFoto);
+            }
+            if($this->DPR){
+                $query->where('anggota_dpr','like', "%{$this->DPR}%");
             }
             $query->whereNotNull('edit_date')->orderBy('edit_date', 'desc');
         }
@@ -100,6 +124,9 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
             'Judul',
             'Penulis',
             'Tanggal Penugasan',
+            'Kategori',
+            'AKD',
+            'Anggota DPR',
             $dateColumn,
             $userColumn,
             'Status',
@@ -142,6 +169,9 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
             $artikel->judul,
             $artikel->penulis ?? '-',
             $artikel->event?->tanggal ? $artikel->event->tanggal->format('d-m-Y H:i') : '-',
+            $artikel->kategori->k_name ?? '-',
+            $artikel->komisiDpr->nama_komisi ?? '-',
+            $artikel->anggota_dpr ?? '-',
             $this->reportType === 'upload' 
                 ? ($artikel->add_date ? $artikel->add_date->format('d-m-Y H:i:s') : '-')
                 : ($artikel->edit_date ? $artikel->edit_date->format('d-m-Y H:i:s') : '-'),

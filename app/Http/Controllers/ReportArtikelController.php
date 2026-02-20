@@ -6,6 +6,8 @@ use App\Models\Artikel;
 use App\Models\User;
 use App\Models\Event;
 use App\Models\ArtikelPublish;
+use App\Models\KomisiDpr;
+use App\Models\KategoriFoto;
 use App\Exports\ArtikelReportExport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -25,8 +27,10 @@ public function index(Request $request)
     $perPage = $request->get('per_page', 25);
     $rubrik = $request->get('rubrik');
     $status = $request->get('status');
-
     $userId = $request->get('user_id');
+    $akd = $request->get('akd');
+    $jenisFoto = $request->get('jenis_foto');
+    $DPR = $request->get('dpr');
 
     // Query builder - berbeda berdasarkan report type
     if ($reportType === 'upload') {
@@ -41,6 +45,15 @@ public function index(Request $request)
         if ($endDate) {
             $query->whereDate('add_date', '<=', $endDate);
         }
+        if($akd){
+                $query->where('komisi_dpr_id', $akd);
+        }
+        if($jenisFoto){
+                $query->where('kategori_id', $jenisFoto);
+        }
+        if($DPR){
+                $query->where('anggota_dpr','like', "%{$DPR}%");
+        }
         $query->orderBy('add_date', 'desc');
     } else {
         // Report Edit: gunakan tabel artikel_publish + eager load editor
@@ -53,6 +66,15 @@ public function index(Request $request)
         }
         if ($endDate) {
             $query->whereDate('edit_date', '<=', $endDate);
+        }
+        if($akd){
+                $query->where('komisi_dpr_id', $akd);
+        }
+        if($jenisFoto){
+                $query->where('kategori_id', $jenisFoto);
+        }
+        if($DPR){
+                $query->where('anggota_dpr','like', "%{$DPR}%");
         }
         $query->whereNotNull('edit_date')
               ->orderBy('edit_date', 'desc');
@@ -75,7 +97,7 @@ public function index(Request $request)
     $artikels = $query->paginate($perPage)->withQueryString();
 
     // Statistik summary
-    $stats = $this->getStatistics($reportType, $startDate, $endDate);
+    $stats = $this->getStatistics($reportType, $startDate, $endDate,$akd,$jenisFoto,$DPR);
     
     // Get unique rubrik untuk filter (dari kedua tabel)
     $rubriks = collect();
@@ -87,6 +109,16 @@ public function index(Request $request)
     );
     $rubriks = $rubriks->unique()->sort()->values();
 
+     //komisi
+    $komisi = KomisiDpr::select('id', 'nama_komisi', 'bidang')
+            ->orderBy('nama_komisi')
+            ->get();
+
+    //kegiatan
+    $kegiatan=KategoriFoto::select('id','k_name')
+            ->orderBy('k_name')
+            ->get();
+    
     // Get users for filter
     $users = User::select('id', 'name', 'role')
         ->orderBy('name')
@@ -104,7 +136,12 @@ public function index(Request $request)
         'status',
         'rubriks',
         'users',
-        'userId'
+        'userId',
+        'komisi',
+        'kegiatan',
+        'akd',
+        'jenisFoto',
+        'DPR'
     ));
 }
 
@@ -120,11 +157,14 @@ public function index(Request $request)
         $rubrik = $request->get('rubrik');
         $status = $request->get('status');
         $userId = $request->get('user_id');
+        $akd = $request->get('akd');
+        $jenisFoto = $request->get('jenis_foto');
+        $DPR = $request->get('dpr');
 
         $fileName = 'Report_Artikel_' . ucfirst($reportType) . '_' . date('Y-m-d_His') . '.xlsx';
 
         return Excel::download(
-            new ArtikelReportExport($reportType, $startDate, $endDate, $rubrik, $status,$userId), 
+            new ArtikelReportExport($reportType, $startDate, $endDate, $rubrik, $status,$userId,$akd,$jenisFoto,$DPR), 
             $fileName
         );
     }
@@ -140,6 +180,9 @@ public function index(Request $request)
     $rubrik = $request->get('rubrik');
     $status = $request->get('status');
     $userId = $request->get('user_id');
+    $akd = $request->get('akd');
+    $jenisFoto = $request->get('jenis_foto');
+    $DPR = $request->get('dpr');
 
     // Query data - berbeda berdasarkan report type
     if ($reportType === 'upload') {
@@ -153,6 +196,15 @@ public function index(Request $request)
         if ($endDate) {
             $query->whereDate('add_date', '<=', $endDate);
         }
+        if($akd){
+                $query->where('komisi_dpr_id', $akd);
+        }
+        if($jenisFoto){
+                $query->where('kategori_id', $jenisFoto);
+        }
+        if($DPR){
+                $query->where('anggota_dpr','like', "%{$DPR}%");
+        }
         $query->orderBy('add_date', 'desc');
     } else {
         $query = ArtikelPublish::with(['editor', 'creator','event']); // Eager load editor
@@ -164,6 +216,15 @@ public function index(Request $request)
         }
         if ($endDate) {
             $query->whereDate('edit_date', '<=', $endDate);
+        }
+        if($akd){
+                $query->where('komisi_dpr_id', $akd);
+        }
+        if($jenisFoto){
+                $query->where('kategori_id', $jenisFoto);
+        }
+        if($DPR){
+                $query->where('anggota_dpr','like', "%{$DPR}%");
         }
         $query->whereNotNull('edit_date')->orderBy('edit_date', 'desc');
     }
@@ -183,7 +244,7 @@ public function index(Request $request)
     }
 
     $artikels = $query->get();
-    $stats = $this->getStatistics($reportType, $startDate, $endDate);
+    $stats = $this->getStatistics($reportType, $startDate, $endDate,$akd,$jenisFoto,$DPR);
 
         // Format dates for display
         $periodText = 'Semua Data';
@@ -218,20 +279,39 @@ public function index(Request $request)
      * Get statistics for the report
      */
    
-    private function getStatistics($reportType, $startDate, $endDate)
+    private function getStatistics($reportType, $startDate, $endDate,$akd,$jenisFoto,$DPR)
     {
         if ($reportType === 'upload') {
             $query = Artikel::query();
 
             if ($startDate) $query->whereDate('add_date', '>=', $startDate);
             if ($endDate) $query->whereDate('add_date', '<=', $endDate);
+            if($akd){
+                $query->where('komisi_dpr_id', $akd);
+            }
+            if($jenisFoto){
+                $query->where('kategori_id', $jenisFoto);
+            }
+            if($DPR){
+                $query->where('anggota_dpr','like', "%{$DPR}%");
+            }
 
         } else {
             $query = ArtikelPublish::query();
 
             if ($startDate) $query->whereDate('edit_date', '>=', $startDate);
             if ($endDate) $query->whereDate('edit_date', '<=', $endDate);
+            if($akd){
+                $query->where('komisi_dpr_id', $akd);
+            }
+            if($jenisFoto){
+                $query->where('kategori_id', $jenisFoto);
+            }
+            if($DPR){
+                $query->where('anggota_dpr','like', "%{$DPR}%");
+            }
             $query->whereNotNull('edit_date');
+            
         }
 
         return [

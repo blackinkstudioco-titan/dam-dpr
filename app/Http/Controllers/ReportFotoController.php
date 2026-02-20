@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\DataFoto;
 use App\Models\User;
+use App\Models\KomisiDpr;
+use App\Models\KategoriFoto;
 use App\Exports\FotoReportExport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,6 +24,9 @@ class ReportFotoController extends Controller
         $endDate = $request->get('end_date');
         $perPage = $request->get('per_page', 25);
         $userId = $request->get('user_id');
+        $akd = $request->get('akd');
+        $jenisFoto = $request->get('jenis_foto');
+        $DPR = $request->get('dpr');
 
         $query = DataFoto::with(['kategori', 'anggotaDpr', 'komisiDpr', 'album']);
 
@@ -35,8 +40,18 @@ class ReportFotoController extends Controller
             if ($endDate) {
                 $query->whereDate('created_at', '<=', $endDate);
             }
+            if($akd){
+                $query->where('komisi_dpr_id', $akd);
+            }
+            if($jenisFoto){
+                $query->where('kategorisasi_datatempo', $jenisFoto);
+            }
+            if($DPR){
+                $query->where('anggota_dpr','like', "%{$DPR}%");
+            }
             $query->orderBy('created_at', 'desc');
-        } else {
+        }
+         else {
             if($userId){
                  $query->where('edit_by', $userId);
             }
@@ -45,6 +60,15 @@ class ReportFotoController extends Controller
             }
             if ($endDate) {
                 $query->whereDate('edit_date', '<=', $endDate);
+            }
+            if($akd){
+                $query->where('komisi_dpr_id', $akd);
+            }
+            if($jenisFoto){
+                $query->where('kategorisasi_datatempo', $jenisFoto);
+            }
+            if($DPR){
+                $query->where('anggota_dpr','like', "%{$DPR}%");
             }
             $query->whereNotNull('edit_date')
                   ->orderBy('edit_date', 'desc');
@@ -55,10 +79,20 @@ class ReportFotoController extends Controller
             ->orderBy('name')
             ->get();
 
-        $fotos = $query->paginate($perPage)->withQueryString();
-        $stats = $this->getStatistics($reportType, $startDate, $endDate);
+        //komisi
+        $komisi = KomisiDpr::select('id', 'nama_komisi', 'bidang')
+            ->orderBy('nama_komisi')
+            ->get();
 
-        return view('reports.foto.index', compact('fotos', 'reportType', 'startDate', 'endDate', 'stats', 'perPage','users','userId'));
+        //kegiatan
+        $kegiatan=KategoriFoto::select('id','k_name')
+            ->orderBy('k_name')
+            ->get();
+
+        $fotos = $query->paginate($perPage)->withQueryString();
+        $stats = $this->getStatistics($reportType, $startDate, $endDate,$akd,$jenisFoto,$DPR);
+
+        return view('reports.foto.index', compact('fotos', 'reportType', 'startDate', 'endDate', 'stats', 'perPage','users','userId','DPR','komisi','kegiatan','akd','jenisFoto'));
     }
 
     /**
@@ -69,11 +103,15 @@ class ReportFotoController extends Controller
         $reportType = $request->get('report_type', 'upload');
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
+        $userId = $request->get('user_id');
+        $akd = $request->get('akd');
+        $kegiatan = $request->get('jenis_foto');
+        $DPR = $request->get('dpr');
 
         $fileName = 'Report_Foto_' . ucfirst($reportType) . '_' . date('Y-m-d_His') . '.xlsx';
 
         return Excel::download(
-            new FotoReportExport($reportType, $startDate, $endDate), 
+            new FotoReportExport($reportType, $startDate, $endDate,$akd,$kegiatan,$DPR), 
             $fileName
         );
     }
@@ -86,6 +124,11 @@ class ReportFotoController extends Controller
         $reportType = $request->get('report_type', 'upload');
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
+        $userId = $request->get('user_id');
+        $akd = $request->get('akd');
+        $jenisFoto = $request->get('jenis_foto');
+        $DPR = $request->get('dpr');
+
 
         // Query data
         $query = DataFoto::with(['kategori', 'anggotaDpr', 'komisiDpr', 'album']);
@@ -97,6 +140,16 @@ class ReportFotoController extends Controller
             if ($endDate) {
                 $query->whereDate('created_at', '<=', $endDate);
             }
+            if($akd){
+                $query->where('komisi_dpr_id', $akd);
+            }
+            if($jenisFoto){
+                $query->where('kategorisasi_datatempo', $jenisFoto);
+            }
+            if($DPR){
+                $query->where('anggota_dpr','like', "%{$DPR}%");
+            }
+
             $query->orderBy('created_at', 'desc');
         } else {
             if ($startDate) {
@@ -105,11 +158,20 @@ class ReportFotoController extends Controller
             if ($endDate) {
                 $query->whereDate('edit_date', '<=', $endDate);
             }
+               if($akd){
+                $query->where('komisi_dpr_id', $akd);
+            }
+            if($jenisFoto){
+                $query->where('kategorisasi_datatempo', $jenisFoto);
+            }
+            if($DPR){
+                $query->where('anggota_dpr','like', "%{$DPR}%");
+            }
             $query->whereNotNull('edit_date')->orderBy('edit_date', 'desc');
         }
 
         $fotos = $query->get();
-        $stats = $this->getStatistics($reportType, $startDate, $endDate);
+        $stats = $this->getStatistics($reportType, $startDate, $endDate,$akd,$jenisFoto,$DPR);
 
         // Format dates for display
         $periodText = 'Semua Data';
@@ -141,16 +203,27 @@ class ReportFotoController extends Controller
     /**
      * Get statistics for the report
      */
-    private function getStatistics($reportType, $startDate, $endDate)
+    private function getStatistics($reportType, $startDate, $endDate,$akd,$kegiatan,$DPR)
     {
         $query = DataFoto::query();
 
         if ($reportType === 'upload') {
             if ($startDate) $query->whereDate('created_at', '>=', $startDate);
             if ($endDate) $query->whereDate('created_at', '<=', $endDate);
+            if ($akd) $query->where('komisi_dpr_id', $akd);
+            if ($kegiatan) $query->where('kategorisasi_datatempo', $kegiatan);
+            if($DPR){
+                $query->where('anggota_dpr','like', "%{$DPR}%");
+            }
+
         } else {
             if ($startDate) $query->whereDate('edit_date', '>=', $startDate);
             if ($endDate) $query->whereDate('edit_date', '<=', $endDate);
+            if ($akd) $query->where('komisi_dpr_id', $akd);
+            if ($kegiatan) $query->where('kategorisasi_datatempo', $kegiatan);
+            if($DPR){
+                $query->where('anggota_dpr','like', "%{$DPR}%");
+            }
             $query->whereNotNull('edit_date');
         }
 

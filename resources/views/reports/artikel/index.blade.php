@@ -24,7 +24,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="w-full px-6 lg:px-8">
             
             {{-- Filter Form --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
@@ -86,23 +86,8 @@
                                        value="{{ $endDate }}"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             </div>
-                            {{--
-                           
-                            <div>
-                                <label for="rubrik" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Komisi
-                                </label>
-                                <select name="rubrik" id="rubrik" 
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                    <option value="">Semua Rubrik</option>
-                                    @foreach($rubriks as $rubrikItem)
-                                        <option value="{{ $rubrikItem }}" {{ $rubrik === $rubrikItem ? 'selected' : '' }}>
-                                            {{ $rubrikItem }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            --}}
+                        
+
                             {{-- Status Filter --}}
                             <div>
                                 <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
@@ -116,7 +101,42 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                              <div>
+                                <label for="akd" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Alat Kelengkapan DPR
+                                </label>
+                                <select name="akd" id="per_page" 
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">Semua AKD</option>
+                                    @foreach($komisi as $k)
+                                        <option value="{{ $k->id }}" {{ $akd == $k->id ? 'selected' : '' }}>
+                                            {{ $k->nama_komisi }} ({{ $k->bidang }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label for="anggota" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nama Anggota DPR
+                                </label>
+                                <input type="text" name="dpr"  value="{{$DPR}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"/>
+                            </div>
+                            <div>
+                                <label for="jenis_foto" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Jenis Artikel
+                                </label>
+                                <select name="jenis_foto" id="per_page" 
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">Semua Jenis Artikel</option>
+                                    @foreach($kegiatan as $k)
+                                        <option value="{{ $k->id }}" {{ $jenisFoto == $k->id ? 'selected' : '' }}>
+                                            {{ $k->k_name }} 
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                             {{-- Per Page --}}
                             <div>
                                 <label for="per_page" class="block text-sm font-medium text-gray-700 mb-2">
@@ -247,7 +267,13 @@
                                             Penulis
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tanggal Penugasan
+                                            AKD
+                                        </th>
+                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Jenis Artikel
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Anggota DPR
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             {{ $reportType === 'upload' ? 'Tanggal Upload' : 'Tanggal Edit (Publish)' }}
@@ -276,6 +302,8 @@
                                       
                                             <td class="px-6 py-4  text-sm">
                                                 {{ $artikel->event?->nama_event ? $artikel->event->nama_event : '-' }}
+                                                <br/>
+                                                {{ $artikel->event?->tanggal ? $artikel->event->tanggal->format('d M Y H:i') : '-' }}
                                             </td>
                                             <td class="px-6 py-4">
                                                 <div class="text-sm font-medium text-gray-900">
@@ -298,7 +326,13 @@
                                              
                                             </td>
                                             <td class="px-6 py-4 text-sm">
-                                                {{ $artikel->event?->tanggal ? $artikel->event->tanggal->format('d M Y H:i') : '-' }}
+                                                {{$artikel->KomisiDpr->nama_komisi??'-'}}
+                                            </td>
+                                            <td class="px-6 py-4 text-sm">
+                                                {{$artikel->kategori->k_name??'-'}}
+                                            </td>
+                                             <td class="px-6 py-4 text-sm">
+                                                {{$artikel->anggota_dpr??'-'}}
                                             </td>
                                             <td class="px-6 py-4  text-sm text-gray-500">
                                                 @if($reportType === 'upload')

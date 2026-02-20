@@ -24,7 +24,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="w-full px-6 lg:px-8">
             
             {{-- Filter Form --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
@@ -46,6 +46,7 @@
                                     <option value="edit" {{ $reportType === 'edit' ? 'selected' : '' }}>
                                         Berdasarkan Edit
                                     </option>
+                              
                                 </select>
                             </div>
                             {{-- user --}}
@@ -83,7 +84,40 @@
                                        value="{{ $endDate }}"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             </div>
-
+                            <div>
+                                <label for="akd" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Alat Kelengkapan DPR
+                                </label>
+                                <select name="akd" id="per_page" 
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">Semua AKD</option>
+                                    @foreach($komisi as $k)
+                                        <option value="{{ $k->id }}" {{ $akd == $k->id ? 'selected' : '' }}>
+                                            {{ $k->nama_komisi }} ({{ $k->bidang }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label for="anggota" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nama Anggota DPR
+                                </label>
+                                <input type="text" name="dpr"  value="{{$DPR}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"/>
+                            </div>
+                            <div>
+                                <label for="jenis_foto" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Jenis Foto
+                                </label>
+                                <select name="jenis_foto" id="per_page" 
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">Semua Jenis Foto</option>
+                                    @foreach($kegiatan as $k)
+                                        <option value="{{ $k->id }}" {{ $jenisFoto == $k->id ? 'selected' : '' }}>
+                                            {{ $k->k_name }} 
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                             {{-- Per Page --}}
                             <div>
                                 <label for="per_page" class="block text-sm font-medium text-gray-700 mb-2">
@@ -183,7 +217,7 @@
                                             No
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Penugasan
+                                            Penugasan/Tgl
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Thumbnail
@@ -195,7 +229,11 @@
                                             Kategori / Album
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tanggal Penugasan
+                                            AKD
+                                        </th>
+                                      
+                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Anggota DPR
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             {{ $reportType === 'upload' ? 'Tanggal Upload' : 'Tanggal Edit' }}
@@ -222,7 +260,8 @@
                                                 {{ $fotos->firstItem() + $index }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $foto->event->nama_event ?? '-' }}
+                                                {{ $foto->event->nama_event ?? '-' }} <br/>
+                                                {{$foto?->event?->tanggal??'-'}} 
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <img src="{{ $foto->thumbnail_url }}" 
@@ -248,8 +287,10 @@
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                     {{$foto?->event?->tanggal??'-'}} 
-                                                
+                                                  {{$foto->komisiDpr->nama_komisi ?? '-'}}  
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                  <small>{{$foto->anggota_dpr ?? '-'}}</small>  
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 @if($reportType === 'upload')

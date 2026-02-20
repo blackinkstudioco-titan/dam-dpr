@@ -71,6 +71,10 @@ class Artikel extends Model
     {
         return $this->belongsTo(KomisiDpr::class, 'anggota_dpr_id', 'id');
     }
+    public function kategori()
+    {
+        return $this->belongsTo(KategoriFoto::class, 'kategori_id', 'id');
+    }
 
     /**
      * User yang membuat artikel ini
