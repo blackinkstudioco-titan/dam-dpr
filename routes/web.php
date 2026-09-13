@@ -36,11 +36,6 @@ use App\Http\Controllers\ReportController;
 
 
 
-Route::get('/test-artikel-create', function() {
-    return 'Route artikel create works!';
-});
-
-
 Route::get('/api/anggota-dpr/search', [AnggotaDprController::class, 'search'])->name('anggota-dpr.search');
 
 Route::get('/', [FrontEndController::class, 'index'])->name('home');
@@ -129,10 +124,6 @@ Route::middleware(['auth'])->group(function () {
     //});
 });
 
-Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
-Route::get('/albums/{album}', [AlbumController::class, 'show'])->name('albums.show');
-
-
 Route::prefix('albums/{album}/add-photos')->name('add-photos.')->group(function () {
     Route::get('/', [AddPhotosController::class, 'index'])->name('index');
     Route::post('/upload', [AddPhotosController::class, 'uploadFiles'])->name('upload');
@@ -216,7 +207,14 @@ Route::middleware(['auth', 'role:admin,editor'])->group(function () {
     });
 });
 
-//summernote gallery routes
-Route::get('/gallery/images', [GalleryController::class, 'getImages'])->name('gallery.images');
+// summernote gallery routes
+// SECURITY FIX: this lists every photo in the DAM (including unpublished
+// ones) for the article editor's image picker. It was previously public
+// (no middleware at all), letting anyone on the internet enumerate every
+// photo's title/description/URL. It's only ever used from inside the
+// authenticated article editor, so it now requires login.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/gallery/images', [GalleryController::class, 'getImages'])->name('gallery.images');
+});
 
 require __DIR__.'/auth.php';

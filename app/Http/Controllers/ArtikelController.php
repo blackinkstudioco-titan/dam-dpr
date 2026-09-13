@@ -89,8 +89,13 @@ class ArtikelController extends Controller
             //$validated['foto'] = $request->file('foto')->store('artikel', 'public');
             $uploadResult = $this->imageService->uploadImage($request->file('foto'));
             $validated['foto'] = $uploadResult['original_path'];
-            
+
         }
+        // SECURITY FIX: strip dangerous HTML (script tags, event handlers,
+        // javascript: links) out of the rich-text body before it's ever
+        // stored, since it's later rendered unescaped on the public page.
+        $validated['isi'] = sanitize_rich_text($validated['isi']);
+
         $tanggalWaktu = date('Y-m-d H:i:s', strtotime($request->tanggal . ' ' . $request->waktu));
 
         $validated['add_by'] = Auth::id();
@@ -132,6 +137,13 @@ class ArtikelController extends Controller
     {
         $artikel = Artikel::findOrFail($id);
 
+        // SECURITY FIX: previously any authenticated user could update any
+        // article by ID, regardless of ownership — the same restriction
+        // already enforced on edit()/show() was missing here.
+        if (!Auth::check() || (!Auth::user()->hasAnyRole(['admin', 'editor']) && $artikel->add_by !== Auth::id())) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit artikel ini.');
+        }
+
         $validated = $request->validate([
           'judul' => 'required|string|max:255',
           'tanggal' => 'required|date',
@@ -158,6 +170,9 @@ class ArtikelController extends Controller
             $validated['foto']=$request->input('old_foto');
 
         }
+
+        // SECURITY FIX: same rich-text sanitization as store() above.
+        $validated['isi'] = sanitize_rich_text($validated['isi']);
 
         $tanggalWaktu = date('Y-m-d H:i:s', strtotime($request->tanggal . ' ' . $request->waktu));
         $validated['tanggal'] = $tanggalWaktu;
@@ -208,6 +223,13 @@ class ArtikelController extends Controller
     public function destroy($id)
     {
         $artikel = Artikel::findOrFail($id);
+
+        // SECURITY FIX: previously any authenticated user could delete any
+        // article by ID, regardless of ownership or role.
+        if (!Auth::check() || (!Auth::user()->hasAnyRole(['admin', 'editor']) && $artikel->add_by !== Auth::id())) {
+            abort(403, 'Anda tidak memiliki izin untuk menghapus artikel ini.');
+        }
+
         $artikel->delete();
         return back()->with('success', 'Artikel dihapus.');
     }

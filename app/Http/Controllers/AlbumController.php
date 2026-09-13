@@ -63,6 +63,14 @@ class AlbumController extends Controller
 
     public function update(Request $request, AlbumFoto $album)
         {
+            // SECURITY FIX: uploaders only see their own albums in index(),
+            // but update()/destroy() had no equivalent check, so any
+            // uploader could edit/delete another user's album just by
+            // guessing/enumerating the album id in the URL.
+            if (auth()->user()?->hasAnyRole(['uploader']) && $album->created_by !== Auth::id()) {
+                abort(403, 'Anda tidak memiliki akses untuk mengubah album ini.');
+            }
+
             $validated = $request->validate([
                 'nama_album' => 'required|string|max:255',
                 'deskripsi' => 'nullable|string',
@@ -77,6 +85,11 @@ class AlbumController extends Controller
 
     public function destroy(AlbumFoto $album)
         {
+            // SECURITY FIX: same missing ownership check as update() above.
+            if (auth()->user()?->hasAnyRole(['uploader']) && $album->created_by !== Auth::id()) {
+                abort(403, 'Anda tidak memiliki akses untuk menghapus album ini.');
+            }
+
             $album->delete();
 
             return redirect()->route('albums.index')->with('success', 'Album berhasil dihapus.');

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,14 +9,20 @@ class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_registration_screen_can_be_rendered(): void
+    /**
+     * SECURITY FIX: public self-registration is intentionally disabled for
+     * this internal DPR RI system — accounts are provisioned by an admin
+     * via User management. These tests now assert the routes are gone
+     * instead of asserting anyone can self-register.
+     */
+    public function test_registration_screen_is_not_available(): void
     {
         $response = $this->get('/register');
 
-        $response->assertStatus(200);
+        $response->assertStatus(404);
     }
 
-    public function test_new_users_can_register(): void
+    public function test_new_users_cannot_self_register(): void
     {
         $response = $this->post('/register', [
             'name' => 'Test User',
@@ -26,7 +31,7 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(RouteServiceProvider::HOME);
+        $response->assertStatus(404);
+        $this->assertGuest();
     }
 }

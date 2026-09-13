@@ -55,6 +55,12 @@ class ArtikelPublishController extends Controller
             $validated['foto'] = $request->file('foto')->store('artikel_publish', 'public');
         }
 
+        // SECURITY FIX: sanitize rich-text body before storing — see
+        // ArtikelController for the full rationale (stored XSS via {!! !!}).
+        if (isset($validated['isi'])) {
+            $validated['isi'] = sanitize_rich_text($validated['isi']);
+        }
+
         $validated['add_by'] = Auth::id();
         $validated['add_date'] = now();
 
@@ -109,6 +115,10 @@ class ArtikelPublishController extends Controller
             $validated['foto']=$request->input('old_foto');
 
         }
+
+        // SECURITY FIX: same rich-text sanitization as store() above.
+        $validated['isi'] = sanitize_rich_text($validated['isi']);
+
         $tanggalWaktu = date('Y-m-d H:i:s', strtotime($request->tanggal . ' ' . $request->waktu));
         $validated['tanggal'] = $tanggalWaktu;
         $validated['edit_by'] = Auth::id();
