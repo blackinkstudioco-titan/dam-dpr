@@ -184,6 +184,8 @@ class DataFotoController extends Controller
      */
     public function show(DataFoto $dataFoto)
     {
+        $this->ensureCanView($dataFoto);
+
         // Load relationship
         $dataFoto->load(
             'kategori:id,k_name',
@@ -230,13 +232,39 @@ class DataFotoController extends Controller
      * edit() — an uploader could not open the edit FORM for someone else's
      * photo, but could still POST straight to update()/destroy()/
      * bulkDelete()/togglePublish() for that same photo, since none of them
-     * repeated the check. admin/editor are unrestricted by design.
+     * repeated the check. admin/editor are unrestricted by design. These
+     * write routes already sit behind role:admin,editor,uploader middleware
+     * (see routes/web.php), so any caller reaching here is guaranteed to
+     * have one of those three roles.
      */
     private function ensureCanModify(DataFoto $dataFoto): void
     {
         if (auth()->user()?->hasAnyRole(['uploader']) && $dataFoto->add_by !== Auth::id()) {
             abort(403, 'Anda tidak memiliki akses untuk mengubah foto ini.');
         }
+    }
+
+    /**
+     * SECURITY FIX (AUTHZ-VULN-01/12): show()/download() sit behind only
+     * 'auth' (no role middleware — every logged-in account, any role,
+     * including the self-registered "guest" role, can reach them), so
+     * unlike ensureCanModify() above this cannot rely on route-level role
+     * gating. Published photos are visible to any authenticated user
+     * (unchanged business behavior); unpublished photos are restricted to
+     * admin/editor or the uploader who owns them.
+     */
+    private function ensureCanView(DataFoto $dataFoto): void
+    {
+        if ($dataFoto->publish) {
+            return;
+        }
+
+        $user = Auth::user();
+        if ($user && ($user->hasAnyRole(['admin', 'editor']) || $dataFoto->add_by === $user->id)) {
+            return;
+        }
+
+        abort(404, 'Data foto tidak ditemukan.');
     }
 
     /**
@@ -378,6 +406,8 @@ class DataFotoController extends Controller
      */
     public function download(DataFoto $dataFoto)
     {
+        $this->ensureCanView($dataFoto);
+
         if (!$dataFoto->original_foto_url || !Storage::disk('public')->exists($dataFoto->original_foto_url)) {
             abort(404, 'File tidak ditemukan');
         }
