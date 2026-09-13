@@ -126,8 +126,9 @@
                                                     </a>
                                                     
                                                     <button type="button"
-                                                            onclick="confirmCancel({{ $foto->id }}, '{{ $foto->judul }}')"
-                                                            class="inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs">
+                                                            class="btn-cancel-schedule inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs"
+                                                            data-foto-id="{{ $foto->id }}"
+                                                            data-judul="{{ $foto->judul }}">
                                                         ❌ Batalkan
                                                     </button>
                                                 </div>
@@ -198,14 +199,30 @@
 
     @push('scripts')
     <script>
+        // SECURITY FIX: judul used to be embedded straight into an inline
+        // onclick="confirmCancel(1, '...')" attribute. Blade's {{ }} escapes
+        // HTML entities, but the browser HTML-decodes attribute values
+        // before running them as JS, so an escaped quote (&#039;) turns back
+        // into a real ' at execution time — letting a judul like
+        // x'); alert(1); // break out of the string and run arbitrary JS in
+        // every admin/editor who opens this page. Using data-* attributes
+        // and textContent avoids ever treating the value as JS source.
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.btn-cancel-schedule').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    confirmCancel(this.dataset.fotoId, this.dataset.judul);
+                });
+            });
+        });
+
         function confirmCancel(fotoId, judul) {
             const modal = document.getElementById('cancelModal');
             const form = document.getElementById('cancelForm');
             const title = document.getElementById('cancelPhotoTitle');
-            
+
             title.textContent = judul;
             form.action = `/photo-schedule/${fotoId}/cancel`;
-            
+
             modal.classList.remove('hidden');
         }
 

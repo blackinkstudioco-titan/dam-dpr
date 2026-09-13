@@ -21,6 +21,7 @@ use App\Http\Controllers\PhotoScheduleController;
 use App\Http\Controllers\ArtikelScheduleController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\KeywordController;
 
 
 /*
@@ -68,8 +69,18 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth'])->group(function () {
   Route::resource('artikel', ArtikelController::class);
-  Route::resource('artikel_publish', ArtikelPublishController::class);
-  Route::get('editor', [ArtikelController::class, 'editor'])->name('artikel.editor');
+
+  // SECURITY FIX (AUTHZ-VULN-08/17/18/28/55): artikel_publish (the
+  // editorial queue that controls what actually goes live on the public
+  // site) and the /editor listing had no role restriction at all — any
+  // authenticated user could read, edit, or force-publish (active=1) any
+  // record. ArtikelController::update() is the legitimate way a
+  // non-editor pushes a draft to this queue (action=kirim_editor), so
+  // gating this controller to admin/editor doesn't block that workflow.
+  Route::middleware(['role:admin,editor'])->group(function () {
+      Route::resource('artikel_publish', ArtikelPublishController::class);
+      Route::get('editor', [ArtikelController::class, 'editor'])->name('artikel.editor');
+  });
 
   Route::prefix('foto/bulk-upload')->name('foto.bulk-upload')->group(function () {
         Route::get('/', [BulkUploadController::class, 'index'])->name('index');
@@ -108,29 +119,30 @@ Route::middleware(['auth'])->group(function () {
 
 
 Route::middleware(['auth'])->group(function () {
-    // Additional routes HARUS di atas resource routes
-    Route::post('data-foto/bulk-delete', [DataFotoController::class, 'bulkDelete'])
-        ->name('data-foto.bulk-delete');
+    // SECURITY FIX (AUTHZ-VULN-04/16): bulk-delete and toggle-publish used
+    // to only require 'auth' (any logged-in user, any role) with no
+    // ownership check in the controller either — now role-gated the same
+    // way as create/edit/destroy, with ownership enforced in the
+    // controller for the 'uploader' role (see ensureCanModify()).
+    Route::middleware(['role:admin,editor,uploader'])->group(function () {
+        // Additional routes HARUS di atas resource routes
+        Route::post('data-foto/bulk-delete', [DataFotoController::class, 'bulkDelete'])
+            ->name('data-foto.bulk-delete');
+        Route::post('data-foto/{dataFoto}/toggle-publish', [DataFotoController::class, 'togglePublish'])
+            ->name('data-foto.toggle-publish');
+    });
+
     Route::get('data-foto/{dataFoto}/download', [DataFotoController::class, 'download'])
         ->name('data-foto.download');
-    Route::post('data-foto/{dataFoto}/toggle-publish', [DataFotoController::class, 'togglePublish'])
-        ->name('data-foto.toggle-publish');
     Route::post('data-foto/{dataFoto}/increment-view', [DataFotoController::class, 'incrementView'])
         ->name('data-foto.increment-view');
-
-    //Route::middleware(['role:admin'])->group(function () {
-      // Resource routes di paling bawah
-    //  Route::resource('data-foto', DataFotoController::class);
-    //});
 });
 
-Route::prefix('albums/{album}/add-photos')->name('add-photos.')->group(function () {
-    Route::get('/', [AddPhotosController::class, 'index'])->name('index');
-    Route::post('/upload', [AddPhotosController::class, 'uploadFiles'])->name('upload');
-    Route::post('/save-metadata', [AddPhotosController::class, 'saveMetadata'])->name('save-metadata');
-    Route::get('/form-data', [AddPhotosController::class, 'getFormData'])->name('form-data');
-});
-
+// BUG FIX: this block used to duplicate the route names below
+// (add-photos.index/upload) while pointing at methods that don't exist on
+// AddPhotosController (uploadFiles/saveMetadata/getFormData — those belong
+// to BulkUploadController). It was dead code that nothing links to; if it
+// were ever hit it would 500. Removed rather than left as a landmine.
 
 Route::prefix('foto')->group(function () {
     Route::prefix('add-photos')->name('add-photos.')->group(function () {
@@ -215,6 +227,12 @@ Route::middleware(['auth', 'role:admin,editor'])->group(function () {
 // authenticated article editor, so it now requires login.
 Route::middleware(['auth'])->group(function () {
     Route::get('/gallery/images', [GalleryController::class, 'getImages'])->name('gallery.images');
+
+    // SECURITY FIX (AUTHZ-VULN-19): moved from routes/api.php, which runs
+    // under the stateless 'api' middleware group (no session), so 'auth'
+    // there never actually checked anything — this endpoint was reachable
+    // with no cookie/token at all. Same URL, now actually behind login.
+    Route::post('/api/keywords/store', [KeywordController::class, 'store'])->name('keywords.store');
 });
 
 require __DIR__.'/auth.php';

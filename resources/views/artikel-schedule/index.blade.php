@@ -131,8 +131,9 @@
                                                     </a>
                                                     
                                                     <button type="button"
-                                                            onclick="confirmCancel({{ $artikel->id }}, '{{ $artikel->judul }}')"
-                                                            class="inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs">
+                                                            class="btn-cancel-schedule inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs"
+                                                            data-artikel-id="{{ $artikel->id }}"
+                                                            data-judul="{{ $artikel->judul }}">
                                                         ❌ Batalkan
                                                     </button>
                                                 </div>
@@ -203,6 +204,19 @@
 
     @push('scripts')
     <script>
+        // SECURITY FIX: see photo-schedule/index.blade.php for the full
+        // rationale — inline onclick="confirmCancel(1, '...')" with a raw
+        // judul was breakable JS-string-injection XSS even though Blade
+        // HTML-escaped it, because the browser HTML-decodes attributes
+        // before executing them as JS. data-* + addEventListener avoids it.
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.btn-cancel-schedule').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    confirmCancel(this.dataset.artikelId, this.dataset.judul);
+                });
+            });
+        });
+
         function confirmCancel(artikelId, judul) {
             const modal = document.getElementById('cancelModal');
             const form = document.getElementById('cancelForm');

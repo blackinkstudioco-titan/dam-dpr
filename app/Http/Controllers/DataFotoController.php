@@ -226,10 +226,26 @@ class DataFotoController extends Controller
     }
 
     /**
+     * SECURITY FIX (AUTHZ-VULN-09): mirrors the ownership check already in
+     * edit() — an uploader could not open the edit FORM for someone else's
+     * photo, but could still POST straight to update()/destroy()/
+     * bulkDelete()/togglePublish() for that same photo, since none of them
+     * repeated the check. admin/editor are unrestricted by design.
+     */
+    private function ensureCanModify(DataFoto $dataFoto): void
+    {
+        if (auth()->user()?->hasAnyRole(['uploader']) && $dataFoto->add_by !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengubah foto ini.');
+        }
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateDataFotoRequest $request, DataFoto $dataFoto)
     {
+        $this->ensureCanModify($dataFoto);
+
         DB::beginTransaction();
 
         try {
@@ -310,6 +326,8 @@ class DataFotoController extends Controller
      */
     public function destroy(DataFoto $dataFoto)
     {
+        $this->ensureCanModify($dataFoto);
+
         DB::beginTransaction();
 
         try {
@@ -344,10 +362,6 @@ class DataFotoController extends Controller
         }
     }
 
-    /**
-     * Download photo file.
-     */
-    
     /**
      * Download photo file.
      *
@@ -446,6 +460,15 @@ class DataFotoController extends Controller
         try {
             $photos = DataFoto::whereIn('id', $request->ids)->get();
 
+            // SECURITY FIX (AUTHZ-VULN-04/16): this route only required
+            // 'auth' (no role check at all), and never checked ownership,
+            // so any authenticated user could mass-delete any photos by id.
+            // The route now also requires role:admin,editor,uploader (see
+            // routes/web.php); this closes the remaining gap for uploaders.
+            foreach ($photos as $photo) {
+                $this->ensureCanModify($photo);
+            }
+
             foreach ($photos as $photo) {
                 // Delete files
                 if ($photo->thumbnail_foto_url) {
@@ -482,6 +505,11 @@ class DataFotoController extends Controller
      */
     public function togglePublish(DataFoto $dataFoto)
     {
+        // SECURITY FIX (AUTHZ-VULN-16): same missing role/ownership check
+        // as bulkDelete() above — the route now also requires
+        // role:admin,editor,uploader (see routes/web.php).
+        $this->ensureCanModify($dataFoto);
+
         try {
             $dataFoto->update([
                 'publish' => !$dataFoto->publish,

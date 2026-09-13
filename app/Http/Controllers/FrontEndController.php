@@ -113,6 +113,14 @@ class FrontEndController extends Controller
         ]);
     }
     public function show($url_title="",DataFoto $dataFoto){
+      // SECURITY FIX (AUTHZ-VULN-02): this public, unauthenticated route
+      // rendered any DataFoto by id regardless of publish status, so an
+      // unpublished/internal-only photo's full detail page and media were
+      // reachable by anyone who guessed or enumerated the id.
+      if (!$dataFoto->publish) {
+          abort(404);
+      }
+
       // Load relationship
       $dataFoto->load('kategori:id,k_name');
       $dataFoto->incrementView();

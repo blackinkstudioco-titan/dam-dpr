@@ -56,10 +56,21 @@ class UserController extends Controller
         ]);
 
         User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'role'     => $request->role,
+            'name'              => $request->name,
+            'email'             => $request->email,
+            'password'          => Hash::make($request->password),
+            'role'              => $request->role,
+            // NOTE (AUTHZ-VULN-23): /dashboard is gated by the 'verified'
+            // middleware, but self-registration is disabled — accounts are
+            // only ever created here, by an admin, after the admin has
+            // already confirmed the person and their email address. There
+            // is no other way for a new account to complete e-mail
+            // verification, so without this every admin-created user would
+            // be locked out of the dashboard behind an unreachable
+            // "verify your email" prompt. Treating admin-provisioned
+            // accounts as pre-verified keeps 'verified' meaningful for any
+            // future self-service signup flow without breaking this one.
+            'email_verified_at' => now(),
         ]);
 
         return redirect()->route('users.index')->with('success', 'User berhasil dibuat.');

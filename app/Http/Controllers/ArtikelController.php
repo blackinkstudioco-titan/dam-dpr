@@ -166,10 +166,14 @@ class ArtikelController extends Controller
             }
             $validated['foto'] = $request->file('foto')->store('artikel', 'public');
         }
-        else{
-            $validated['foto']=$request->input('old_foto');
-
-        }
+        // SECURITY FIX (INJ-VULN-09): this used to set 'foto' from the
+        // client-supplied hidden field `old_foto` whenever no new file was
+        // uploaded. An attacker could poison that field to point the
+        // record at an arbitrary path; the NEXT time a real file upload
+        // happened, the delete() call above (which uses $artikel->foto)
+        // would delete whatever the poisoned path pointed to. Simply not
+        // touching 'foto' when no new file is uploaded leaves the existing
+        // DB value alone — no client input involved at all.
 
         // SECURITY FIX: same rich-text sanitization as store() above.
         $validated['isi'] = sanitize_rich_text($validated['isi']);

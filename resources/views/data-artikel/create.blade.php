@@ -349,6 +349,16 @@
             }
         });
 
+        // SECURITY FIX: helper to safely embed user-controlled text (photo
+        // judul/deskrp) inside an HTML attribute or TinyMCE HTML string.
+        // Used below wherever gallery image metadata gets turned into HTML
+        // instead of being assigned via a DOM property.
+        function escapeHtmlAttr(value) {
+            return String(value ?? '').replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
         // Gallery Modal Functions
         function openGalleryModal() {
             document.getElementById('galleryModal').classList.remove('hidden');
@@ -375,23 +385,40 @@
                     }
 
                     images.forEach(image => {
+                        // SECURITY FIX (XSS-VULN-03): image.name/deskrp come
+                        // from DataFoto.judul/deskrp, which any uploader can
+                        // set. This used to go straight into innerHTML, so a
+                        // malicious judul executed the moment an admin/editor
+                        // opened this picker. img.src/alt are now set as DOM
+                        // properties (never parsed as HTML) and the caption
+                        // uses textContent instead of a template string.
                         const imgDiv = document.createElement('div');
                         imgDiv.className = 'relative group cursor-pointer overflow-hidden rounded-lg border-2 border-transparent hover:border-blue-500 transition';
-                        imgDiv.innerHTML = `
-                            <img src="${image.url}" alt="${image.deskrp || image.name}" 
-                                 class="w-full h-32 object-cover">
-                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition flex items-center justify-center">
-                                <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
-                            <p class="text-xs text-center mt-1 text-gray-600 truncate px-1">${image.name}</p>
+
+                        const imgEl = document.createElement('img');
+                        imgEl.src = image.url;
+                        imgEl.alt = image.deskrp || image.name;
+                        imgEl.className = 'w-full h-32 object-cover';
+                        imgDiv.appendChild(imgEl);
+
+                        const overlay = document.createElement('div');
+                        overlay.className = 'absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition flex items-center justify-center';
+                        overlay.innerHTML = `
+                            <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
                         `;
-                        
+                        imgDiv.appendChild(overlay);
+
+                        const caption = document.createElement('p');
+                        caption.className = 'text-xs text-center mt-1 text-gray-600 truncate px-1';
+                        caption.textContent = image.name;
+                        imgDiv.appendChild(caption);
+
                         imgDiv.onclick = function() {
                             insertImageToEditor(image.url, image.deskrp || image.name);
                         };
-                        
+
                         galleryGrid.appendChild(imgDiv);
                     });
                 })
@@ -402,11 +429,17 @@
         }
 
         function insertImageToEditor(imageUrl, description) {
-            // Insert image ke TinyMCE
+            // SECURITY FIX: description is untrusted (DataFoto.judul/deskrp)
+            // and was interpolated straight into an HTML string handed to
+            // TinyMCE's insertContent(), so a crafted judul could break out
+            // of the alt="" attribute and inject a script/onerror handler
+            // directly into the editor. Escaping it before building the
+            // HTML string closes that off (the article body is also
+            // sanitized server-side on save as a second layer of defense).
             tinymce.activeEditor.insertContent(
-                `<img src="${imageUrl}" alt="${description}" style="max-width: 100%;" />`
+                `<img src="${escapeHtmlAttr(imageUrl)}" alt="${escapeHtmlAttr(description)}" style="max-width: 100%;" />`
             );
-            
+
             closeGalleryModal();
         }
 
@@ -611,7 +644,15 @@
                     renderAnggotaSuggestions(labels);
                     anggotaBox.classList.remove('hidden');
                 } else {
-                    anggotaList.innerHTML = '<div class="px-4 py-2 text-sm text-gray-500">Tidak ada hasil untuk "' + term + '"</div>';
+                    // SECURITY FIX (XSS-VULN-04): the raw search term used
+                    // to be concatenated into an HTML string and assigned to
+                    // innerHTML. Build the element and set the term via
+                    // textContent instead so it can never be parsed as HTML.
+                    anggotaList.innerHTML = '';
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'px-4 py-2 text-sm text-gray-500';
+                    emptyState.textContent = `Tidak ada hasil untuk "${term}"`;
+                    anggotaList.appendChild(emptyState);
                     anggotaBox.classList.remove('hidden');
                 }
             } catch (err) {

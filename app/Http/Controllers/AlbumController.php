@@ -11,10 +11,29 @@ use App\Models\User;
 class AlbumController extends Controller
 {
      public function __construct(
-        
+
     ) {
         $this->middleware('auth');
     }
+
+    /**
+     * SECURITY FIX (AUTHZ-VULN-11/14): admin/editor can manage any album;
+     * everyone else (uploader, or any other non-staff role) is restricted
+     * to albums they created. The previous checks only ever tested for the
+     * 'uploader' role specifically, so a non-staff account with a
+     * different role (e.g. a bare "guest") wasn't restricted at all.
+     */
+    private function ensureOwnsAlbumOrStaff(AlbumFoto $album): void
+    {
+        $user = Auth::user();
+        if ($user && $user->hasAnyRole(['admin', 'editor'])) {
+            return;
+        }
+        if (!$user || $album->created_by !== $user->id) {
+            abort(403, 'Anda tidak memiliki akses ke album ini.');
+        }
+    }
+
     public function index()
     {
         
@@ -22,7 +41,7 @@ class AlbumController extends Controller
             ->withCount('fotos')
             ->latest();
 
-        if (auth()->user()?->hasAnyRole(['uploader'])) {
+        if (auth()->user() && !auth()->user()->hasAnyRole(['admin', 'editor'])) {
             $query->where('created_by', Auth::id());
         }
 
@@ -32,6 +51,8 @@ class AlbumController extends Controller
     }
     public function show(AlbumFoto $album, Request $request)
     {
+        $this->ensureOwnsAlbumOrStaff($album);
+
         $query = $album->fotos()
             ->with(['komisiDpr', 'anggotaDpr'])
             ->when($request->search, function($q) use ($request) {
@@ -56,6 +77,8 @@ class AlbumController extends Controller
     }
     public function edit(AlbumFoto $album)
         {
+            $this->ensureOwnsAlbumOrStaff($album);
+
             $komisi = KomisiDpr::all();
             $event = Event::whereMonth('tanggal', now()->month) ->whereYear('tanggal', now()->year)->get();
             return view('albums.edit', compact('album','komisi','event'));
@@ -63,13 +86,7 @@ class AlbumController extends Controller
 
     public function update(Request $request, AlbumFoto $album)
         {
-            // SECURITY FIX: uploaders only see their own albums in index(),
-            // but update()/destroy() had no equivalent check, so any
-            // uploader could edit/delete another user's album just by
-            // guessing/enumerating the album id in the URL.
-            if (auth()->user()?->hasAnyRole(['uploader']) && $album->created_by !== Auth::id()) {
-                abort(403, 'Anda tidak memiliki akses untuk mengubah album ini.');
-            }
+            $this->ensureOwnsAlbumOrStaff($album);
 
             $validated = $request->validate([
                 'nama_album' => 'required|string|max:255',
@@ -85,10 +102,7 @@ class AlbumController extends Controller
 
     public function destroy(AlbumFoto $album)
         {
-            // SECURITY FIX: same missing ownership check as update() above.
-            if (auth()->user()?->hasAnyRole(['uploader']) && $album->created_by !== Auth::id()) {
-                abort(403, 'Anda tidak memiliki akses untuk menghapus album ini.');
-            }
+            $this->ensureOwnsAlbumOrStaff($album);
 
             $album->delete();
 

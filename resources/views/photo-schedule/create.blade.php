@@ -235,18 +235,30 @@
                 preview.classList.remove('hidden');
                 submitBtn.disabled = false;
                 
-                let listHtml = '<ul class="list-disc list-inside">';
+                // SECURITY FIX: judul used to be concatenated into an HTML
+                // string and assigned to innerHTML, which executes any
+                // markup a photo's judul contains (stored XSS against every
+                // admin/editor who opens this page). Building the list with
+                // DOM methods + textContent means judul is only ever
+                // treated as plain text, never parsed as HTML.
+                const list = document.createElement('ul');
+                list.className = 'list-disc list-inside';
                 checkboxes.forEach((checkbox, index) => {
                     if (index < 5) { // Tampilkan maksimal 5
-                        listHtml += `<li>${checkbox.dataset.judul} (${checkbox.dataset.mmid})</li>`;
+                        const li = document.createElement('li');
+                        li.textContent = `${checkbox.dataset.judul} (${checkbox.dataset.mmid})`;
+                        list.appendChild(li);
                     }
                 });
                 if (count > 5) {
-                    listHtml += `<li class="text-gray-500">... dan ${count - 5} foto lainnya</li>`;
+                    const li = document.createElement('li');
+                    li.className = 'text-gray-500';
+                    li.textContent = `... dan ${count - 5} foto lainnya`;
+                    list.appendChild(li);
                 }
-                listHtml += '</ul>';
-                
-                selectedList.innerHTML = listHtml;
+
+                selectedList.innerHTML = '';
+                selectedList.appendChild(list);
             } else {
                 preview.classList.add('hidden');
                 submitBtn.disabled = true;

@@ -111,10 +111,10 @@ class ArtikelPublishController extends Controller
             }
             $validated['foto'] = $request->file('foto')->store('artikel', 'public');
         }
-        else{
-            $validated['foto']=$request->input('old_foto');
-
-        }
+        // SECURITY FIX (INJ-VULN-10): see ArtikelController::update() — do
+        // not trust a client-supplied `old_foto` field; leaving 'foto'
+        // untouched when no new file is uploaded keeps the DB value as-is
+        // and closes the path-poisoning-then-delete attack chain.
 
         // SECURITY FIX: same rich-text sanitization as store() above.
         $validated['isi'] = sanitize_rich_text($validated['isi']);
