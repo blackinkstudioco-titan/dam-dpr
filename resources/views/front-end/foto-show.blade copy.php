@@ -39,7 +39,7 @@
                               {{-- Image Container --}}
                               <div class="relative bg-gray-900 rounded-lg overflow-hidden">
                                   <img
-                                      src="{{ $dataFoto->foto_url }}"
+                                      src="{{ $foto->thumbnail_url }}"
                                       alt="{{ $dataFoto->judul }}"
                                       class="w-full h-auto max-h-[500px] object-contain"
                                       id="mainImage"

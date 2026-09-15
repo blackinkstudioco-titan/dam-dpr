@@ -8,6 +8,13 @@
 
     RewriteEngine On
 
+    # [FIX] Blokir akses langsung ke foto ukuran asli — hanya thumbnails
+    # yang boleh diserve statis. Original hanya boleh lewat
+    # DataFotoController::download() (PHP baca file langsung, tidak
+    # lewat URL ini, jadi tidak kena rule ini).
+    RewriteCond %{REQUEST_URI} ^/storage/.*/photos/ [NC]
+    RewriteRule .* - [F,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
