@@ -243,20 +243,29 @@
                 preview.classList.remove('hidden');
                 submitBtn.disabled = false;
                 
-                let listHtml = '<ul class="list-disc list-inside">';
+                // SECURITY FIX: see photo-schedule/create.blade.php — judul
+                // was concatenated into an HTML string and assigned to
+                // innerHTML (stored XSS). DOM methods + textContent fix it.
+                const list = document.createElement('ul');
+                list.className = 'list-disc list-inside';
                 checkboxes.forEach((checkbox, index) => {
                     if (index < 5) {
                         const judul = checkbox.dataset.judul;
                         const displayJudul = judul.length > 50 ? judul.substring(0, 50) + '...' : judul;
-                        listHtml += `<li>${displayJudul}</li>`;
+                        const li = document.createElement('li');
+                        li.textContent = displayJudul;
+                        list.appendChild(li);
                     }
                 });
                 if (count > 5) {
-                    listHtml += `<li class="text-gray-500">... dan ${count - 5} artikel lainnya</li>`;
+                    const li = document.createElement('li');
+                    li.className = 'text-gray-500';
+                    li.textContent = `... dan ${count - 5} artikel lainnya`;
+                    list.appendChild(li);
                 }
-                listHtml += '</ul>';
-                
-                selectedList.innerHTML = listHtml;
+
+                selectedList.innerHTML = '';
+                selectedList.appendChild(list);
             } else {
                 preview.classList.add('hidden');
                 submitBtn.disabled = true;

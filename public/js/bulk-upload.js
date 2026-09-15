@@ -14,6 +14,15 @@ window.bulkUploadState = {
     formData: {}
 };
 
+// SECURITY FIX (same class of bug as XSS-VULN-08): fileData.file_name is the
+// original filename supplied by whoever picked the file in their browser —
+// fully attacker-controlled — and gets interpolated into HTML strings below.
+function escapeHtmlAttr(value) {
+    return String(value ?? '').replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+}
+
 // ===========================
 // STEP NAVIGATION (GLOBAL)
 // ===========================
@@ -384,25 +393,26 @@ $(document).ready(function() {
     
     // Add file preview
     function addFilePreview(fileData) {
+        // SECURITY FIX: escape file_name at every interpolation point.
         const preview = `
-            <div class="relative group" data-file-id="${fileData.file_id}">
-                <img src="${fileData.thumbnail_url}" 
-                     alt="${fileData.file_name}" 
+            <div class="relative group" data-file-id="${escapeHtmlAttr(fileData.file_id)}">
+                <img src="${escapeHtmlAttr(fileData.thumbnail_url)}"
+                     alt="${escapeHtmlAttr(fileData.file_name)}"
                      class="w-full h-32 object-cover rounded-lg border-2 border-gray-200">
                 <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center">
-                    <button type="button" 
+                    <button type="button"
                             class="btn-remove-file opacity-0 group-hover:opacity-100 bg-red-600 text-white p-2 rounded-full hover:bg-red-700"
-                            data-file-id="${fileData.file_id}">
+                            data-file-id="${escapeHtmlAttr(fileData.file_id)}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                     </button>
                 </div>
-                <p class="text-xs text-gray-600 mt-1 truncate">${fileData.file_name}</p>
+                <p class="text-xs text-gray-600 mt-1 truncate">${escapeHtmlAttr(fileData.file_name)}</p>
                 <p class="text-xs text-gray-400">${formatFileSize(fileData.file_size)}</p>
             </div>
         `;
-        
+
         $('#uploadedFiles').append(preview);
     }
     
@@ -412,11 +422,15 @@ $(document).ready(function() {
         const fileData = uploadedFiles.find(f => f.file_id === fileId);
         
         if(confirm('Hapus foto ini?')) {
+            // SECURITY FIX: the server now resolves which files to delete
+            // from its own upload receipt (keyed by file_id) instead of
+            // trusting a client-supplied paths[] array, so only file_id is
+            // sent here now — see BulkUploadController::deleteFile().
             $.ajax({
                 url: '/foto/bulk-upload/delete-file',
                 method: 'POST',
                 data: {
-                    paths: [fileData.original_path, fileData.thumbnail_path],
+                    file_id: fileId,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function() {
@@ -474,28 +488,29 @@ $(document).ready(function() {
     
     // Create metadata form for each photo
     function createMetadataForm(fileData, index) {
+        // SECURITY FIX: escape file_name at every interpolation point.
         return `
             <div class="border border-gray-200 rounded-lg p-4 bg-gray-50" data-form-index="${index}">
                 <div class="flex gap-4 mb-4">
-                    <img src="${fileData.thumbnail_url}" 
-                         alt="${fileData.file_name}" 
+                    <img src="${escapeHtmlAttr(fileData.thumbnail_url)}"
+                         alt="${escapeHtmlAttr(fileData.file_name)}"
                          class="w-24 h-24 object-cover rounded-lg border-2 border-gray-300">
                     <div class="flex-1">
                         <h3 class="font-semibold text-gray-800 mb-1">Foto ${index + 1}</h3>
-                        <p class="text-sm text-gray-600">${fileData.file_name}</p>
+                        <p class="text-sm text-gray-600">${escapeHtmlAttr(fileData.file_name)}</p>
                         <p class="text-xs text-gray-500">${formatFileSize(fileData.file_size)}</p>
                     </div>
                 </div>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">
                             Judul Foto <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" 
-                               name="judul_${index}" 
+                        <input type="text"
+                               name="judul_${index}"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                               value="${fileData.file_name}"
+                               value="${escapeHtmlAttr(fileData.file_name)}"
                                required>
                     </div>
                     

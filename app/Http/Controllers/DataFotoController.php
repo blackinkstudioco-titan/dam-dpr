@@ -184,6 +184,8 @@ class DataFotoController extends Controller
      */
     public function show(DataFoto $dataFoto)
     {
+        $this->ensureCanView($dataFoto);
+
         // Load relationship
         $dataFoto->load(
             'kategori:id,k_name',
@@ -226,10 +228,52 @@ class DataFotoController extends Controller
     }
 
     /**
+     * SECURITY FIX (AUTHZ-VULN-09): mirrors the ownership check already in
+     * edit() — an uploader could not open the edit FORM for someone else's
+     * photo, but could still POST straight to update()/destroy()/
+     * bulkDelete()/togglePublish() for that same photo, since none of them
+     * repeated the check. admin/editor are unrestricted by design. These
+     * write routes already sit behind role:admin,editor,uploader middleware
+     * (see routes/web.php), so any caller reaching here is guaranteed to
+     * have one of those three roles.
+     */
+    private function ensureCanModify(DataFoto $dataFoto): void
+    {
+        if (auth()->user()?->hasAnyRole(['uploader']) && $dataFoto->add_by !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengubah foto ini.');
+        }
+    }
+
+    /**
+     * SECURITY FIX (AUTHZ-VULN-01/12): show()/download() sit behind only
+     * 'auth' (no role middleware — every logged-in account, any role,
+     * including the self-registered "guest" role, can reach them), so
+     * unlike ensureCanModify() above this cannot rely on route-level role
+     * gating. Published photos are visible to any authenticated user
+     * (unchanged business behavior); unpublished photos are restricted to
+     * admin/editor or the uploader who owns them.
+     */
+    private function ensureCanView(DataFoto $dataFoto): void
+    {
+        if ($dataFoto->publish) {
+            return;
+        }
+
+        $user = Auth::user();
+        if ($user && ($user->hasAnyRole(['admin', 'editor']) || $dataFoto->add_by === $user->id)) {
+            return;
+        }
+
+        abort(404, 'Data foto tidak ditemukan.');
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateDataFotoRequest $request, DataFoto $dataFoto)
     {
+        $this->ensureCanModify($dataFoto);
+
         DB::beginTransaction();
 
         try {
@@ -310,6 +354,8 @@ class DataFotoController extends Controller
      */
     public function destroy(DataFoto $dataFoto)
     {
+        $this->ensureCanModify($dataFoto);
+
         DB::beginTransaction();
 
         try {
@@ -346,70 +392,55 @@ class DataFotoController extends Controller
 
     /**
      * Download photo file.
+     *
+     * SECURITY/BUSINESS-LOGIC FIX: this method used to hand out the raw,
+     * un-watermarked original to ANY authenticated user (any role,
+     * including the low-privilege "guest" role), which defeated the whole
+     * point of the watermarking system described for this app — only
+     * admin/editor/uploader should get originals, everyone else should get
+     * a watermarked copy. The watermarking logic already existed in a
+     * download_wm() method, but no route ever pointed to it, so it was
+     * dead code and never actually protected anything. That logic is now
+     * merged into this method (which is the one every view actually links
+     * to), so the intended access control is finally enforced.
      */
-    
     public function download(DataFoto $dataFoto)
     {
+        $this->ensureCanView($dataFoto);
+
         if (!$dataFoto->original_foto_url || !Storage::disk('public')->exists($dataFoto->original_foto_url)) {
             abort(404, 'File tidak ditemukan');
         }
 
-        // Increment download counter
-        $dataFoto->incrementDownload();
-
         $filePath = Storage::disk('public')->path($dataFoto->original_foto_url);
         $fileName = $dataFoto->judul . '_' . $dataFoto->f_lok;
 
-        return response()->download($filePath, $fileName);
-    }
-    
-    public function download_wm(DataFoto $dataFoto)
-    {
-      // ✅ Tingkatkan memory limit untuk proses watermark
-      ini_set('memory_limit', '512M'); // atau '1024M' untuk file sangat besar
-      set_time_limit(300); // 5 menit timeout
-      
-      if (!$dataFoto->original_foto_url) {
-          abort(404, 'Data foto tidak memiliki file.');
-      }
+        $user = Auth::user();
+        $allowedRoles = ['admin', 'editor', 'uploader'];
 
-      $filePath = public_path('storage/' . $dataFoto->original_foto_url);
-      if (!file_exists($filePath)) {
-          abort(404, 'File tidak ditemukan di server.');
-      }
+        // Increment download counter
+        $dataFoto->incrementDownload();
 
-      $dataFoto->incrementDownload();
+        // Admin/editor/uploader get the original file, unmodified.
+        if ($user && in_array($user->role, $allowedRoles)) {
+            return response()->download($filePath, $fileName);
+        }
 
-      //$fileName = $dataFoto->judul . '_' . $dataFoto->f_lok;
-      $fileName=basename($dataFoto->original_foto_url);
-      $user = Auth::user();
-      $allowedRoles = ['admin', 'editor', 'uploader'];
+        // Everyone else (e.g. self-registered "guest" role accounts) gets
+        // a watermarked copy instead of the raw original.
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
 
-      // Jika user memiliki role tertentu, download tanpa watermark
-      if ($user && in_array($user->role, $allowedRoles)) {
-          return response()->download($filePath, $fileName);
-      }
+        $manager = new ImageManager(new Driver());
+        $image = $manager->read($filePath);
 
-      // Jika guest atau user biasa → tambahkan watermark
-      $manager = new ImageManager(new Driver());
-      $image = $manager->read($filePath);
+        $watermarkPath = public_path('images/wm3_dpr_ri_logo.png');
+        if (!file_exists($watermarkPath)) {
+            abort(500, 'Watermark tidak ditemukan.');
+        }
 
-      $watermarkPath = public_path('images/wm3_dpr_ri_logo.png');
-      if (!file_exists($watermarkPath)) {
-          abort(500, 'Watermark tidak ditemukan.');
-      }
-
-      $watermark = $manager->read($watermarkPath);
-
-      // ✅ CARA BARU: Gunakan parameter opacity di place()
-      /*
-      $image->place(
-          element: $watermark,
-          position: 'bottom-right',
-          opacity: 80  // 0-100, dimana 0 = transparan penuh, 100 = opaque penuh
-      );
-      */
-      $watermark->resize(512, null); // Ubah ukuran watermark jika perlu
+        $watermark = $manager->read($watermarkPath);
+        $watermark->resize(512, null);
 
         $image->place(
             $watermark,        // element
@@ -419,18 +450,17 @@ class DataFotoController extends Controller
             80                 // opacity
         );
 
+        $tempPath = storage_path('app/public/temp_' . uniqid() . '.jpg');
+        $tempDir = dirname($tempPath);
 
-      $tempPath = storage_path('app/public/temp_' . uniqid() . '.jpg');
-      $tempDir = dirname($tempPath);
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
 
-      if (!file_exists($tempDir)) {
-          mkdir($tempDir, 0777, true);
-      }
+        $image->save($tempPath);
 
-      $image->save($tempPath);
-
-      return response()->download($tempPath, $fileName)->deleteFileAfterSend(true);
-  }
+        return response()->download($tempPath, $fileName)->deleteFileAfterSend(true);
+    }
 
     /**
      * Increment view counter via AJAX.
@@ -459,6 +489,15 @@ class DataFotoController extends Controller
 
         try {
             $photos = DataFoto::whereIn('id', $request->ids)->get();
+
+            // SECURITY FIX (AUTHZ-VULN-04/16): this route only required
+            // 'auth' (no role check at all), and never checked ownership,
+            // so any authenticated user could mass-delete any photos by id.
+            // The route now also requires role:admin,editor,uploader (see
+            // routes/web.php); this closes the remaining gap for uploaders.
+            foreach ($photos as $photo) {
+                $this->ensureCanModify($photo);
+            }
 
             foreach ($photos as $photo) {
                 // Delete files
@@ -496,6 +535,11 @@ class DataFotoController extends Controller
      */
     public function togglePublish(DataFoto $dataFoto)
     {
+        // SECURITY FIX (AUTHZ-VULN-16): same missing role/ownership check
+        // as bulkDelete() above — the route now also requires
+        // role:admin,editor,uploader (see routes/web.php).
+        $this->ensureCanModify($dataFoto);
+
         try {
             $dataFoto->update([
                 'publish' => !$dataFoto->publish,

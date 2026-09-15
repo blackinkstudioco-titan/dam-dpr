@@ -163,15 +163,18 @@ class ArtikelReportExport implements FromCollection, WithHeadings, WithMapping, 
             $userRole = $artikel->editor ? $artikel->editor->role_name : '-';
         }
 
+        // SECURITY FIX: sanitize free-text fields against Excel/CSV formula
+        // injection (a title like "=cmd|'/c calc'!A0" would otherwise be
+        // interpreted as a formula when the export is opened in Excel).
         return [
             $this->rowNumber,
-            $artikel->event?->nama_event ? $artikel->event->nama_event : '-',
-            $artikel->judul,
-            $artikel->penulis ?? '-',
+            excel_safe($artikel->event?->nama_event ? $artikel->event->nama_event : '-'),
+            excel_safe($artikel->judul),
+            excel_safe($artikel->penulis ?? '-'),
             $artikel->event?->tanggal ? $artikel->event->tanggal->format('d-m-Y H:i') : '-',
-            $artikel->kategori->k_name ?? '-',
-            $artikel->komisiDpr->nama_komisi ?? '-',
-            $artikel->anggota_dpr ?? '-',
+            excel_safe($artikel->kategori->k_name ?? '-'),
+            excel_safe($artikel->komisiDpr->nama_komisi ?? '-'),
+            excel_safe($artikel->anggota_dpr ?? '-'),
             $this->reportType === 'upload' 
                 ? ($artikel->add_date ? $artikel->add_date->format('d-m-Y H:i:s') : '-')
                 : ($artikel->edit_date ? $artikel->edit_date->format('d-m-Y H:i:s') : '-'),

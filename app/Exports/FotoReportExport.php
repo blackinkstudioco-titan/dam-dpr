@@ -118,16 +118,18 @@ class FotoReportExport implements FromQuery, WithHeadings, WithMapping, WithStyl
     {
         $this->rowNumber++;
 
+        // SECURITY FIX: sanitize free-text fields against Excel/CSV formula
+        // injection — see ArtikelReportExport::map() for the rationale.
         return [
             $this->rowNumber,
-            $foto?->event?->nama_event ?? '-',
+            excel_safe($foto?->event?->nama_event ?? '-'),
             $foto?->event?->tanggal ?? '-',
-            $foto->judul,
-            strip_tags($foto->deskrp),
-            $foto->kategori->k_name ?? '-',
-            $foto->album->nama_album ?? '-',
-            $foto->komisiDpr->nama_komisi ?? '-',
-            $foto->anggota_dpr ?? '-',
+            excel_safe($foto->judul),
+            excel_safe(strip_tags($foto->deskrp)),
+            excel_safe($foto->kategori->k_name ?? '-'),
+            excel_safe($foto->album->nama_album ?? '-'),
+            excel_safe($foto->komisiDpr->nama_komisi ?? '-'),
+            excel_safe($foto->anggota_dpr ?? '-'),
             $this->reportType === 'upload' 
                 ? $foto->created_at->format('d-m-Y H:i:s') 
                 : ($foto->edit_date ? $foto->edit_date->format('d-m-Y H:i:s') : '-'),
@@ -136,8 +138,8 @@ class FotoReportExport implements FromQuery, WithHeadings, WithMapping, WithStyl
             $foto->publish == 1 ? 'Published' : 'Draft',
             $foto->view ?? 0,
             $foto->download ?? 0,
-            $foto->k_word,
-            $foto->subyek,
+            excel_safe($foto->k_word),
+            excel_safe($foto->subyek),
         ];
     }
 

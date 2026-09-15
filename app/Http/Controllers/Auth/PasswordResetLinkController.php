@@ -32,13 +32,17 @@ class PasswordResetLinkController extends Controller
         // We will send the password reset link to this user. Once we have attempted
         // to send the link, we will examine the response then see the message we
         // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        //
+        // SECURITY FIX (AUTH-VULN-04): the old code returned a different
+        // response depending on whether Password::sendResetLink() found a
+        // matching account (RESET_LINK_SENT vs. an "we can't find a user
+        // with that email" error attached to the email field). That let
+        // anyone enumerate every registered email address by trying them
+        // here one at a time. We now always show the same generic status,
+        // regardless of whether the email exists — only the account holder
+        // who actually receives the email can tell the difference.
+        Password::sendResetLink($request->only('email'));
 
-        return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                            ->withErrors(['email' => __($status)]);
+        return back()->with('status', __('passwords.sent'));
     }
 }

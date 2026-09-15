@@ -104,25 +104,48 @@ async function uploadFile(file) {
     }
 }
 
+// SECURITY FIX (XSS-VULN-08): file_name is the ORIGINAL filename supplied by
+// whoever picked the file in their browser — fully attacker-controlled — and
+// used to be interpolated straight into innerHTML/onclick strings below.
+// escapeHtmlAttr() neutralizes it wherever it has to end up inside markup.
+function escapeHtmlAttr(value) {
+    return String(value ?? '').replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+}
+
 function updatePreviewArea() {
     const previewArea = document.getElementById('previewArea');
     if (!previewArea) return;
 
-    previewArea.innerHTML = uploadedFiles.map(file => `
-        <div class="relative group">
-            <img src="${file.thumbnail_url}" 
-                 alt="${file.file_name}"
-                 class="w-full h-48 object-cover rounded-lg">
-            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all">
-                <button onclick="removeFile('${file.file_id}')" 
-                        class="absolute top-2 right-2 p-2 bg-red-500 rounded-full opacity-0 group-hover:opacity-100">
-                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-    `).join('');
+    previewArea.innerHTML = '';
+
+    uploadedFiles.forEach(file => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'relative group';
+
+        const img = document.createElement('img');
+        img.src = file.thumbnail_url;
+        img.alt = file.file_name;
+        img.className = 'w-full h-48 object-cover rounded-lg';
+        wrapper.appendChild(img);
+
+        const overlay = document.createElement('div');
+        overlay.className = 'absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all';
+
+        const button = document.createElement('button');
+        button.className = 'absolute top-2 right-2 p-2 bg-red-500 rounded-full opacity-0 group-hover:opacity-100';
+        button.innerHTML = `
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        `;
+        button.addEventListener('click', () => removeFile(file.file_id));
+        overlay.appendChild(button);
+        wrapper.appendChild(overlay);
+
+        previewArea.appendChild(wrapper);
+    });
 
     updateMetadataForms();
 }
@@ -131,15 +154,17 @@ function updateMetadataForms() {
     const container = document.getElementById('metadataContainer');
     if (!container) return;
 
+    // SECURITY FIX (XSS-VULN-08): file.file_name is escaped at every
+    // interpolation point below — see escapeHtmlAttr() above.
     container.innerHTML = uploadedFiles.map((file, index) => `
         <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 mb-4" data-form-index="${index}">
             <div class="flex gap-4 mb-4">
-                <img src="${file.thumbnail_url}" 
-                     alt="${file.file_name}" 
+                <img src="${escapeHtmlAttr(file.thumbnail_url)}"
+                     alt="${escapeHtmlAttr(file.file_name)}"
                      class="w-24 h-24 object-cover rounded-lg">
                 <div>
                     <h3 class="font-medium">Foto ${index + 1}</h3>
-                    <p class="text-sm text-gray-500">${file.file_name}</p>
+                    <p class="text-sm text-gray-500">${escapeHtmlAttr(file.file_name)}</p>
                 </div>
             </div>
 
@@ -148,9 +173,9 @@ function updateMetadataForms() {
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         Judul Foto <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" 
-                           name="judul_${index}" 
-                           value="${file.file_name}"
+                    <input type="text"
+                           name="judul_${index}"
+                           value="${escapeHtmlAttr(file.file_name)}"
                            class="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                 </div>
 
